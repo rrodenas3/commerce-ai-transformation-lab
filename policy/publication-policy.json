@@ -1,0 +1,90 @@
+{
+  "allowed_evidence_statuses": [
+    "research-grounded",
+    "synthetic-observed",
+    "human-reviewed",
+    "hypothetical-impact"
+  ],
+  "allowed_maturities": [
+    "foundation",
+    "specification",
+    "local-mvp",
+    "independently-reviewed-local-mvp",
+    "pilot",
+    "production"
+  ],
+  "current_maturity": "foundation",
+  "required_journey_fields": [
+    "evidence_status",
+    "public_safe",
+    "maturity",
+    "limitations"
+  ],
+  "evidence_artifact_globs": [
+    "README.md",
+    "journey/*.md",
+    "journey/**/*.md",
+    "docs/*.md",
+    "docs/**/*.md"
+  ],
+  "forbidden_file_names": [
+    ".env",
+    "credentials.json",
+    "secrets.json",
+    "id_rsa",
+    "id_ed25519"
+  ],
+  "forbidden_file_suffixes": [
+    ".pem",
+    ".key",
+    ".p12",
+    ".pfx"
+  ],
+  "forbidden_path_globs": [
+    ".env.*",
+    "*.sqlite",
+    "*.sqlite3",
+    "*.db",
+    "tmp/**",
+    "artifacts/private/**",
+    "data/private/**"
+  ],
+  "forbidden_text_patterns": [
+    {
+      "name": "private Windows user path",
+      "pattern": "(?i)[A-Z]:\\\\Users\\\\"
+    },
+    {
+      "name": "private macOS user path",
+      "pattern": "(?<![A-Za-z0-9._:/-])/Users/[A-Za-z0-9._-]+(?:/[^\\s]*)?"
+    },
+    {
+      "name": "private Linux user path",
+      "pattern": "(?<![A-Za-z0-9._:/-])/home/[A-Za-z0-9._-]+(?:/[^\\s]*)?"
+    },
+    {
+      "name": "private key material",
+      "pattern": "-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"
+    },
+    {
+      "name": "GitHub personal access token",
+      "pattern": "\\b(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\\b"
+    },
+    {
+      "name": "OpenAI-style secret key",
+      "pattern": "\\bsk-[A-Za-z0-9_-]{16,}\\b"
+    },
+    {
+      "name": "AWS access key",
+      "pattern": "\\bAKIA[0-9A-Z]{16}\\b"
+    }
+  ],
+  "allowed_binary_files": [],
+  "required_root_files": [
+    "README.md",
+    "SECURITY.md",
+    "docs/EVIDENCE_POLICY.md",
+    "docs/DECISION_LOG.md",
+    "data/README.md"
+  ]
+}
