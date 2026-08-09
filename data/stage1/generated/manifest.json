@@ -1,0 +1,26 @@
+{
+  "artifacts_sha256": {
+    "cases.jsonl": "095ed71c8c8cd0cebafa4828326952370707a58e3a5dcee9a3d1a978e9ffeccc",
+    "oracle.jsonl": "55b0522c78b48c892f5706d4570f846b6d4b9f99b5a2fa82ec21bce7fef7ee67"
+  },
+  "case_count": 24,
+  "case_families": {
+    "authority_boundary": 3,
+    "conflicting_evidence": 3,
+    "delayed_reliable": 3,
+    "duplicate_or_stale": 3,
+    "out_of_scope_risk": 3,
+    "partial_no_stock": 3,
+    "partial_stock_available": 3,
+    "retry_and_verification": 3
+  },
+  "contains_real_data": false,
+  "dataset_role": "public-foundation-discovery",
+  "generated_at": "2026-08-09T10:00:00Z",
+  "generator_name": "scc-01-foundation-case-generator",
+  "generator_seed": 20260809,
+  "generator_version": "1.0.0",
+  "held_out_evaluation_set": false,
+  "policy_id": "SCC-01-RECOVERY-POLICY",
+  "policy_version": "1.0.0"
+}

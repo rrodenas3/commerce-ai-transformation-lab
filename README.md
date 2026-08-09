@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: no implemented workflow, real-user pilot, production deployment, or realised business outcome
+limitations: synthetic Stage 1 calibration only with no recorded human baseline, AI-assisted workflow, executed recovery, pilot, production deployment, or realised business outcome
 ---
 
 # Commerce AI Transformation Lab
@@ -13,7 +13,19 @@ This public laboratory documents, step by step, how a synthetic mid-market comme
 
 The repository is a transformation case, not an autonomous-agent showcase.
 
-> **Current maturity:** Foundation stage. The project definition and public evidence controls exist; no working workflow, real-user pilot, production deployment, or realised business outcome is claimed.
+> **Current maturity:** Foundation stage. A proposed current state, versioned policy, 24-case synthetic discovery system, oracle, deterministic calibration, and pinned manual-run evidence contract now exist. No recorded human baseline, AI-assisted workflow, executed recovery, real-user pilot, production deployment, or realised business outcome is claimed.
+
+## Current evidence snapshot
+
+| Evidence | Result | Meaning |
+| --- | ---: | --- |
+| Public discovery cases | 24 across 8 families | Balanced coverage for design and contract calibration, not a real incident distribution |
+| Transparent rules coverage | 14/24 — 58.3% | Cases receiving a non-abstaining recommendation |
+| Controlled abstention | 10/24 — 41.7% | Conflicting, stale, risky, or unresolved-action cases routed to a stop |
+| Critical control violations | 0 | On the author-designed public calibration set only |
+| Consequential actions and verified recoveries | 0 | The project has not yet built or executed the governed workflow |
+
+The co-designed rules and oracle aligned on all 24 cases. This is an internal contract check, not AI performance, independent validation, or business value.
 
 ## Transformation question
 
@@ -37,8 +49,8 @@ Business outcome
 
 | Stage | Decision to demonstrate | Public status |
 | --- | --- | --- |
-| 0. Foundation | Why this value stream, which outcome, and which evidence boundaries? | **Active** |
-| 1. Baseline | What happens without AI, and where does coordination fail? | Next |
+| 0. Foundation | Why this value stream, which outcome, and which evidence boundaries? | Complete |
+| 1. Baseline | What happens without AI, and where does coordination fail? | **Active — synthetic calibration complete; manual run pending** |
 | 2. Redesign | Which tasks move, which decisions remain human, and why? | Not started |
 | 3. Governed build | Can the minimum vertical slice operate within its authority? | Not started |
 | 4. Evaluation | Does it improve verified resolution without hiding risk or review cost? | Not started |
@@ -87,6 +99,11 @@ Nearby exception types are evaluation variants, not parallel products. See [FIRS
 - [`docs/MEASUREMENT_PLAN.md`](docs/MEASUREMENT_PLAN.md) — baseline, evaluation, and scale-decision logic.
 - [`docs/DELIVERY_ROADMAP.md`](docs/DELIVERY_ROADMAP.md) — stage gates and immediate next steps.
 - [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — durable decisions and their evidence.
+- [`docs/STAGE1_OPERATING_MODEL.md`](docs/STAGE1_OPERATING_MODEL.md) — fictional company boundary, roles, systems, policy, and Raul's decisions.
+- [`docs/STAGE1_CURRENT_STATE.md`](docs/STAGE1_CURRENT_STATE.md) — proposed manual queues, workflow, failure hypotheses, and measures.
+- [`docs/STAGE1_CASE_SYSTEM.md`](docs/STAGE1_CASE_SYSTEM.md) — generated cases, independent oracle contract, and deterministic calibration.
+- [`docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md`](docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md) — fair manual-run protocol and evidence instrument.
+- [`journey/01-stage-1-baseline.md`](journey/01-stage-1-baseline.md) — decisions, observations, failures, and adaptations.
 - [`policy/publication-policy.json`](policy/publication-policy.json) — machine-readable public-safety rules.
 
 ## Public-safety verification
@@ -96,6 +113,13 @@ The repository includes a zero-dependency verifier and CI check for common secre
 ```bash
 python -m unittest discover -s tests -v
 python scripts/verify_public_safety.py
+```
+
+Reproduce the Stage 1 artifacts with:
+
+```bash
+python scripts/generate_stage1_cases.py
+python scripts/stage1_deterministic_baseline.py
 ```
 
 Passing these checks reduces accidental disclosure risk; it is not a security certification.

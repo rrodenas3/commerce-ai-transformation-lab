@@ -1,0 +1,57 @@
+{
+  "artifacts": {
+    "artifact_manifest": {
+      "path": "data/stage1/generated/manifest.json",
+      "sha256": "e63186a7748a5d80c63c306d605d6185f15e7dc59e4a64a39fb2d0d1b733e1c0"
+    },
+    "cases": {
+      "path": "data/stage1/generated/cases.jsonl",
+      "sha256": "095ed71c8c8cd0cebafa4828326952370707a58e3a5dcee9a3d1a978e9ffeccc"
+    },
+    "oracle": {
+      "path": "data/stage1/generated/oracle.jsonl",
+      "sha256": "55b0522c78b48c892f5706d4570f846b6d4b9f99b5a2fa82ec21bce7fef7ee67"
+    },
+    "policy": {
+      "path": "data/stage1/policy.json",
+      "sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d"
+    }
+  },
+  "assigned_case_ids": [
+    "SCC-01-FND-001",
+    "SCC-01-FND-002",
+    "SCC-01-FND-003",
+    "SCC-01-FND-004",
+    "SCC-01-FND-005",
+    "SCC-01-FND-006",
+    "SCC-01-FND-007",
+    "SCC-01-FND-008",
+    "SCC-01-FND-009",
+    "SCC-01-FND-010",
+    "SCC-01-FND-011",
+    "SCC-01-FND-012",
+    "SCC-01-FND-013",
+    "SCC-01-FND-014",
+    "SCC-01-FND-015",
+    "SCC-01-FND-016",
+    "SCC-01-FND-017",
+    "SCC-01-FND-018",
+    "SCC-01-FND-019",
+    "SCC-01-FND-020",
+    "SCC-01-FND-021",
+    "SCC-01-FND-022",
+    "SCC-01-FND-023",
+    "SCC-01-FND-024"
+  ],
+  "dataset_role": "public-foundation-discovery",
+  "oracle": {
+    "version": "1.0.0"
+  },
+  "oracle_exposure_status": "public-oracle-available",
+  "policy": {
+    "policy_id": "SCC-01-RECOVERY-POLICY",
+    "version": "1.0.0"
+  },
+  "run_type": "manual-no-ai",
+  "schema_version": "1.0.0"
+}
