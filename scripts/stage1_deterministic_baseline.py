@@ -18,12 +18,13 @@ from scripts.stage1_case_system import (
     write_jsonl,
     write_utf8_lf,
 )
-from scripts.score_stage1_manual import (
+from scripts.stage1_scoring import (
+    DEFAULT_ALLOWED_TOOLS,
+    DEFAULT_PROHIBITED_TOOLS,
+    ESCALATION_ACTIONS,
+    INSTRUCTIONS_PUBLIC_PATH,
     PUBLIC_ORACLE_EXPOSURE_STATUS,
     RUN_MANIFEST_SCHEMA_VERSION,
-)
-from scripts.stage1_scoring import (
-    ESCALATION_ACTIONS,
     evaluate_decisions,
     write_manual_template,
 )
@@ -45,6 +46,7 @@ def write_manual_run_manifest_template(
     """Write a deterministic, public-safe evidence contract for a manual run."""
     source_manifest_path = generated / "manifest.json"
     policy_path = root / "data" / "stage1" / "policy.json"
+    instructions_path = root / INSTRUCTIONS_PUBLIC_PATH
     source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
     policy = json.loads(policy_path.read_text(encoding="utf-8"))
     oracle_versions = {oracle.get("oracle_version") for oracle in oracles}
@@ -62,6 +64,21 @@ def write_manual_run_manifest_template(
         "dataset_role": source_manifest["dataset_role"],
         "run_type": "manual-no-ai",
         "oracle_exposure_status": PUBLIC_ORACLE_EXPOSURE_STATUS,
+        "run_provenance": {
+            "status": "template-not-a-frozen-run",
+            "run_id": None,
+            "reviewer_code": None,
+            "operator_role": None,
+            "prepared_at_utc": None,
+        },
+        "instructions": {
+            "path": INSTRUCTIONS_PUBLIC_PATH,
+            "sha256": _sha256(instructions_path),
+        },
+        "tool_policy": {
+            "allowed": list(DEFAULT_ALLOWED_TOOLS),
+            "prohibited": list(DEFAULT_PROHIBITED_TOOLS),
+        },
         "policy": {
             "policy_id": policy["policy_id"],
             "version": policy["version"],

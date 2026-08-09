@@ -2,7 +2,7 @@
 evidence_status: synthetic-observed
 public_safe: true
 maturity: foundation
-limitations: deterministic calibration on author-designed public cases with no human baseline, action execution, customer outcome, adoption, or held-out AI evaluation
+limitations: deterministic calibration and a prepared creator-run pack on author-designed public cases, with no completed human baseline, action execution, customer outcome, adoption, or held-out AI evaluation
 ---
 
 # Journey 01 — from concept to a measurable current state
@@ -19,6 +19,7 @@ Stage 0 selected delayed or partial fulfilment to verified customer recovery. St
 - a transparent rules baseline and scorer;
 - a manual baseline protocol and empty data-capture instrument;
 - a deterministic run manifest that freezes the assignment, versions, artifact hashes, run type, and truthful public-oracle exposure status.
+- a case-only creator-run pack that freezes reviewer role, preparation time, tool policy, protocol hash, copied inputs, and blank worksheet before any human handling begins.
 
 No AI-assisted workflow has been built.
 
@@ -59,7 +60,8 @@ Because the rules and oracle encode the same public policy and the cases are aut
 | A stale-source fixture carried the same timestamp as the current sources and relied on a boolean label. | The oracle could appear to enforce freshness while accepting contradictory evidence. | Freshness is now derived from timezone-aware source age, with exact-boundary, future-time, naive-time, and mismatch tests. |
 | `payment.active_chargeback` and a self-reported `VERIFIED` status could bypass authoritative control evidence. | A consequential recovery could be treated as safe from a label rather than canonical state. | Chargeback now forces a specialist stop, and verified refund or reship requires an action-specific payment or reservation postcondition. |
 | Coverage, abstention, and the manual denominator trusted caller-supplied rows or flags. | Difficult cases could disappear and a boolean could manufacture a better result. | IDs must be complete and unique, abstention is derived from the action, critical controls are named, and every manual run is scored against a frozen assignment manifest. |
-| Only cases and the oracle were checked for committed-artifact drift. | A stale summary or worksheet could remain public while tests passed. | The complete generated evidence set is reproduced byte-for-byte; 41 automated checks now pass alongside the public-safety verifier. |
+| Only cases and the oracle were checked for committed-artifact drift. | A stale summary or worksheet could remain public while tests passed. | The complete generated evidence set is reproduced byte-for-byte and checked alongside the public-safety verifier. |
+| A blank worksheet and generic manifest still depended on manual copying and self-reported provenance. | A result could be attached to substituted files, a different reviewer, or a manifest created after the answers. | A preparation command now creates a new case-only directory, freezes role/time/tool/instruction provenance, refuses overwrite, and makes the scorer bind exact paths and source hashes. |
 
 ## Evidence safe to show
 
@@ -69,6 +71,7 @@ Because the rules and oracle encode the same public policy and the cases are aut
 - example records using `SYN-*` identifiers;
 - deterministic decision and score traces;
 - the pinned, public-safe manual-run evidence contract;
+- the prepared but blank creator-run case pack and its frozen manifest;
 - automated test and public-safety results.
 
 No real names, organisations, orders, tracking IDs, communications, reviewer identities, or former-company details are used.
@@ -77,4 +80,4 @@ No real names, organisations, orders, tracking IDs, communications, reviewer ide
 
 This remains a **foundation-stage synthetic transformation laboratory**. Stage 1 is active, not complete.
 
-The next evidence gate is a recorded manual baseline using the case-only pack and the provided worksheet. Only after manual observations are preserved should the project redesign human and AI work in Stage 2.
+The next evidence gate is personal completion of the frozen creator-run worksheet without generative AI or answer-file consultation, followed by scoring and publication of the unedited source record. Only after those manual observations are preserved should the project redesign human and AI work in Stage 2.

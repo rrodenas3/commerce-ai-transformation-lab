@@ -56,12 +56,26 @@
     "policy_id": "SCC-01-RECOVERY-POLICY",
     "version": "1.0.0"
   },
+  "run_files": {
+    "case_pack": {
+      "path": "case-pack.jsonl",
+      "sha256": "5ddbb03320cec090c61c133d02ccf0cc2ad0c5b5f3eb217d7558b3ec0ef4a350"
+    },
+    "policy_copy": {
+      "path": "policy.json",
+      "sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d"
+    },
+    "records_template": {
+      "path": "manual-records.csv",
+      "sha256": "abf5411aa520f8525cb996c56e5001e4e28326eafd81d100b7bb659869858ae1"
+    }
+  },
   "run_provenance": {
-    "operator_role": null,
-    "prepared_at_utc": null,
-    "reviewer_code": null,
-    "run_id": null,
-    "status": "template-not-a-frozen-run"
+    "operator_role": "creator",
+    "prepared_at_utc": "2026-08-09T08:49:50Z",
+    "reviewer_code": "CREATOR-01",
+    "run_id": "scc-01-creator-manual-001",
+    "status": "prepared"
   },
   "run_type": "manual-no-ai",
   "schema_version": "1.1.0",

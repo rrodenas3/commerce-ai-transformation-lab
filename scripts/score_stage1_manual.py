@@ -6,29 +6,39 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import json
 import os
+import re
 import statistics
+import subprocess
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.stage1_case_system import read_jsonl
+from scripts.stage1_case_system import write_utf8_lf
 from scripts.stage1_scoring import (
     ALLOWED_MANUAL_RUN_TYPES,
+    DEFAULT_ALLOWED_TOOLS,
+    DEFAULT_PROHIBITED_TOOLS,
     ESCALATION_ACTIONS,
+    INSTRUCTIONS_PUBLIC_PATH,
+    MANUAL_RUN_TYPE_BY_OPERATOR_ROLE,
+    PUBLIC_ORACLE_EXPOSURE_STATUS,
     REQUIRED_MANUAL_FIELDS,
+    REVIEWER_CODE_PATTERN,
+    RUN_ID_PATTERN,
+    RUN_MANIFEST_SCHEMA_VERSION,
     evaluate_decisions,
 )
 
 
-RUN_MANIFEST_SCHEMA_VERSION = "1.0.0"
-PUBLIC_ORACLE_EXPOSURE_STATUS = "public-oracle-available"
 REQUIRED_PINNED_ARTIFACTS = {"cases", "oracle", "policy", "artifact_manifest"}
+REQUIRED_RUN_FILES = {"case_pack", "policy_copy", "records_template"}
 
 
 def _utc_timestamp(value: Any, field: str) -> datetime:
@@ -47,6 +57,68 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _read_snapshot(path: Path, name: str) -> bytes:
+    if not path.is_file():
+        raise ValueError(f"required {name} artifact does not exist: {path}")
+    return path.read_bytes()
+
+
+def _snapshot_text(value: bytes, name: str) -> str:
+    try:
+        return value.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ValueError(f"{name} must be valid UTF-8") from error
+
+
+def _snapshot_json(value: bytes, name: str) -> dict[str, Any]:
+    try:
+        parsed = json.loads(_snapshot_text(value, name))
+    except json.JSONDecodeError as error:
+        raise ValueError(f"{name} must be valid JSON") from error
+    if not isinstance(parsed, dict):
+        raise ValueError(f"{name} must be a JSON object")
+    return parsed
+
+
+def _snapshot_jsonl(value: bytes, name: str) -> list[dict[str, Any]]:
+    try:
+        parsed = [
+            json.loads(line)
+            for line in _snapshot_text(value, name).splitlines()
+            if line
+        ]
+    except json.JSONDecodeError as error:
+        raise ValueError(f"{name} must be valid JSONL") from error
+    if any(not isinstance(item, dict) for item in parsed):
+        raise ValueError(f"{name} JSONL rows must be objects")
+    return parsed
+
+
+def _parse_manual_records_snapshot(value: bytes) -> list[dict[str, str]]:
+    if value.startswith(b"\xef\xbb\xbf"):
+        raise ValueError("manual records CSV must not contain a UTF-8 BOM")
+    if b"\r" in value:
+        raise ValueError("manual records CSV must use LF-only line endings")
+    if not value.endswith(b"\n"):
+        raise ValueError("manual records CSV must end with a final LF")
+    text = _snapshot_text(value, "manual records CSV")
+    return list(csv.DictReader(io.StringIO(text, newline="")))
+
+
+def _validated_sha256(value: Any, field: str) -> str:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise ValueError(f"{field} requires a lowercase SHA-256 digest")
+    return value
+
+
 def _validated_artifact_pins(run_metadata: dict[str, Any]) -> dict[str, dict[str, str]]:
     pins = run_metadata.get("artifacts")
     if not isinstance(pins, dict) or set(pins) != REQUIRED_PINNED_ARTIFACTS:
@@ -62,15 +134,85 @@ def _validated_artifact_pins(run_metadata: dict[str, Any]) -> dict[str, dict[str
         digest = pin.get("sha256")
         if not isinstance(path, str) or not path:
             raise ValueError(f"run manifest artifact '{name}' requires a path")
+        validated[name] = {
+            "path": path,
+            "sha256": _validated_sha256(
+                digest, f"run manifest artifact '{name}'"
+            ),
+        }
+    return validated
+
+
+def _validated_run_provenance(run_metadata: dict[str, Any]) -> dict[str, Any]:
+    provenance = run_metadata.get("run_provenance")
+    required = {
+        "status",
+        "run_id",
+        "reviewer_code",
+        "operator_role",
+        "prepared_at_utc",
+    }
+    if not isinstance(provenance, dict) or set(provenance) != required:
+        raise ValueError("run manifest requires complete run_provenance")
+    if provenance.get("status") != "prepared":
+        raise ValueError("manual run manifest must have prepared status")
+    run_id = provenance.get("run_id")
+    reviewer_code = provenance.get("reviewer_code")
+    if not isinstance(run_id, str) or not RUN_ID_PATTERN.fullmatch(run_id):
+        raise ValueError("invalid run_id")
+    if not isinstance(reviewer_code, str) or not REVIEWER_CODE_PATTERN.fullmatch(
+        reviewer_code
+    ):
+        raise ValueError("invalid reviewer_code")
+    role = provenance.get("operator_role")
+    expected_type = MANUAL_RUN_TYPE_BY_OPERATOR_ROLE.get(role)
+    if expected_type is None:
+        raise ValueError("unsupported operator_role")
+    if run_metadata.get("run_type") != expected_type:
+        raise ValueError("operator_role does not match run_type")
+    prepared_at = _utc_timestamp(
+        provenance.get("prepared_at_utc"), "run_provenance.prepared_at_utc"
+    )
+
+    instructions = run_metadata.get("instructions")
+    if not isinstance(instructions, dict) or set(instructions) != {"path", "sha256"}:
+        raise ValueError("run manifest requires an instructions pin")
+    if instructions.get("path") != INSTRUCTIONS_PUBLIC_PATH:
+        raise ValueError("run manifest instructions path is unsupported")
+    _validated_sha256(instructions.get("sha256"), "run manifest instructions")
+
+    tool_policy = run_metadata.get("tool_policy")
+    if tool_policy != {
+        "allowed": list(DEFAULT_ALLOWED_TOOLS),
+        "prohibited": list(DEFAULT_PROHIBITED_TOOLS),
+    }:
+        raise ValueError("run manifest tool_policy does not match the protocol")
+    return {**provenance, "prepared_at": prepared_at}
+
+
+def _validated_run_files(run_metadata: dict[str, Any]) -> dict[str, dict[str, str]]:
+    run_files = run_metadata.get("run_files")
+    if not isinstance(run_files, dict) or set(run_files) != REQUIRED_RUN_FILES:
+        raise ValueError(
+            "run manifest run_files must pin case_pack, policy_copy, and records_template"
+        )
+    validated: dict[str, dict[str, str]] = {}
+    for name in sorted(REQUIRED_RUN_FILES):
+        pin = run_files.get(name)
+        if not isinstance(pin, dict) or set(pin) != {"path", "sha256"}:
+            raise ValueError(f"run file '{name}' must pin path and sha256")
+        path = pin.get("path")
         if (
-            not isinstance(digest, str)
-            or len(digest) != 64
-            or any(character not in "0123456789abcdef" for character in digest)
+            not isinstance(path, str)
+            or not path
+            or Path(path).is_absolute()
+            or ".." in Path(path).parts
         ):
-            raise ValueError(
-                f"run manifest artifact '{name}' requires a lowercase SHA-256 digest"
-            )
-        validated[name] = {"path": path, "sha256": digest}
+            raise ValueError(f"run file '{name}' requires a safe relative path")
+        validated[name] = {
+            "path": path,
+            "sha256": _validated_sha256(pin.get("sha256"), f"run file '{name}'"),
+        }
     return validated
 
 
@@ -78,7 +220,7 @@ def _validate_run_metadata(
     run_metadata: dict[str, Any],
     cases: list[dict[str, Any]],
     oracles: list[dict[str, Any]],
-) -> tuple[list[str], dict[str, dict[str, str]]]:
+) -> tuple[list[str], dict[str, dict[str, str]], dict[str, Any]]:
     if not isinstance(run_metadata, dict):
         raise ValueError("manual run manifest must be a JSON object")
     if run_metadata.get("schema_version") != RUN_MANIFEST_SCHEMA_VERSION:
@@ -94,6 +236,7 @@ def _validate_run_metadata(
         "dataset_role"
     ]:
         raise ValueError("run manifest requires dataset_role")
+    run_provenance = _validated_run_provenance(run_metadata)
 
     policy = run_metadata.get("policy")
     oracle = run_metadata.get("oracle")
@@ -117,8 +260,10 @@ def _validate_run_metadata(
     oracle_ids = [item.get("case_id") for item in oracles]
     if len(set(case_ids)) != len(case_ids) or len(set(oracle_ids)) != len(oracle_ids):
         raise ValueError("cases and oracles must contain unique case IDs")
-    missing_cases = [case_id for case_id in assigned if case_id not in set(case_ids)]
-    missing_oracles = [case_id for case_id in assigned if case_id not in set(oracle_ids)]
+    case_id_set = set(case_ids)
+    oracle_id_set = set(oracle_ids)
+    missing_cases = [case_id for case_id in assigned if case_id not in case_id_set]
+    missing_oracles = [case_id for case_id in assigned if case_id not in oracle_id_set]
     if missing_cases or missing_oracles:
         raise ValueError(
             "assigned cases are absent from pinned artifacts: "
@@ -141,7 +286,7 @@ def _validate_run_metadata(
             raise ValueError(f"oracle {case_id} does not match pinned policy version")
         if case_oracle.get("oracle_version") != oracle["version"]:
             raise ValueError(f"oracle {case_id} does not match pinned oracle version")
-    return assigned, pins
+    return assigned, pins, run_provenance
 
 
 def _integer(record: dict[str, Any], field: str, *, minimum: int = 0) -> int:
@@ -176,6 +321,7 @@ def _normalize_record(record: dict[str, str]) -> dict[str, Any]:
         )
     return {
         **record,
+        "_started_at": started,
         "active_handling_seconds": active_handling_seconds,
         "confidence_1_to_5": confidence,
         "handoff_count": _integer(record, "handoff_count"),
@@ -204,19 +350,81 @@ def _decision_from_record(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _validate_preparation_anchor(
+    anchor: dict[str, Any],
+    current_manifest_snapshot: bytes,
+    earliest_handling_start: datetime,
+) -> dict[str, str]:
+    required = {
+        "commit_sha",
+        "commit_timestamp_utc",
+        "manifest_snapshot",
+        "records_template_snapshot",
+    }
+    if not isinstance(anchor, dict) or set(anchor) != required:
+        raise ValueError("preparation anchor is incomplete")
+    commit_sha = anchor.get("commit_sha")
+    if not isinstance(commit_sha, str) or not re.fullmatch(
+        r"[0-9a-f]{40}|[0-9a-f]{64}", commit_sha
+    ):
+        raise ValueError("preparation anchor commit SHA is invalid")
+    manifest_snapshot = anchor.get("manifest_snapshot")
+    records_template_snapshot = anchor.get("records_template_snapshot")
+    if not isinstance(manifest_snapshot, bytes) or not isinstance(
+        records_template_snapshot, bytes
+    ):
+        raise ValueError("preparation anchor snapshots must be bytes")
+    if manifest_snapshot != current_manifest_snapshot:
+        raise ValueError(
+            "committed preparation manifest does not exactly match the current manifest"
+        )
+    anchored_manifest = _snapshot_json(
+        manifest_snapshot, "committed preparation manifest"
+    )
+    anchored_run_files = _validated_run_files(anchored_manifest)
+    expected_template_digest = anchored_run_files["records_template"]["sha256"]
+    if _sha256_bytes(records_template_snapshot) != expected_template_digest:
+        raise ValueError(
+            "committed blank records template does not match the anchored manifest"
+        )
+    commit_timestamp = _utc_timestamp(
+        anchor.get("commit_timestamp_utc"), "preparation commit timestamp"
+    )
+    if commit_timestamp > earliest_handling_start:
+        raise ValueError("preparation commit must precede handling starts")
+    return {
+        "preparation_commit_sha": commit_sha,
+        "preparation_commit_timestamp_utc": anchor["commit_timestamp_utc"],
+        "anchored_run_manifest_sha256": _sha256_bytes(manifest_snapshot),
+    }
+
+
 def score_manual_records(
     cases: list[dict[str, Any]],
     oracles: list[dict[str, Any]],
     records: list[dict[str, str]],
     *,
     run_metadata: dict[str, Any],
+    preparation_anchor: dict[str, Any] | None = None,
+    run_manifest_snapshot: bytes | None = None,
 ) -> dict[str, Any]:
     if not records:
         raise ValueError("at least one completed manual record is required")
-    assigned_case_ids, artifact_pins = _validate_run_metadata(
+    assigned_case_ids, artifact_pins, run_provenance = _validate_run_metadata(
         run_metadata, cases, oracles
     )
     normalized = [_normalize_record(record) for record in records]
+    anchor_provenance: dict[str, str] = {}
+    if preparation_anchor is not None:
+        if run_manifest_snapshot is None:
+            raise ValueError(
+                "run manifest snapshot is required with a preparation anchor"
+            )
+        anchor_provenance = _validate_preparation_anchor(
+            preparation_anchor,
+            run_manifest_snapshot,
+            min(record["_started_at"] for record in normalized),
+        )
     completed_case_ids = [record["case_id"] for record in normalized]
     if len(set(completed_case_ids)) != len(normalized):
         raise ValueError("manual records must contain unique case IDs")
@@ -245,6 +453,13 @@ def score_manual_records(
     run_types = {record["run_type"] for record in normalized}
     if run_types != {run_metadata["run_type"]}:
         raise ValueError("every manual record run_type must match the run manifest")
+    reviewer_codes = {record["reviewer_code"] for record in normalized}
+    if reviewer_codes != {run_provenance["reviewer_code"]}:
+        raise ValueError("every manual record reviewer_code must match the run manifest")
+    if min(record["_started_at"] for record in normalized) < run_provenance[
+        "prepared_at"
+    ]:
+        raise ValueError("run manifest must be prepared before handling starts")
     baseline_id = run_metadata["run_type"]
     summary = evaluate_decisions(
         selected_cases,
@@ -253,6 +468,7 @@ def score_manual_records(
         baseline_id=baseline_id,
     )
     handling = [record["active_handling_seconds"] for record in normalized]
+    independent_review = run_provenance["operator_role"] == "independent"
     summary.update(
         {
             "active_handling_seconds": {
@@ -267,7 +483,7 @@ def score_manual_records(
                 record["policy_lookup_count"] for record in normalized
             ),
             "help_requested_count": sum(record["help_requested"] for record in normalized),
-            "reviewer_count": len({record["reviewer_code"] for record in normalized}),
+            "reviewer_count": len(reviewer_codes),
             "assigned_case_count": len(assigned_case_ids),
             "completed_case_count": len(completed_case_ids),
             "unresolved_case_count": 0,
@@ -278,6 +494,10 @@ def score_manual_records(
                 "schema_version": run_metadata["schema_version"],
                 "dataset_role": run_metadata.get("dataset_role"),
                 "run_type": run_metadata["run_type"],
+                "run_id": run_provenance["run_id"],
+                "reviewer_code": run_provenance["reviewer_code"],
+                "operator_role": run_provenance["operator_role"],
+                "prepared_at_utc": run_provenance["prepared_at_utc"],
                 "oracle_exposure_status": run_metadata["oracle_exposure_status"],
                 "policy_id": run_metadata["policy"]["policy_id"],
                 "policy_version": run_metadata["policy"]["version"],
@@ -286,11 +506,19 @@ def score_manual_records(
                     name: artifact_pins[name]["sha256"]
                     for name in sorted(artifact_pins)
                 },
+                **anchor_provenance,
             },
             "human_evidence_boundary": (
-                "Creator-run or independent synthetic-case observation according to "
-                "run_type; not organisational adoption or realised business impact."
+                "Independent synthetic-case review; not organisational adoption "
+                "or realised business impact."
+                if independent_review
+                else "Creator-run synthetic-case observation; not independent review, "
+                "organisational adoption, or realised business impact."
             ),
+            "evidence_class": (
+                "human-reviewed" if independent_review else "synthetic-observed"
+            ),
+            "independent_review": independent_review,
         }
     )
     return summary
@@ -301,6 +529,98 @@ def _pinned_path(root: Path, pin: dict[str, str]) -> Path:
     return path if path.is_absolute() else root / path
 
 
+def _run_file_path(run_manifest: Path, pin: dict[str, str]) -> Path:
+    run_root = run_manifest.resolve().parent
+    path = (run_root / pin["path"]).resolve()
+    if os.path.commonpath((str(run_root), str(path))) != str(run_root):
+        raise ValueError("run file path escapes the prepared run directory")
+    return path
+
+
+def _git_output(root: Path, arguments: list[str], label: str) -> bytes:
+    try:
+        result = subprocess.run(
+            ["git", *arguments],
+            cwd=root,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except OSError as error:
+        raise ValueError(f"could not use Git to resolve {label}") from error
+    if result.returncode != 0:
+        raise ValueError(f"could not resolve {label} from Git")
+    return result.stdout
+
+
+def _load_git_preparation_anchor(
+    root: Path,
+    preparation_ref: str,
+    run_manifest: Path,
+) -> dict[str, Any]:
+    if not preparation_ref or preparation_ref.isspace():
+        raise ValueError("--preparation-ref must identify a Git commit")
+    repository_root = root.resolve()
+    try:
+        manifest_repo_path = run_manifest.resolve().relative_to(repository_root)
+    except ValueError as error:
+        raise ValueError("run manifest must be inside the Git repository") from error
+    resolved = _git_output(
+        repository_root,
+        [
+            "rev-parse",
+            "--verify",
+            "--end-of-options",
+            f"{preparation_ref}^{{commit}}",
+        ],
+        "preparation commit",
+    ).decode("ascii", errors="strict").strip()
+    if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", resolved):
+        raise ValueError("Git returned an invalid preparation commit SHA")
+
+    timestamp_text = _git_output(
+        repository_root,
+        ["show", "-s", "--format=%cI", resolved],
+        "preparation commit timestamp",
+    ).decode("ascii", errors="strict").strip()
+    try:
+        timestamp = datetime.fromisoformat(timestamp_text)
+    except ValueError as error:
+        raise ValueError("Git returned an invalid preparation commit timestamp") from error
+    if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+        raise ValueError("Git returned a timezone-free preparation commit timestamp")
+    timestamp_utc = (
+        timestamp.astimezone(timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
+    )
+
+    manifest_snapshot = _git_output(
+        repository_root,
+        ["cat-file", "blob", f"{resolved}:{manifest_repo_path.as_posix()}"],
+        "committed preparation manifest",
+    )
+    anchored_manifest = _snapshot_json(
+        manifest_snapshot, "committed preparation manifest"
+    )
+    anchored_run_files = _validated_run_files(anchored_manifest)
+    records_repo_path = (
+        manifest_repo_path.parent
+        / Path(anchored_run_files["records_template"]["path"])
+    )
+    records_template_snapshot = _git_output(
+        repository_root,
+        ["cat-file", "blob", f"{resolved}:{records_repo_path.as_posix()}"],
+        "committed blank records template",
+    )
+    return {
+        "commit_sha": resolved,
+        "commit_timestamp_utc": timestamp_utc,
+        "manifest_snapshot": manifest_snapshot,
+        "records_template_snapshot": records_template_snapshot,
+    }
+
+
 def _verify_artifact(path: Path, pin: dict[str, str], name: str) -> None:
     if not path.is_file():
         raise ValueError(f"pinned {name} artifact does not exist: {path}")
@@ -309,6 +629,27 @@ def _verify_artifact(path: Path, pin: dict[str, str], name: str) -> None:
         raise ValueError(
             f"pinned {name} SHA-256 mismatch: expected {pin['sha256']}, got {actual}"
         )
+
+
+def _verify_snapshot(
+    value: bytes, pin: dict[str, str], name: str
+) -> None:
+    actual = _sha256_bytes(value)
+    if actual != pin["sha256"]:
+        raise ValueError(
+            f"pinned {name} SHA-256 mismatch: expected {pin['sha256']}, got {actual}"
+        )
+
+
+def _read_named_snapshots(paths: dict[str, Path]) -> dict[str, bytes]:
+    cache: dict[str, bytes] = {}
+    snapshots: dict[str, bytes] = {}
+    for name, path in paths.items():
+        key = os.path.normcase(str(path.resolve()))
+        if key not in cache:
+            cache[key] = _read_snapshot(path, name)
+        snapshots[name] = cache[key]
+    return snapshots
 
 
 def _same_path(left: Path, right: Path) -> bool:
@@ -333,9 +674,14 @@ def main() -> int:
         "--run-manifest", required=True, type=Path, help="Frozen manual run manifest JSON"
     )
     parser.add_argument(
+        "--preparation-ref",
+        required=True,
+        help="Git ref whose commit contains the frozen manifest and blank records template",
+    )
+    parser.add_argument(
         "--policy",
         type=Path,
-        help="Pinned policy JSON; defaults to the run-manifest path pin",
+        help="Prepared policy copy; defaults to the run-manifest run_files pin",
     )
     parser.add_argument(
         "--artifact-manifest",
@@ -344,12 +690,26 @@ def main() -> int:
     )
     arguments = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    run_metadata = json.loads(arguments.run_manifest.read_text(encoding="utf-8"))
+    run_manifest_snapshot = _read_snapshot(
+        arguments.run_manifest, "manual run manifest"
+    )
+    run_metadata = _snapshot_json(run_manifest_snapshot, "manual run manifest")
     pins = _validated_artifact_pins(run_metadata)
-    policy_path = arguments.policy or _pinned_path(root, pins["policy"])
+    run_files = _validated_run_files(run_metadata)
+    case_pack_path = _run_file_path(arguments.run_manifest, run_files["case_pack"])
+    records_path = _run_file_path(arguments.run_manifest, run_files["records_template"])
+    policy_copy_path = _run_file_path(arguments.run_manifest, run_files["policy_copy"])
+    if not _same_path(arguments.cases, case_pack_path):
+        raise ValueError("--cases must use the prepared run case pack")
+    if not _same_path(arguments.input, records_path):
+        raise ValueError("--input must use the prepared run records file")
+    policy_path = arguments.policy or policy_copy_path
+    if not _same_path(policy_path, policy_copy_path):
+        raise ValueError("--policy must use the prepared run policy copy")
     artifact_manifest_path = arguments.artifact_manifest or _pinned_path(
         root, pins["artifact_manifest"]
     )
+    instructions_path = root / run_metadata["instructions"]["path"]
     source_paths = [
         arguments.input,
         arguments.cases,
@@ -357,18 +717,44 @@ def main() -> int:
         arguments.run_manifest,
         policy_path,
         artifact_manifest_path,
+        instructions_path,
     ]
     _reject_output_alias(arguments.output, source_paths)
-    for name, path in {
-        "cases": arguments.cases,
-        "oracle": arguments.oracle,
-        "policy": policy_path,
-        "artifact_manifest": artifact_manifest_path,
-    }.items():
-        _verify_artifact(path, pins[name], name)
+    snapshots = _read_named_snapshots(
+        {
+            "records": arguments.input,
+            "cases": arguments.cases,
+            "oracle": arguments.oracle,
+            "policy": policy_path,
+            "artifact_manifest": artifact_manifest_path,
+            "instructions": instructions_path,
+        }
+    )
+    for name in (
+        "cases",
+        "oracle",
+        "policy",
+        "artifact_manifest",
+    ):
+        _verify_snapshot(snapshots[name], pins[name], name)
+    _verify_snapshot(
+        snapshots["cases"], run_files["case_pack"], "prepared case_pack"
+    )
+    _verify_snapshot(
+        snapshots["policy"], run_files["policy_copy"], "prepared policy_copy"
+    )
+    _verify_snapshot(
+        snapshots["instructions"], run_metadata["instructions"], "instructions"
+    )
+    if run_files["case_pack"]["sha256"] != pins["cases"]["sha256"]:
+        raise ValueError("prepared case_pack hash does not match pinned cases")
+    if run_files["policy_copy"]["sha256"] != pins["policy"]["sha256"]:
+        raise ValueError("prepared policy_copy hash does not match pinned policy")
 
-    policy = json.loads(policy_path.read_text(encoding="utf-8"))
-    artifact_manifest = json.loads(artifact_manifest_path.read_text(encoding="utf-8"))
+    policy = _snapshot_json(snapshots["policy"], "policy")
+    artifact_manifest = _snapshot_json(
+        snapshots["artifact_manifest"], "source artifact manifest"
+    )
     if policy.get("policy_id") != run_metadata.get("policy", {}).get("policy_id"):
         raise ValueError("pinned policy_id does not match the run manifest")
     if policy.get("version") != run_metadata.get("policy", {}).get("version"):
@@ -385,17 +771,29 @@ def main() -> int:
     if manifest_hashes.get("oracle.jsonl") != pins["oracle"]["sha256"]:
         raise ValueError("artifact manifest oracle hash does not match run manifest")
 
-    with arguments.input.open(encoding="utf-8", newline="") as handle:
-        records = list(csv.DictReader(handle))
+    records = _parse_manual_records_snapshot(snapshots["records"])
+    preparation_anchor = _load_git_preparation_anchor(
+        root, arguments.preparation_ref, arguments.run_manifest
+    )
     summary = score_manual_records(
-        read_jsonl(arguments.cases),
-        read_jsonl(arguments.oracle),
+        _snapshot_jsonl(snapshots["cases"], "cases"),
+        _snapshot_jsonl(snapshots["oracle"], "oracle"),
         records,
         run_metadata=run_metadata,
+        preparation_anchor=preparation_anchor,
+        run_manifest_snapshot=run_manifest_snapshot,
+    )
+    summary["manual_run_provenance"].update(
+        {
+            "records_sha256": _sha256_bytes(snapshots["records"]),
+            "records_template_sha256": run_files["records_template"]["sha256"],
+            "run_manifest_sha256": _sha256_bytes(run_manifest_snapshot),
+        }
     )
     arguments.output.parent.mkdir(parents=True, exist_ok=True)
-    arguments.output.write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_utf8_lf(
+        arguments.output,
+        json.dumps(summary, indent=2, sort_keys=True) + "\n",
     )
     print(f"Scored {summary['case_count']} completed manual records.")
     return 0

@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: synthetic Stage 1 calibration only with no recorded human baseline, AI-assisted workflow, executed recovery, pilot, production deployment, or realised business outcome
+limitations: synthetic Stage 1 calibration and a prepared creator-run pack only, with no completed human baseline, AI-assisted workflow, executed recovery, pilot, production deployment, or realised business outcome
 ---
 
 # Commerce AI Transformation Lab
@@ -13,7 +13,7 @@ This public laboratory documents, step by step, how a synthetic mid-market comme
 
 The repository is a transformation case, not an autonomous-agent showcase.
 
-> **Current maturity:** Foundation stage. A proposed current state, versioned policy, 24-case synthetic discovery system, oracle, deterministic calibration, and pinned manual-run evidence contract now exist. No recorded human baseline, AI-assisted workflow, executed recovery, real-user pilot, production deployment, or realised business outcome is claimed.
+> **Current maturity:** Foundation stage. A proposed current state, versioned policy, 24-case synthetic discovery system, oracle, deterministic calibration, and frozen creator-run evidence pack now exist. The pack is prepared but blank. No completed human baseline, AI-assisted workflow, executed recovery, real-user pilot, production deployment, or realised business outcome is claimed.
 
 ## Current evidence snapshot
 
@@ -24,6 +24,7 @@ The repository is a transformation case, not an autonomous-agent showcase.
 | Controlled abstention | 10/24 — 41.7% | Conflicting, stale, risky, or unresolved-action cases routed to a stop |
 | Critical control violations | 0 | On the author-designed public calibration set only |
 | Consequential actions and verified recoveries | 0 | The project has not yet built or executed the governed workflow |
+| Creator manual run | Prepared, not started | Frozen case-only pack; no human-performance result exists |
 
 The co-designed rules and oracle aligned on all 24 cases. This is an internal contract check, not AI performance, independent validation, or business value.
 
@@ -50,7 +51,7 @@ Business outcome
 | Stage | Decision to demonstrate | Public status |
 | --- | --- | --- |
 | 0. Foundation | Why this value stream, which outcome, and which evidence boundaries? | Complete |
-| 1. Baseline | What happens without AI, and where does coordination fail? | **Active — synthetic calibration complete; manual run pending** |
+| 1. Baseline | What happens without AI, and where does coordination fail? | **Active — creator-run pack frozen; completion pending** |
 | 2. Redesign | Which tasks move, which decisions remain human, and why? | Not started |
 | 3. Governed build | Can the minimum vertical slice operate within its authority? | Not started |
 | 4. Evaluation | Does it improve verified resolution without hiding risk or review cost? | Not started |

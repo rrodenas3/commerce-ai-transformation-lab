@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import csv
 import io
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+from scripts.stage1_case_system import write_utf8_lf
 
 
 ESCALATION_ACTIONS = {
@@ -25,6 +28,27 @@ SAFE_MESSAGE_FACTS = {
     "revised_eta_is_estimate",
 }
 ALLOWED_MANUAL_RUN_TYPES = {"manual-no-ai", "manual-no-ai-independent"}
+MANUAL_RUN_TYPE_BY_OPERATOR_ROLE = {
+    "creator": "manual-no-ai",
+    "independent": "manual-no-ai-independent",
+}
+RUN_MANIFEST_SCHEMA_VERSION = "1.1.0"
+PUBLIC_ORACLE_EXPOSURE_STATUS = "public-oracle-available"
+RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
+REVIEWER_CODE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9-]{2,31}$")
+INSTRUCTIONS_PUBLIC_PATH = "docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md"
+DEFAULT_ALLOWED_TOOLS = (
+    "provided case pack",
+    "provided policy",
+    "calculator",
+    "ordinary non-generative search",
+)
+DEFAULT_PROHIBITED_TOOLS = (
+    "generative AI",
+    "oracle consultation during handling",
+    "deterministic answer consultation during handling",
+    "creator coaching during an independent run",
+)
 MANUAL_TEMPLATE_FIELDS = (
     "case_id",
     "reviewer_code",
@@ -239,7 +263,15 @@ def evaluate_decisions(
     }
 
 
-def write_manual_template(path: Path, cases: list[dict[str, Any]]) -> None:
+def write_manual_template(
+    path: Path,
+    cases: list[dict[str, Any]],
+    *,
+    reviewer_code: str = "",
+    run_type: str = "manual-no-ai",
+) -> None:
+    if run_type not in ALLOWED_MANUAL_RUN_TYPES:
+        raise ValueError("unsupported manual run_type")
     handle = io.StringIO(newline="")
     writer = csv.DictWriter(
         handle,
@@ -251,7 +283,8 @@ def write_manual_template(path: Path, cases: list[dict[str, Any]]) -> None:
         writer.writerow(
             {
                 "case_id": case["case_id"],
-                "run_type": "manual-no-ai",
+                "reviewer_code": reviewer_code,
+                "run_type": run_type,
             }
         )
-    path.write_bytes(handle.getvalue().encode("utf-8"))
+    write_utf8_lf(path, handle.getvalue())

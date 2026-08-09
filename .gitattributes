@@ -1,2 +1,4 @@
 data/stage1/policy.json text eol=lf
 data/stage1/generated/* text eol=lf
+data/stage1/runs/** text eol=lf
+docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md text eol=lf
