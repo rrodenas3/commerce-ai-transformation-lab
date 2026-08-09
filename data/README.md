@@ -22,7 +22,8 @@ Large, private, real, scraped, or ambiguous datasets must not be committed.
 - a policy-derived oracle independent of future model output;
 - transparent deterministic recommendations and a calibration summary;
 - an empty manual baseline worksheet;
-- a deterministic manual-run manifest template that pins the cases, oracle, policy, source manifest, versions, assignment order, run type, and truthful oracle-exposure status.
+- a deterministic manual-run manifest template that pins the cases, oracle, policy, protocol, source manifest, versions, assignment order, tool policy, and truthful oracle-exposure status;
+- a preparation command that creates a new case-only run directory with immutable provenance and no copied answer files.
 
 The cases are not a held-out evaluation set and do not reproduce a real retailer's incident distribution.
 
@@ -34,4 +35,4 @@ python scripts/stage1_deterministic_baseline.py
 python -m unittest tests.test_stage1_case_system -v
 ```
 
-Completed manual-run records must use pseudonymous reviewer codes and contain no personal data. Freeze a copy of the generated run manifest before starting, then score explicit pinned artifacts with `scripts/score_stage1_manual.py`; never overwrite the blank template or source CSV.
+Prepared manual runs live under `data/stage1/runs/<run-id>/`. A blank prepared pack remains an instrument, not a human result. Commit and push the complete blank pack before handling starts; retain its public commit URL and full SHA as the required scoring `--preparation-ref`. Completed records must use the frozen pseudonymous reviewer code, canonical UTF-8/LF CSV bytes, and no personal data. Score only the exact prepared files with `scripts/score_stage1_manual.py`; never overwrite the generated source template or frozen manifest.

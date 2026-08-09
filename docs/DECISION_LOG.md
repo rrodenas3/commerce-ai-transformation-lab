@@ -98,3 +98,10 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 - **Status:** Accepted
 - **Decision:** Reproduce and compare every committed generated artifact byte-for-byte, including the manual worksheet and run-manifest template.
 - **Reason:** Passing case-level tests is insufficient if a public summary, manifest, or evidence instrument can drift from its generator.
+
+## D-014 — Prepare manual evidence before observing it
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Create each manual run through a fail-closed preparation command that freezes pseudonymous reviewer identity, creator or independent role, UTC preparation time, tool policy, protocol hash, assignment, copied inputs, and blank worksheet before handling starts.
+- **Reason:** A generic worksheet can be copied, substituted, backfilled, or attached to a newer manifest. Evidence of human work requires provenance that predates the answers and preserves the complete denominator.

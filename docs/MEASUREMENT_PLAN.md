@@ -34,7 +34,7 @@ case inputs
 | Quality | Resolution correctness against an independent case oracle | Synthetic-observed |
 | Governance | Correct escalation and dangerous under-escalation | Synthetic-observed |
 | Communication | Unsupported customer-facing claim rate | Synthetic-observed and human-reviewed |
-| Human work | Review minutes, edits, rejections, overrides, and abstentions | Human-reviewed when people participate |
+| Human work | Review minutes, edits, rejections, overrides, and abstentions | Synthetic-observed for a creator-run lab; human-reviewed only for an independent session |
 | Reliability | Duplicate-action prevention, failure recovery, and postcondition verification | Synthetic-observed |
 | Performance | End-to-end latency and model or infrastructure cost | Synthetic-observed |
 | Enablement | First-use completion, help required, comprehension, and reported friction | Human-reviewed |

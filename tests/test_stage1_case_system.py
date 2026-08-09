@@ -1,10 +1,13 @@
 import copy
+import csv
 import hashlib
 import json
 import tempfile
 import unittest
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.stage1_case_system import (
     CASE_FAMILIES,
@@ -20,13 +23,19 @@ from scripts.stage1_deterministic_baseline import (
     decide_case,
     run_generated_baseline,
 )
+from scripts.prepare_stage1_manual_run import prepare_manual_run
 from scripts.score_stage1_manual import (
+    DEFAULT_ALLOWED_TOOLS,
+    DEFAULT_PROHIBITED_TOOLS,
     PUBLIC_ORACLE_EXPOSURE_STATUS,
     RUN_MANIFEST_SCHEMA_VERSION,
+    _parse_manual_records_snapshot,
+    _validate_preparation_anchor,
     _verify_artifact,
+    main as score_manual_main,
     score_manual_records,
 )
-from scripts.stage1_scoring import evaluate_decisions
+from scripts.stage1_scoring import MANUAL_TEMPLATE_FIELDS, evaluate_decisions
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -376,7 +385,14 @@ class Stage1CaseSystemTests(unittest.TestCase):
             ("unknown assignment", lambda value: value["assigned_case_ids"].append("SCC-01-UNKNOWN"), "absent from pinned artifacts"),
             ("policy version", lambda value: value["policy"].update(version="9.9.9"), "pinned policy version"),
             ("oracle version", lambda value: value["oracle"].update(version="9.9.9"), "pinned oracle version"),
-            ("record run type", lambda value: value.update(run_type="manual-no-ai-independent"), "record run_type"),
+            (
+                "record run type",
+                lambda value: (
+                    value.update(run_type="manual-no-ai-independent"),
+                    value["run_provenance"].update(operator_role="independent"),
+                ),
+                "record run_type",
+            ),
             ("oracle exposure", lambda value: value.update(oracle_exposure_status="blinded"), "oracle_exposure_status"),
         )
 
@@ -402,6 +418,329 @@ class Stage1CaseSystemTests(unittest.TestCase):
             wrong_pin = {"path": str(artifact), "sha256": "0" * 64}
             with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
                 _verify_artifact(artifact, wrong_pin, "cases")
+
+    def test_manual_run_provenance_matches_records_and_precedes_handling(self):
+        case = self.cases[0]
+        oracle = self.oracles[0]
+        record = self._manual_record(case)
+        base = self._run_metadata([case], [oracle])
+
+        reviewer_mismatch = copy.deepcopy(base)
+        reviewer_mismatch["run_provenance"]["reviewer_code"] = "CREATOR-02"
+        with self.assertRaisesRegex(ValueError, "reviewer_code must match"):
+            score_manual_records(
+                [case], [oracle], [record], run_metadata=reviewer_mismatch
+            )
+
+        prepared_after_start = copy.deepcopy(base)
+        prepared_after_start["run_provenance"]["prepared_at_utc"] = (
+            "2026-08-09T10:00:01Z"
+        )
+        with self.assertRaisesRegex(ValueError, "prepared before handling starts"):
+            score_manual_records(
+                [case], [oracle], [record], run_metadata=prepared_after_start
+            )
+
+        independent_creator_run = copy.deepcopy(base)
+        independent_creator_run["run_provenance"]["operator_role"] = "independent"
+        with self.assertRaisesRegex(ValueError, "operator_role does not match run_type"):
+            score_manual_records(
+                [case], [oracle], [record], run_metadata=independent_creator_run
+            )
+
+    def test_prepare_manual_run_freezes_a_case_only_creator_pack(self):
+        prepared_at = datetime(2026, 8, 9, 9, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "scc-01-creator-manual-001"
+            manifest = prepare_manual_run(
+                PROJECT_ROOT,
+                output,
+                run_id="scc-01-creator-manual-001",
+                reviewer_code="CREATOR-01",
+                operator_role="creator",
+                prepared_at=prepared_at,
+            )
+
+            self.assertEqual(
+                {
+                    "case-pack.jsonl",
+                    "manual-records.csv",
+                    "policy.json",
+                    "run-manifest.json",
+                },
+                {path.name for path in output.iterdir()},
+            )
+            self.assertFalse((output / "oracle.jsonl").exists())
+            self.assertFalse((output / "deterministic-decisions.jsonl").exists())
+            self.assertEqual("manual-no-ai", manifest["run_type"])
+            self.assertEqual(
+                {
+                    "operator_role": "creator",
+                    "prepared_at_utc": "2026-08-09T09:00:00Z",
+                    "reviewer_code": "CREATOR-01",
+                    "run_id": "scc-01-creator-manual-001",
+                    "status": "prepared",
+                },
+                manifest["run_provenance"],
+            )
+            self.assertEqual(
+                hashlib.sha256((output / "case-pack.jsonl").read_bytes()).hexdigest(),
+                manifest["run_files"]["case_pack"]["sha256"],
+            )
+            self.assertEqual(
+                hashlib.sha256((output / "policy.json").read_bytes()).hexdigest(),
+                manifest["run_files"]["policy_copy"]["sha256"],
+            )
+            with (output / "manual-records.csv").open(
+                encoding="utf-8", newline=""
+            ) as handle:
+                records = list(csv.DictReader(handle))
+            self.assertEqual(FOUNDATION_CASE_COUNT, len(records))
+            self.assertEqual({"CREATOR-01"}, {row["reviewer_code"] for row in records})
+            self.assertEqual({"manual-no-ai"}, {row["run_type"] for row in records})
+
+    def test_prepare_manual_run_rejects_unsafe_or_overwriting_targets(self):
+        prepared_at = datetime(2026, 8, 9, 9, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory)
+            with self.assertRaisesRegex(ValueError, "invalid run_id"):
+                prepare_manual_run(
+                    PROJECT_ROOT,
+                    parent / "unsafe",
+                    run_id="../unsafe",
+                    reviewer_code="CREATOR-01",
+                    operator_role="creator",
+                    prepared_at=prepared_at,
+                )
+
+            existing = parent / "existing"
+            existing.mkdir()
+            with self.assertRaisesRegex(ValueError, "must not already exist"):
+                prepare_manual_run(
+                    PROJECT_ROOT,
+                    existing,
+                    run_id="scc-01-creator-manual-001",
+                    reviewer_code="CREATOR-01",
+                    operator_role="creator",
+                    prepared_at=prepared_at,
+                )
+
+            with self.assertRaisesRegex(ValueError, "name must match run_id"):
+                prepare_manual_run(
+                    PROJECT_ROOT,
+                    parent / "different-name",
+                    run_id="scc-01-creator-manual-001",
+                    reviewer_code="CREATOR-01",
+                    operator_role="creator",
+                    prepared_at=prepared_at,
+                )
+
+    def test_prepare_manual_run_rejects_stale_source_without_output(self):
+        prepared_at = datetime(2026, 8, 9, 9, 0, tzinfo=timezone.utc)
+        relative_sources = (
+            "data/stage1/generated/cases.jsonl",
+            "data/stage1/generated/oracle.jsonl",
+            "data/stage1/generated/manifest.json",
+            "data/stage1/generated/manual-run-manifest-template.json",
+            "data/stage1/policy.json",
+            "docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "project"
+            for relative in relative_sources:
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((PROJECT_ROOT / relative).read_bytes())
+            with (root / "data/stage1/generated/cases.jsonl").open("ab") as handle:
+                handle.write(b"\n")
+
+            output = Path(directory) / "scc-01-creator-manual-001"
+            with self.assertRaisesRegex(ValueError, "cases SHA-256 is stale"):
+                prepare_manual_run(
+                    root,
+                    output,
+                    run_id="scc-01-creator-manual-001",
+                    reviewer_code="CREATOR-01",
+                    operator_role="creator",
+                    prepared_at=prepared_at,
+                )
+            self.assertFalse(output.exists())
+
+    def test_committed_creator_pack_is_byte_reproducible(self):
+        run_id = "scc-01-creator-manual-001"
+        committed = PROJECT_ROOT / "data" / "stage1" / "runs" / run_id
+        manifest = json.loads(
+            (committed / "run-manifest.json").read_text(encoding="utf-8")
+        )
+        prepared_at = datetime.fromisoformat(
+            manifest["run_provenance"]["prepared_at_utc"].replace("Z", "+00:00")
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            reproduced = Path(directory) / run_id
+            prepare_manual_run(
+                PROJECT_ROOT,
+                reproduced,
+                run_id=run_id,
+                reviewer_code=manifest["run_provenance"]["reviewer_code"],
+                operator_role=manifest["run_provenance"]["operator_role"],
+                prepared_at=prepared_at,
+            )
+            for name in (
+                "case-pack.jsonl",
+                "manual-records.csv",
+                "policy.json",
+                "run-manifest.json",
+            ):
+                with self.subTest(name=name):
+                    self.assertEqual(
+                        (committed / name).read_bytes(),
+                        (reproduced / name).read_bytes(),
+                    )
+
+    def test_preparation_anchor_rejects_manifest_mismatch_and_late_commit(self):
+        blank_records = b"case_id\n"
+        metadata = self._run_metadata([self.cases[0]], [self.oracles[0]])
+        metadata["run_files"] = {
+            "case_pack": {
+                "path": "case-pack.jsonl",
+                "sha256": hashlib.sha256(b"cases").hexdigest(),
+            },
+            "policy_copy": {
+                "path": "policy.json",
+                "sha256": hashlib.sha256(b"policy").hexdigest(),
+            },
+            "records_template": {
+                "path": "manual-records.csv",
+                "sha256": hashlib.sha256(blank_records).hexdigest(),
+            },
+        }
+        manifest_snapshot = (json.dumps(metadata, sort_keys=True) + "\n").encode()
+        anchor = {
+            "commit_sha": "a" * 40,
+            "commit_timestamp_utc": "2026-08-09T09:00:00Z",
+            "manifest_snapshot": manifest_snapshot,
+            "records_template_snapshot": blank_records,
+        }
+        handling_start = datetime(2026, 8, 9, 10, 0, tzinfo=timezone.utc)
+
+        with self.assertRaisesRegex(ValueError, "does not exactly match"):
+            _validate_preparation_anchor(
+                anchor, manifest_snapshot + b"\n", handling_start
+            )
+
+        late_anchor = dict(anchor)
+        late_anchor["commit_timestamp_utc"] = "2026-08-09T10:00:01Z"
+        with self.assertRaisesRegex(ValueError, "precede handling starts"):
+            _validate_preparation_anchor(
+                late_anchor, manifest_snapshot, handling_start
+            )
+
+    def test_manual_records_snapshot_requires_canonical_utf8_lf(self):
+        valid = b"case_id,reviewer_code\nSCC-01-FND-001,REV-01\n"
+        self.assertEqual(1, len(_parse_manual_records_snapshot(valid)))
+        mutations = (
+            ("BOM", b"\xef\xbb\xbf" + valid, "BOM"),
+            ("CRLF", valid.replace(b"\n", b"\r\n"), "LF-only"),
+            ("no final LF", valid[:-1], "final LF"),
+        )
+        for label, value, expected_error in mutations:
+            with self.subTest(label=label):
+                with self.assertRaisesRegex(ValueError, expected_error):
+                    _parse_manual_records_snapshot(value)
+
+    def test_prepared_run_scores_only_its_bound_files_with_source_hashes(self):
+        prepared_at = datetime(2026, 8, 9, 9, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "scc-01-creator-manual-001"
+            prepare_manual_run(
+                PROJECT_ROOT,
+                output,
+                run_id="scc-01-creator-manual-001",
+                reviewer_code="CREATOR-01",
+                operator_role="creator",
+                prepared_at=prepared_at,
+            )
+            records_path = output / "manual-records.csv"
+            blank_records_snapshot = records_path.read_bytes()
+            with records_path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(
+                    handle,
+                    fieldnames=MANUAL_TEMPLATE_FIELDS,
+                    lineterminator="\n",
+                )
+                writer.writeheader()
+                for case in self.cases:
+                    record = self._manual_record(case)
+                    record["reviewer_code"] = "CREATOR-01"
+                    writer.writerow(record)
+
+            summary_path = output / "manual-summary.json"
+            arguments = [
+                "score_stage1_manual.py",
+                "--input",
+                str(records_path),
+                "--output",
+                str(summary_path),
+                "--cases",
+                str(output / "case-pack.jsonl"),
+                "--oracle",
+                str(PROJECT_ROOT / "data" / "stage1" / "generated" / "oracle.jsonl"),
+                "--run-manifest",
+                str(output / "run-manifest.json"),
+                "--preparation-ref",
+                "prepared-commit",
+            ]
+            anchor = {
+                "commit_sha": "a" * 40,
+                "commit_timestamp_utc": "2026-08-09T09:30:00Z",
+                "manifest_snapshot": (output / "run-manifest.json").read_bytes(),
+                "records_template_snapshot": blank_records_snapshot,
+            }
+            with patch("sys.argv", arguments), patch(
+                "scripts.score_stage1_manual._load_git_preparation_anchor",
+                return_value=anchor,
+            ):
+                self.assertEqual(0, score_manual_main())
+
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            self.assertEqual("synthetic-observed", summary["evidence_class"])
+            self.assertFalse(summary["independent_review"])
+            self.assertEqual(
+                hashlib.sha256(records_path.read_bytes()).hexdigest(),
+                summary["manual_run_provenance"]["records_sha256"],
+            )
+            self.assertEqual(
+                hashlib.sha256((output / "run-manifest.json").read_bytes()).hexdigest(),
+                summary["manual_run_provenance"]["run_manifest_sha256"],
+            )
+            self.assertEqual(
+                "a" * 40,
+                summary["manual_run_provenance"]["preparation_commit_sha"],
+            )
+            self.assertEqual(
+                "2026-08-09T09:30:00Z",
+                summary["manual_run_provenance"][
+                    "preparation_commit_timestamp_utc"
+                ],
+            )
+
+            substituted_cases = output / "substituted-cases.jsonl"
+            substituted_cases.write_bytes((output / "case-pack.jsonl").read_bytes())
+            substituted_arguments = arguments.copy()
+            substituted_arguments[substituted_arguments.index("--cases") + 1] = str(
+                substituted_cases
+            )
+            substituted_arguments[substituted_arguments.index("--output") + 1] = str(
+                output / "substituted-summary.json"
+            )
+            with patch("sys.argv", substituted_arguments), patch(
+                "scripts.score_stage1_manual._load_git_preparation_anchor",
+                return_value=anchor,
+            ):
+                with self.assertRaisesRegex(
+                    ValueError, "must use the prepared run case pack"
+                ):
+                    score_manual_main()
 
     def test_scoring_rejects_empty_duplicate_and_mismatched_id_sets(self):
         case = self.cases[0]
@@ -566,6 +905,25 @@ class Stage1CaseSystemTests(unittest.TestCase):
             "dataset_role": "public-foundation-discovery",
             "run_type": run_type,
             "oracle_exposure_status": PUBLIC_ORACLE_EXPOSURE_STATUS,
+            "run_provenance": {
+                "status": "prepared",
+                "run_id": "scc-01-creator-manual-001",
+                "reviewer_code": "REV-01",
+                "operator_role": (
+                    "independent"
+                    if run_type == "manual-no-ai-independent"
+                    else "creator"
+                ),
+                "prepared_at_utc": "2026-08-09T09:00:00Z",
+            },
+            "instructions": {
+                "path": "docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md",
+                "sha256": hashlib.sha256(b"instructions").hexdigest(),
+            },
+            "tool_policy": {
+                "allowed": list(DEFAULT_ALLOWED_TOOLS),
+                "prohibited": list(DEFAULT_PROHIBITED_TOOLS),
+            },
             "policy": {
                 "policy_id": self.policy["policy_id"],
                 "version": self.policy["version"],
