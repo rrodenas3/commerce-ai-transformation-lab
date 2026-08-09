@@ -1,7 +1,7 @@
 {
   "artifacts_sha256": {
-    "cases.jsonl": "095ed71c8c8cd0cebafa4828326952370707a58e3a5dcee9a3d1a978e9ffeccc",
-    "oracle.jsonl": "55b0522c78b48c892f5706d4570f846b6d4b9f99b5a2fa82ec21bce7fef7ee67"
+    "cases.jsonl": "5ddbb03320cec090c61c133d02ccf0cc2ad0c5b5f3eb217d7558b3ec0ef4a350",
+    "oracle.jsonl": "b8924f198672fdc56105d0a99dec2da2d592b62f0edfe058e62af4769324ce6e"
   },
   "case_count": 24,
   "case_families": {

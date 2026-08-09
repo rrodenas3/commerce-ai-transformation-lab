@@ -566,9 +566,14 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
     ]
 
 
+def write_utf8_lf(path: Path, text: str) -> None:
+    """Write canonical UTF-8 bytes without platform newline translation."""
+    path.write_bytes(text.encode("utf-8"))
+
+
 def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
     text = "".join(json.dumps(record, sort_keys=True) + "\n" for record in records)
-    path.write_text(text, encoding="utf-8")
+    write_utf8_lf(path, text)
 
 
 def generate_stage1_artifacts(project_root: Path, output_root: Path) -> dict[str, Any]:
@@ -602,7 +607,8 @@ def generate_stage1_artifacts(project_root: Path, output_root: Path) -> dict[str
             "oracle.jsonl": hashlib.sha256(oracle_path.read_bytes()).hexdigest(),
         },
     }
-    (output_root / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_utf8_lf(
+        output_root / "manifest.json",
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
     )
     return manifest

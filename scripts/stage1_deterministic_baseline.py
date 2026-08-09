@@ -12,7 +12,12 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.stage1_case_system import load_stage1_policy, read_jsonl, write_jsonl
+from scripts.stage1_case_system import (
+    load_stage1_policy,
+    read_jsonl,
+    write_jsonl,
+    write_utf8_lf,
+)
 from scripts.score_stage1_manual import (
     PUBLIC_ORACLE_EXPOSURE_STATUS,
     RUN_MANIFEST_SCHEMA_VERSION,
@@ -79,8 +84,9 @@ def write_manual_run_manifest_template(
             ),
         },
     }
-    (generated / "manual-run-manifest-template.json").write_text(
-        json.dumps(run_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_utf8_lf(
+        generated / "manual-run-manifest-template.json",
+        json.dumps(run_manifest, indent=2, sort_keys=True) + "\n",
     )
 
 
@@ -171,8 +177,9 @@ def run_generated_baseline(root: Path, generated: Path) -> dict[str, Any]:
     decisions = [decide_case(case, policy) for case in cases]
     summary = evaluate_decisions(cases, decisions, oracles, baseline_id=BASELINE_ID)
     write_jsonl(generated / "deterministic-decisions.jsonl", decisions)
-    (generated / "deterministic-summary.json").write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_utf8_lf(
+        generated / "deterministic-summary.json",
+        json.dumps(summary, indent=2, sort_keys=True) + "\n",
     )
     write_manual_template(generated / "manual-baseline-template.csv", cases)
     write_manual_run_manifest_template(root, generated, cases, oracles)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import io
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -239,13 +240,18 @@ def evaluate_decisions(
 
 
 def write_manual_template(path: Path, cases: list[dict[str, Any]]) -> None:
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=MANUAL_TEMPLATE_FIELDS)
-        writer.writeheader()
-        for case in cases:
-            writer.writerow(
-                {
-                    "case_id": case["case_id"],
-                    "run_type": "manual-no-ai",
-                }
-            )
+    handle = io.StringIO(newline="")
+    writer = csv.DictWriter(
+        handle,
+        fieldnames=MANUAL_TEMPLATE_FIELDS,
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    for case in cases:
+        writer.writerow(
+            {
+                "case_id": case["case_id"],
+                "run_type": "manual-no-ai",
+            }
+        )
+    path.write_bytes(handle.getvalue().encode("utf-8"))

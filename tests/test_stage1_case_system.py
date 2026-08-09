@@ -236,6 +236,17 @@ class Stage1CaseSystemTests(unittest.TestCase):
                         (second_root / filename).read_bytes(),
                     )
 
+    def test_generated_artifacts_use_canonical_lf_line_endings(self):
+        with tempfile.TemporaryDirectory() as directory:
+            generated = Path(directory)
+            self._generate_full_artifact_set(generated)
+
+            for filename in GENERATED_FILENAMES:
+                with self.subTest(filename=filename):
+                    content = (generated / filename).read_bytes()
+                    self.assertNotIn(b"\r", content)
+                    self.assertTrue(content.endswith(b"\n"))
+
     def test_every_committed_generated_artifact_matches_full_reproduction(self):
         generated = PROJECT_ROOT / "data" / "stage1" / "generated"
         with tempfile.TemporaryDirectory() as directory:
