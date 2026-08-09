@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: records foundation decisions only; no implemented workflow or evaluated outcome
+limitations: records foundation and Stage 1 synthetic-design decisions without real organisational validation or business outcome
 ---
 
 # Decision log
@@ -49,3 +49,52 @@ limitations: records foundation decisions only; no implemented workflow or evalu
 - **Status:** Accepted
 - **Decision:** Publish decision artifacts, synthetic results, safe screenshots, failures, and adaptations while excluding private context and unsupported implications.
 - **Reason:** Transparent decision quality is the competitive signal; repository volume is not.
+
+## D-007 — Use SCC-01 as the operating context
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Model one fictional domestic-market retailer, channel, warehouse, carrier, currency, and policy version.
+- **Reason:** A clinical identifier and narrow boundary reduce accidental resemblance, public-data risk, and uncontrolled variation.
+
+## D-008 — Freeze policy before model behaviour
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Version authority, freshness, control-stop, and recovery rules before designing an AI-assisted recommendation.
+- **Reason:** Evaluation cannot distinguish judgment from moving policy if the target changes after outputs are seen.
+
+## D-009 — Separate public discovery from held-out evaluation
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Publish 24 balanced discovery cases and their oracle as contract-calibration evidence; create a separately seeded and temporarily sealed set for future evaluation.
+- **Reason:** A public oracle enables transparency and reproducibility but cannot remain blind to future model development.
+
+## D-010 — Do not headline the perfect calibration score
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Describe the 24/24 safe-or-correct result as internal contract alignment and foreground 58.3% non-abstaining coverage, 41.7% controlled abstention, and zero executed actions.
+- **Reason:** Author-designed cases, rules, and oracle are not independent performance evidence.
+
+## D-011 — Derive controls from authoritative state
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Derive freshness from timestamp age, chargeback from the payment record, and prior recovery from action-specific payment or reservation postconditions rather than trusting labels alone.
+- **Reason:** A governed workflow must prove why it stopped or closed a case from canonical evidence; redundant booleans and status labels can silently contradict that evidence.
+
+## D-012 — Freeze every manual-run denominator and artifact set
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Require a public-safe run manifest that pins artifact hashes, versions, assignment order, run type, and oracle-exposure status before any manual result can be scored.
+- **Reason:** A human run is not comparable if difficult cases can disappear or an old worksheet can be rebased onto a newer oracle.
+
+## D-013 — Test the complete published evidence chain
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Reproduce and compare every committed generated artifact byte-for-byte, including the manual worksheet and run-manifest template.
+- **Reason:** Passing case-level tests is insufficient if a public summary, manifest, or evidence instrument can drift from its generator.
