@@ -158,3 +158,12 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 - **Trigger:** Adversarial review proved that endpoint-only checks could miss an oracle committed temporarily between the two anchors and deleted before the completed records commit.
 - **Reason:** A clean final tree is not evidence of a clean handling interval. Eliminating intermediate commits makes the complete Git interval inspectable and prevents an answer artifact from appearing and disappearing inside it.
 - **Consequence:** Any intermediate commit invalidates the run. Work unrelated to the worksheet must wait until after record freeze and oracle release, and a regression test reproduces the original bypass attempt.
+
+## D-021 — Replace the incomplete operator instrument
+
+- **Date:** 2026-08-10
+- **Status:** Accepted
+- **Decision:** Invalidate V1 before handling and create V2 with a generated, public, answer-free `operator-guide.json` copied into and pinned by every prepared run. The guide defines decision priority, authority routing, evidence codes, message-fact codes, and allowed worksheet values from the same frozen policy used by the oracle.
+- **Trigger:** The post-merge usability gate found that the permitted V1 files listed actions and thresholds but omitted route codes, message-fact codes, and complete decision priority. An operator would have needed to guess or consult prohibited repository code.
+- **Reason:** A human baseline must measure application of a complete operating policy, not reverse engineering, hidden evaluator knowledge, or mid-run coaching. Required instructions are evidence inputs and must be frozen with the cases and policy.
+- **Consequence:** V1 remains public and blank with an explicit invalidation record; its oracle is not released and it cannot be scored as baseline evidence. V2 receives a new pack identity, new cases and commitments, a new blank run, and guide bindings at generation, preparation, both Git anchors, release, and scoring.

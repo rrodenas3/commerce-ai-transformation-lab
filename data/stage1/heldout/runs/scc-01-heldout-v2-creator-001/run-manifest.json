@@ -1,0 +1,127 @@
+{
+  "artifacts": {
+    "artifact_manifest": {
+      "path": "data/stage1/heldout/v2/manifest.json",
+      "sha256": "12db74855157f4d7eb380e70709ebd095b627f84ef290ef9bd3be31811e23545"
+    },
+    "cases": {
+      "path": "data/stage1/heldout/v2/cases.jsonl",
+      "sha256": "3d59ccb412f5de16825084850eeae9af1b8672f6b3d5aa97bb01fad21f88bcd9"
+    },
+    "operator_guide": {
+      "path": "data/stage1/heldout/v2/operator-guide.json",
+      "sha256": "0af79ed4133408e07158461f2a935d711f3edafbb351307086bef1dbdd9b9aa1"
+    },
+    "oracle": {
+      "path": "data/stage1/heldout/v2/oracle.released.jsonl",
+      "sha256": "9ce003feb8362e712b02e37fc72f06dca5723a5a07511b262fd9776a718b6f8c"
+    },
+    "policy": {
+      "path": "data/stage1/policy.json",
+      "sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d"
+    }
+  },
+  "assigned_case_ids": [
+    "SCC-01-HO2-001",
+    "SCC-01-HO2-002",
+    "SCC-01-HO2-003",
+    "SCC-01-HO2-004",
+    "SCC-01-HO2-005",
+    "SCC-01-HO2-006",
+    "SCC-01-HO2-007",
+    "SCC-01-HO2-008",
+    "SCC-01-HO2-009",
+    "SCC-01-HO2-010",
+    "SCC-01-HO2-011",
+    "SCC-01-HO2-012",
+    "SCC-01-HO2-013",
+    "SCC-01-HO2-014",
+    "SCC-01-HO2-015",
+    "SCC-01-HO2-016",
+    "SCC-01-HO2-017",
+    "SCC-01-HO2-018",
+    "SCC-01-HO2-019",
+    "SCC-01-HO2-020",
+    "SCC-01-HO2-021",
+    "SCC-01-HO2-022",
+    "SCC-01-HO2-023",
+    "SCC-01-HO2-024",
+    "SCC-01-HO2-025",
+    "SCC-01-HO2-026",
+    "SCC-01-HO2-027",
+    "SCC-01-HO2-028",
+    "SCC-01-HO2-029",
+    "SCC-01-HO2-030",
+    "SCC-01-HO2-031",
+    "SCC-01-HO2-032"
+  ],
+  "dataset_role": "process-controlled-held-out-evaluation",
+  "evaluation_pack": {
+    "evaluation_pack_id": "SCC-01-HO-V2",
+    "generator_name": "scc-01-heldout-case-generator",
+    "generator_seed_commitment_sha256": "d5b8b7339ccb270cb9c22e317f6e46da77fdf96c0aa6f83f93b501a5eae6e28f",
+    "generator_version": "2.0.0"
+  },
+  "instructions": {
+    "path": "docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md",
+    "sha256": "1fe2ba2ce9fc2b9dcb08ecf3105f5ac962963a4b2fc35a30393c11a2e3ab2795"
+  },
+  "oracle": {
+    "release_path": "data/stage1/heldout/v2/oracle.released.jsonl",
+    "sha256_commitment": "9ce003feb8362e712b02e37fc72f06dca5723a5a07511b262fd9776a718b6f8c",
+    "version": "1.0.0"
+  },
+  "oracle_exposure_status": "oracle-file-withheld-at-preparation",
+  "policy": {
+    "policy_id": "SCC-01-RECOVERY-POLICY",
+    "version": "1.0.0"
+  },
+  "release_gate": {
+    "release_manifest_path": "data/stage1/heldout/v2/oracle-release-manifest.json",
+    "required_transition": "completed-records-commit-before-oracle-release"
+  },
+  "run_files": {
+    "case_pack": {
+      "path": "case-pack.jsonl",
+      "sha256": "3d59ccb412f5de16825084850eeae9af1b8672f6b3d5aa97bb01fad21f88bcd9"
+    },
+    "operator_guide_copy": {
+      "path": "operator-guide.json",
+      "sha256": "0af79ed4133408e07158461f2a935d711f3edafbb351307086bef1dbdd9b9aa1"
+    },
+    "policy_copy": {
+      "path": "policy.json",
+      "sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d"
+    },
+    "records_template": {
+      "path": "manual-records.csv",
+      "sha256": "b2e471be17bc18b96d4a28fcf59b6b28534b555909839c008bf2ded7b58dc772"
+    }
+  },
+  "run_provenance": {
+    "operator_role": "creator",
+    "prepared_at_utc": "2026-08-10T06:59:07Z",
+    "reviewer_code": "CREATOR-01",
+    "run_id": "scc-01-heldout-v2-creator-001",
+    "status": "prepared"
+  },
+  "run_type": "manual-no-ai",
+  "schema_version": "2.1.0",
+  "tool_policy": {
+    "allowed": [
+      "provided held-out case pack",
+      "provided policy",
+      "provided operator guide",
+      "plain-text editor with AI features disabled",
+      "calculator",
+      "system clock"
+    ],
+    "prohibited": [
+      "generative AI",
+      "oracle or oracle-generating code consultation during handling",
+      "deterministic answer consultation during handling",
+      "public repository consultation during handling",
+      "creator coaching during an independent run"
+    ]
+  }
+}

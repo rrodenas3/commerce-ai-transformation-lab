@@ -33,7 +33,7 @@ def main() -> int:
     public = arguments.public_output or root / HELDOUT_PUBLIC_PATH
     private = arguments.private_output or root / HELDOUT_PRIVATE_PATH
     if arguments.verify_public:
-        manifest, _, _, _, _ = validate_heldout_public_pack(
+        manifest, _, _, _, _, _ = validate_heldout_public_pack(
             root, public, require_unreleased=False
         )
         print(

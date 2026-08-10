@@ -834,6 +834,21 @@ class Stage1CaseSystemTests(unittest.TestCase):
             self.assertNotIn(token, str(captured.exception))
             self.assertNotIn(token, serialized_error)
 
+    def test_unknown_evidence_codes_fail_without_echoing_sensitive_input(self):
+        case = self.cases[0]
+        oracle = self.oracles[0]
+        decision = self._decision_for_oracle(case, oracle)
+        sensitive_token = "NOT_A_SOURCE-person@example.test"
+        decision["evidence_used"].append(sensitive_token)
+
+        with self.assertRaisesRegex(ValueError, "unknown source code") as captured:
+            evaluate_decisions(
+                [case], [decision], [oracle], baseline_id="contract-test"
+            )
+        serialized_error = json.dumps(captured.exception.args)
+        self.assertNotIn(sensitive_token, str(captured.exception))
+        self.assertNotIn(sensitive_token, serialized_error)
+
     def test_generated_manual_manifest_truthfully_pins_public_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:
             generated = Path(directory)

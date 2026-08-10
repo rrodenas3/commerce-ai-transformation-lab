@@ -30,7 +30,7 @@ Determine whether a person can diagnose and safely route the complete SCC-01 cas
 | `completed-records-frozen` | Completed worksheet committed without oracle | Oracle remains private | Verify Git ordering and release the oracle |
 | `oracle-file-released-after-record-freeze` | Oracle, release manifest, released generator seed | No answer file needs to remain private | Score only the frozen worksheet |
 
-No command may skip a state. If the operator sees the private oracle, oracle-generating code output, or a completed answer set before the records commit, the pack is contaminated. Stop and preserve the failure. This V1 toolchain does not auto-create V2: recovery requires a reviewed code change that increments the pack identity and paths before generating a new instrument.
+No command may skip a state. If the operator sees the private oracle, oracle-generating code output, or a completed answer set before the records commit, the pack is contaminated. Stop and preserve the failure. This V2 toolchain does not auto-create V3: recovery requires a reviewed code change that increments the pack identity and paths before generating a new instrument.
 
 ## 1. Verify the committed pack
 
@@ -44,20 +44,35 @@ The pack-author generation step is already complete. A fresh checkout cannot rep
 
 ## 2. Use the already prepared creator instrument
 
-The creator instrument is already prepared at `data/stage1/heldout/runs/scc-01-heldout-creator-001/`. Do not rerun preparation for that path: the command correctly refuses to overwrite it. The run directory contains only:
+The creator instrument is already prepared at `data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/`. Do not rerun preparation for that path: the command correctly refuses to overwrite it. The run directory contains only:
 
 - `case-pack.jsonl`;
+- `operator-guide.json`;
 - `policy.json`;
 - `manual-records.csv`;
 - `run-manifest.json`.
 
 Confirm that `manual-records.csv` is blank apart from assigned IDs, reviewer code, and run type. Use a clean commit containing the verified instrument as the preparation reference immediately before handling. The records commit must be its immediate child and change only this worksheet; the release gate rejects any intermediate commit or other tree change.
 
+From the repository root in PowerShell, freeze the exact clean preparation SHA before opening a case:
+
+```powershell
+$worksheet = 'data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/manual-records.csv'
+if (@(git status --porcelain=v1).Count -ne 0) { throw 'Preparation tree is not clean.' }
+$preparationSha = (git rev-parse HEAD).Trim()
+if (-not $preparationSha) { throw 'Preparation commit could not be resolved.' }
+$preparationShaPath = (git rev-parse --git-path heldout-v2-preparation-sha).Trim()
+if (-not $preparationShaPath) { throw 'Git metadata path could not be resolved.' }
+Set-Content -LiteralPath $preparationShaPath -Value $preparationSha -NoNewline
+```
+
+Keep the SHA file at the path returned by Git; it is local metadata and does not alter the committed tree. Resolving it with `git rev-parse --git-path` works in both a standard checkout and a linked worktree.
+
 `scripts/prepare_stage1_heldout_run.py` remains available for a new reviewer or a future pack version with a new run ID and output path. It must never overwrite this creator instrument.
 
 ## 3. Handle the cases outside an AI session
 
-Use only the prepared case pack, prepared policy, and a calculator. Close this repository, the private evidence directory, generative AI, deterministic decisions, and the discovery oracle.
+Open only the prepared case pack, prepared policy, prepared operator guide, and worksheet. Allowed tools are a plain-text editor with AI features disabled, a calculator, and the system clock. The guide contains the complete decision priority, authority routing, evidence codes, message-fact codes, every worksheet-field definition, and the required UTF-8/LF serialization; it contains no per-case answers. Do not consult any other repository file, the private evidence directory, generative AI, deterministic decisions, or the discovery oracle.
 
 For every assigned row record:
 
@@ -81,13 +96,36 @@ Before opening or releasing any answer-bearing artifact:
 3. Record the full commit SHA as the records reference.
 4. Do not edit the worksheet after this commit. A correction requires a new run and disclosure of the invalidated attempt.
 
+Run this exact PowerShell sequence. It refuses a broad or intermediate commit and proves that the records commit is the immediate child of preparation:
+
+```powershell
+$worksheet = 'data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/manual-records.csv'
+$status = @(git status --porcelain=v1)
+if ($status.Count -ne 1 -or $status[0] -ne " M $worksheet") { throw 'Only the worksheet may be modified.' }
+git diff --check -- $worksheet
+if ($LASTEXITCODE -ne 0) { throw 'Worksheet diff is not clean.' }
+git add -- $worksheet
+$staged = @(git diff --cached --name-only)
+if ($staged.Count -ne 1 -or $staged[0] -ne $worksheet) { throw 'Only the worksheet may be staged.' }
+git diff --cached --check
+if ($LASTEXITCODE -ne 0) { throw 'Staged worksheet diff is not clean.' }
+git commit -m 'evidence(stage1): freeze creator held-out V2 record'
+if ($LASTEXITCODE -ne 0) { throw 'Records commit failed.' }
+$recordsSha = (git rev-parse HEAD).Trim()
+$preparationShaPath = (git rev-parse --git-path heldout-v2-preparation-sha).Trim()
+$preparationSha = (Get-Content -Raw -LiteralPath $preparationShaPath).Trim()
+$parentSha = (git rev-parse "$recordsSha^").Trim()
+if ($parentSha -ne $preparationSha) { throw 'Records commit is not the immediate child of preparation.' }
+if (@(git status --porcelain=v1).Count -ne 0) { throw 'Records tree is not clean.' }
+```
+
 ## 5. Release the oracle after the record freeze
 
-```bash
-python scripts/release_stage1_heldout_oracle.py \
-  --run-manifest data/stage1/heldout/runs/scc-01-heldout-creator-001/run-manifest.json \
-  --preparation-ref <blank-pack-commit-sha> \
-  --records-ref <completed-records-commit-sha>
+```powershell
+python scripts/release_stage1_heldout_oracle.py `
+  --run-manifest data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/run-manifest.json `
+  --preparation-ref $preparationSha `
+  --records-ref $recordsSha
 ```
 
 The command fails unless it can prove that:
@@ -106,14 +144,14 @@ On success it writes `oracle.released.jsonl` and `oracle-release-manifest.json`.
 
 ## 6. Score only the frozen record
 
-```bash
-python scripts/score_stage1_heldout_manual.py \
-  --input data/stage1/heldout/runs/scc-01-heldout-creator-001/manual-records.csv \
-  --output data/stage1/heldout/runs/scc-01-heldout-creator-001/manual-summary.json \
-  --cases data/stage1/heldout/runs/scc-01-heldout-creator-001/case-pack.jsonl \
-  --oracle data/stage1/heldout/v1/oracle.released.jsonl \
-  --run-manifest data/stage1/heldout/runs/scc-01-heldout-creator-001/run-manifest.json \
-  --release-manifest data/stage1/heldout/v1/oracle-release-manifest.json
+```powershell
+python scripts/score_stage1_heldout_manual.py `
+  --input data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/manual-records.csv `
+  --output data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/manual-summary.json `
+  --cases data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/case-pack.jsonl `
+  --oracle data/stage1/heldout/v2/oracle.released.jsonl `
+  --run-manifest data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/run-manifest.json `
+  --release-manifest data/stage1/heldout/v2/oracle-release-manifest.json
 ```
 
 The scorer rejects substituted paths, modified inputs, a stale release manifest, a worksheet that differs from the records commit, an oracle that differs from its pre-run commitment, missing assignments, unsafe CSV encoding, or incompatible policy and protocol versions.

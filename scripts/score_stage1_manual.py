@@ -43,7 +43,9 @@ from scripts.stage1_scoring import (
 
 
 REQUIRED_PINNED_ARTIFACTS = {"cases", "oracle", "policy", "artifact_manifest"}
+HELDOUT_REQUIRED_PINNED_ARTIFACTS = REQUIRED_PINNED_ARTIFACTS | {"operator_guide"}
 REQUIRED_RUN_FILES = {"case_pack", "policy_copy", "records_template"}
+HELDOUT_REQUIRED_RUN_FILES = REQUIRED_RUN_FILES | {"operator_guide_copy"}
 
 
 def _utc_timestamp(value: Any, field: str) -> datetime:
@@ -126,12 +128,15 @@ def _validated_sha256(value: Any, field: str) -> str:
 
 def _validated_artifact_pins(run_metadata: dict[str, Any]) -> dict[str, dict[str, str]]:
     pins = run_metadata.get("artifacts")
-    if not isinstance(pins, dict) or set(pins) != REQUIRED_PINNED_ARTIFACTS:
-        raise ValueError(
-            "run manifest artifacts must pin cases, oracle, policy, and artifact_manifest"
-        )
+    required = (
+        HELDOUT_REQUIRED_PINNED_ARTIFACTS
+        if run_metadata.get("schema_version") == HELDOUT_RUN_MANIFEST_SCHEMA_VERSION
+        else REQUIRED_PINNED_ARTIFACTS
+    )
+    if not isinstance(pins, dict) or set(pins) != required:
+        raise ValueError("run manifest artifacts do not match the evidence protocol")
     validated: dict[str, dict[str, str]] = {}
-    for name in sorted(REQUIRED_PINNED_ARTIFACTS):
+    for name in sorted(required):
         pin = pins.get(name)
         if not isinstance(pin, dict):
             raise ValueError(f"run manifest artifact '{name}' must be an object")
@@ -206,12 +211,15 @@ def _validated_run_provenance(run_metadata: dict[str, Any]) -> dict[str, Any]:
 
 def _validated_run_files(run_metadata: dict[str, Any]) -> dict[str, dict[str, str]]:
     run_files = run_metadata.get("run_files")
-    if not isinstance(run_files, dict) or set(run_files) != REQUIRED_RUN_FILES:
-        raise ValueError(
-            "run manifest run_files must pin case_pack, policy_copy, and records_template"
-        )
+    required = (
+        HELDOUT_REQUIRED_RUN_FILES
+        if run_metadata.get("schema_version") == HELDOUT_RUN_MANIFEST_SCHEMA_VERSION
+        else REQUIRED_RUN_FILES
+    )
+    if not isinstance(run_files, dict) or set(run_files) != required:
+        raise ValueError("run manifest run_files do not match the evidence protocol")
     validated: dict[str, dict[str, str]] = {}
-    for name in sorted(REQUIRED_RUN_FILES):
+    for name in sorted(required):
         pin = run_files.get(name)
         if not isinstance(pin, dict) or set(pin) != {"path", "sha256"}:
             raise ValueError(f"run file '{name}' must pin path and sha256")

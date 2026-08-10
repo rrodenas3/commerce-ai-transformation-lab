@@ -35,7 +35,7 @@ limitations: Stage 1 synthetic foundation only; a process-controlled held-out in
 | **North-star outcome** | Increase the proportion of eligible exceptions that reach a correct, policy-compliant, independently verified recovery within the target time. |
 | **Lighthouse workflow** | Delayed or partial fulfilment, from the first reliable signal to verified recovery and evidence-bound customer communication. |
 | **Operating principle** | People retain authority over financial, customer-facing, irreversible, high-risk, and policy-changing decisions. |
-| **Current gate** | Stage 1 foundation: a 32-case held-out pack, blank creator instrument, and fail-closed answer-file release control exist; Raul's manual-no-AI record under disclosed process controls is the next evidence gate. |
+| **Current gate** | Stage 1 foundation: a 32-case V2 held-out pack, complete answer-free operator guide, blank creator instrument, and fail-closed answer-file release control exist; Raul's manual-no-AI record under disclosed process controls is the next evidence gate. |
 | **Final decision** | Scale, revise, pause, or stop based on outcome quality, risk, review burden, adoption friction, reliability, and operating cost. |
 
 The lab is deliberately built as a transformation programme rather than an autonomous-agent showcase. Code and agents are useful only when they improve a governed workflow and generate evidence strong enough to support an investment decision.
@@ -179,7 +179,7 @@ See the [full delivery roadmap](docs/DELIVERY_ROADMAP.md) and the [public journe
 
 ### Executable evidence
 
-- [Stage 1 data](data/README.md): discovery calibration, the exposed familiarisation pack, the process-controlled 32-case held-out pack, and its blank creator instrument.
+- [Stage 1 data](data/README.md): discovery calibration, the exposed familiarisation pack, invalidated held-out V1, and the process-controlled V2 pack with its operator guide and blank creator instrument.
 - [`scripts/`](scripts): public-discovery calibration plus held-out generation, preparation, record-before-oracle release, scoring, and public-safety controls.
 - [`tests/`](tests): policy boundaries, failure paths, provenance, canonical bytes, scoring integrity, and disclosure controls.
 - [Security policy](SECURITY.md): synthetic-data boundary and responsible disclosure.
@@ -219,7 +219,7 @@ The repository currently contains:
 - a frozen, co-designed reference oracle independent of future model output but not independent validation;
 - a transparent deterministic baseline and scorer;
 - a prepared, blank, case-only creator pack reclassified as familiarisation material after oracle exposure;
-- a separately generated 32-case held-out pack, private oracle, public commitments, and blank creator instrument;
+- a separately generated 32-case V2 held-out pack, complete answer-free operator guide, private oracle, public commitments, and blank creator instrument;
 - a fail-closed release command that requires the completed human record to be committed before the oracle is published;
 - reproducible artifacts, CI, and public-safety controls.
 

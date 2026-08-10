@@ -38,22 +38,24 @@ from scripts.stage1_scoring import (
     MANUAL_RUN_TYPE_BY_OPERATOR_ROLE,
     REVIEWER_CODE_PATTERN,
     RUN_ID_PATTERN,
+    SAFE_MESSAGE_FACTS,
     write_manual_template,
 )
 
 
-HELDOUT_PACK_SCHEMA_VERSION = "1.0.0"
-HELDOUT_PRIVATE_SCHEMA_VERSION = "1.0.0"
+HELDOUT_PACK_SCHEMA_VERSION = "1.1.0"
+HELDOUT_PRIVATE_SCHEMA_VERSION = "1.1.0"
 HELDOUT_GENERATOR_NAME = "scc-01-heldout-case-generator"
-HELDOUT_GENERATOR_VERSION = "1.0.0"
-HELDOUT_EVALUATION_PACK_ID = "SCC-01-HO-V1"
+HELDOUT_GENERATOR_VERSION = "2.0.0"
+HELDOUT_EVALUATION_PACK_ID = "SCC-01-HO-V2"
 HELDOUT_CASE_COUNT = 32
-HELDOUT_PUBLIC_PATH = "data/stage1/heldout/v1"
-HELDOUT_PRIVATE_PATH = "artifacts/private/stage1/heldout/v1"
-HELDOUT_ORACLE_RELEASE_PATH = "data/stage1/heldout/v1/oracle.released.jsonl"
+HELDOUT_PUBLIC_PATH = "data/stage1/heldout/v2"
+HELDOUT_PRIVATE_PATH = "artifacts/private/stage1/heldout/v2"
+HELDOUT_ORACLE_RELEASE_PATH = "data/stage1/heldout/v2/oracle.released.jsonl"
 HELDOUT_ORACLE_RELEASE_MANIFEST_PATH = (
-    "data/stage1/heldout/v1/oracle-release-manifest.json"
+    "data/stage1/heldout/v2/oracle-release-manifest.json"
 )
+OPERATOR_GUIDE_FILE = "operator-guide.json"
 GENERATION_MATERIAL_FILE = "generation-material.json"
 PRIVATE_ORACLE_FILE = "oracle.jsonl"
 OPERATOR_HIDDEN_FIELDS = frozenset({"case_family", "generator", "title"})
@@ -83,6 +85,272 @@ def _parse_jsonl_bytes(value: bytes, label: str) -> list[dict[str, Any]]:
     if any(not isinstance(record, dict) for record in records):
         raise ValueError(f"{label} must contain JSON objects")
     return records
+
+
+def build_operator_guide(policy: dict[str, Any]) -> dict[str, Any]:
+    authority = policy["authority"]
+    return {
+        "schema_version": "1.0.0",
+        "evaluation_pack_id": HELDOUT_EVALUATION_PACK_ID,
+        "policy": {
+            "policy_id": policy["policy_id"],
+            "version": policy["version"],
+        },
+        "purpose": (
+            "Apply the frozen synthetic recovery policy to each case. This guide "
+            "defines worksheet codes and decision priority; it contains no case "
+            "answers."
+        ),
+        "decision_priority": [
+            {
+                "priority": 1,
+                "when": (
+                    "risk_flags is non-empty or payment.active_chargeback is true"
+                ),
+                "action": "ESCALATE_SPECIALIST",
+                "route": "specialist",
+            },
+            {
+                "priority": 2,
+                "when": (
+                    "history.prior_action is VERIFIED and its authoritative refund "
+                    "or replacement postcondition is complete"
+                ),
+                "action": "NO_ACTION_ALREADY_RECOVERED",
+                "route": "delegated",
+            },
+            {
+                "priority": 3,
+                "when": (
+                    "history.prior_action exists but is PENDING, FAILED_SAFE, "
+                    "UNVERIFIED, or VERIFIED without its authoritative postcondition"
+                ),
+                "action": "ESCALATE_ACTION_RECOVERY",
+                "route": "specialist",
+            },
+            {
+                "priority": 4,
+                "when": (
+                    "evidence.source_conflict is true or any required source is "
+                    "missing or stale"
+                ),
+                "action": "ESCALATE_EVIDENCE",
+                "route": "specialist",
+            },
+            {
+                "priority": 5,
+                "when": "trigger.duplicate is true",
+                "action": "NO_ACTION_DUPLICATE_SIGNAL",
+                "route": "delegated",
+            },
+            {
+                "priority": 6,
+                "when": (
+                    "carrier.status is IN_TRANSIT and customer.preference is wait"
+                ),
+                "action": "WAIT_VERIFIED_ETA",
+                "route": "delegated",
+            },
+            {
+                "priority": 7,
+                "when": (
+                    "inventory.reservable is true and customer.preference is not "
+                    "refund_missing"
+                ),
+                "action": "RESHIP_MISSING",
+                "route": "apply authority routing",
+            },
+            {
+                "priority": 8,
+                "when": "none of the earlier conditions applies",
+                "action": "REFUND_MISSING",
+                "route": "apply authority routing",
+            },
+        ],
+        "authoritative_postconditions": {
+            "common_requirement": "evidence.source_conflict is false",
+            "selection_rule": "apply the rule matching history.prior_action.type",
+            "by_prior_action_type": {
+                "REFUND_MISSING": (
+                    "PAYMENT is available and fresh, and payment.refunded_cents is at "
+                    "least order.affected_value_cents"
+                ),
+                "RESHIP_MISSING": (
+                    "INVENTORY is available and fresh; replacement_reservation has "
+                    "the same action_id, VERIFIED status, and reserved_qty at least "
+                    "order.remaining_qty"
+                ),
+            },
+        },
+        "authority_routing_priority": [
+            {
+                "priority": 1,
+                "when": (
+                    f"order.affected_value_cents > "
+                    f"{authority['team_lead_max_exposure_cents']} or "
+                    f"order.order_value_cents > "
+                    f"{authority['finance_review_order_value_cents']}"
+                ),
+                "route": "approval",
+                "decision_owner": "finance_duty_approver",
+            },
+            {
+                "priority": 2,
+                "when": (
+                    f"order.affected_value_cents > "
+                    f"{authority['delegated_max_exposure_cents']} or "
+                    "history.repeat_recovery is true"
+                ),
+                "route": "approval",
+                "decision_owner": "workflow_owner",
+            },
+            {
+                "priority": 3,
+                "when": "neither approval condition applies",
+                "route": "delegated",
+                "decision_owner": "customer_recovery_specialist",
+            },
+        ],
+        "evidence_codes": list(policy["required_case_sources"]),
+        "evidence_rules": {
+            "WAIT_VERIFIED_ETA": ["OMS", "WMS", "CARRIER", "POLICY"],
+            "RESHIP_MISSING": list(policy["required_case_sources"]),
+            "REFUND_MISSING": list(policy["required_case_sources"]),
+            "NO_ACTION_ALREADY_RECOVERED": [
+                "OMS",
+                "WMS",
+                "CARRIER",
+                "POLICY",
+                "CRM",
+                "PAYMENT",
+            ],
+            "NO_ACTION_DUPLICATE_SIGNAL": [
+                "OMS",
+                "WMS",
+                "CARRIER",
+                "POLICY",
+                "CRM",
+                "PAYMENT",
+            ],
+            "ESCALATION": "list every available source code",
+        },
+        "message_fact_codes": {
+            "case_received": "The recovery case was received.",
+            "no_new_action_created": "No new recovery action was created.",
+            "order_reference_confirmed": "The synthetic order reference was confirmed.",
+            "recovery_under_review": "Recovery remains under review.",
+            "refund_requires_verified_execution": (
+                "A refund recommendation is not a completed refund."
+            ),
+            "replacement_requires_verified_execution": (
+                "A replacement recommendation is not a completed reshipment."
+            ),
+            "revised_eta_is_estimate": "A revised ETA remains an estimate.",
+        },
+        "message_fact_rules": {
+            "always_allowed": [
+                "case_received",
+                "order_reference_confirmed",
+                "recovery_under_review",
+            ],
+            "additional_by_action": {
+                "WAIT_VERIFIED_ETA": ["revised_eta_is_estimate"],
+                "RESHIP_MISSING": ["replacement_requires_verified_execution"],
+                "REFUND_MISSING": ["refund_requires_verified_execution"],
+                "NO_ACTION_ALREADY_RECOVERED": ["no_new_action_created"],
+                "NO_ACTION_DUPLICATE_SIGNAL": ["no_new_action_created"],
+                "ESCALATE_EVIDENCE": [],
+                "ESCALATE_ACTION_RECOVERY": [],
+                "ESCALATE_SPECIALIST": [],
+            },
+        },
+        "worksheet_codes": {
+            "recommended_action": list(policy["allowed_actions"]),
+            "route": ["delegated", "approval", "specialist"],
+            "message_facts": sorted(SAFE_MESSAGE_FACTS),
+            "help_requested": ["true", "false"],
+            "confidence_1_to_5": [1, 2, 3, 4, 5],
+        },
+        "worksheet_fields": {
+            "case_id": (
+                "Prefilled immutable case identifier. Do not edit or reorder rows."
+            ),
+            "reviewer_code": ("Prefilled pseudonymous operator code. Do not edit."),
+            "run_type": "Prefilled evidence mode. Do not edit.",
+            "started_at_utc": (
+                "Use the allowed system clock immediately before reading the case; "
+                "record UTC as YYYY-MM-DDTHH:MM:SSZ."
+            ),
+            "ended_at_utc": (
+                "Use the allowed system clock immediately after completing the row; "
+                "record UTC as YYYY-MM-DDTHH:MM:SSZ and not before started_at_utc."
+            ),
+            "active_handling_seconds": (
+                "Whole seconds spent actively reading, deciding, and recording this "
+                "case. Exclude interruptions; enter 0 or more and never exceed the "
+                "elapsed time between the two UTC timestamps."
+            ),
+            "recommended_action": (
+                "One exact recommended_action code from worksheet_codes. This is a "
+                "recommendation, not proof of execution."
+            ),
+            "route": (
+                "One exact route code from worksheet_codes. This is the required "
+                "operational route, not an observed handoff."
+            ),
+            "evidence_used_pipe_delimited": (
+                "One or more exact evidence codes actually used. Separate multiple "
+                "codes with | and no surrounding spaces; never invent a source code."
+            ),
+            "message_facts_pipe_delimited": (
+                "One or more supported message-fact codes. Separate multiple codes "
+                "with | and no surrounding spaces; do not write customer prose."
+            ),
+            "confidence_1_to_5": (
+                "Whole number from 1 (very uncertain) to 5 (very certain) describing "
+                "confidence in the recorded decision, not confidence in an outcome."
+            ),
+            "help_requested": (
+                "true only if interpretive help from another person was requested "
+                "during this case; otherwise false. A prohibited tool or coaching "
+                "exposure invalidates the run rather than counting as help."
+            ),
+            "handoff_count": (
+                "Whole number 0 or greater counting actual transfers of handling "
+                "responsibility during this case. A recommended approval or specialist "
+                "route alone is not an observed handoff."
+            ),
+            "policy_lookup_count": (
+                "Whole number 0 or greater counting distinct consultation episodes of "
+                "the prepared policy or operator guide after case timing begins. "
+                "Continuous reading in one episode counts once."
+            ),
+            "notes_without_personal_data": (
+                "Optional brief observation about friction, ambiguity, or reasoning. "
+                "Leave blank or use synthetic-safe text only; never add personal data, "
+                "secrets, customer prose, or external content."
+            ),
+        },
+        "worksheet_serialization": {
+            "format": "CSV using the existing header and row order",
+            "encoding": "UTF-8 without BOM",
+            "line_ending": "LF only",
+            "final_line_ending": "required",
+            "column_delimiter": ",",
+            "multi_value_delimiter": "|",
+            "rules": [
+                "Preserve every column, prefilled value, case ID, and row order.",
+                "Use standard CSV quoting when a value contains a comma or quote.",
+                "Do not add columns, comments, formulas, or spreadsheet metadata.",
+            ],
+        },
+        "handling_rules": [
+            "Apply decision_priority from lowest number to highest and stop at the first match.",
+            "Use pipe characters between multiple evidence or message-fact codes.",
+            "Record only supported message facts; a recommendation is never a verified outcome.",
+            "Do not include personal data, secrets, or copied customer free text in notes.",
+        ],
+    }
 
 
 def _utc_text(value: datetime) -> str:
@@ -444,7 +712,7 @@ def build_heldout_cases(
         while token in used_tokens:
             token = rng.randrange(100000, 999999)
         used_tokens.add(token)
-        case_id = f"SCC-01-HO1-{sequence:03d}"
+        case_id = f"SCC-01-HO2-{sequence:03d}"
         case.update(
             {
                 "case_id": case_id,
@@ -535,6 +803,7 @@ def generate_heldout_artifacts(
     policy = load_stage1_policy(root)
     internal_cases = build_heldout_cases(policy, material)
     cases = build_operator_case_pack(internal_cases)
+    operator_guide = build_operator_guide(policy)
     oracles = [
         build_oracle(case, policy, heldout_release_material=material)
         for case in internal_cases
@@ -546,6 +815,7 @@ def generate_heldout_artifacts(
         raise ValueError("invalid held-out oracles: " + "; ".join(oracle_errors))
 
     cases_bytes = _canonical_jsonl_bytes(cases)
+    operator_guide_bytes = _canonical_json_bytes(operator_guide)
     oracle_bytes = _canonical_jsonl_bytes(oracles)
     policy_bytes = (root / "data" / "stage1" / "policy.json").read_bytes()
     material_commitment = _sha256_bytes(material.encode("utf-8"))
@@ -573,6 +843,7 @@ def generate_heldout_artifacts(
         "contains_real_data": False,
         "artifacts_sha256": {
             "cases.jsonl": _sha256_bytes(cases_bytes),
+            OPERATOR_GUIDE_FILE: _sha256_bytes(operator_guide_bytes),
             "oracle.released.jsonl": _sha256_bytes(oracle_bytes),
         },
     }
@@ -581,11 +852,17 @@ def generate_heldout_artifacts(
         "evaluation_pack_id": HELDOUT_EVALUATION_PACK_ID,
         "generator_seed_commitment_sha256": material_commitment,
         "cases_sha256": _sha256_bytes(cases_bytes),
+        "operator_guide_sha256": _sha256_bytes(operator_guide_bytes),
         "oracle_sha256": _sha256_bytes(oracle_bytes),
         "public_manifest_sha256": _sha256_bytes(_canonical_json_bytes(manifest)),
     }
 
     _write_new_or_equal(public / "cases.jsonl", cases_bytes, "held-out cases")
+    _write_new_or_equal(
+        public / OPERATOR_GUIDE_FILE,
+        operator_guide_bytes,
+        "held-out operator guide",
+    )
     _write_new_or_equal(
         public / "manifest.json",
         _canonical_json_bytes(manifest),
@@ -624,15 +901,21 @@ def validate_heldout_public_pack(
     public_output: Path,
     *,
     require_unreleased: bool = True,
-) -> tuple[dict[str, Any], list[dict[str, Any]], bytes, bytes, bytes]:
+) -> tuple[dict[str, Any], list[dict[str, Any]], bytes, bytes, bytes, bytes]:
     root = project_root.resolve()
     public = public_output.resolve()
     manifest_path = public / "manifest.json"
     cases_path = public / "cases.jsonl"
-    if not manifest_path.is_file() or not cases_path.is_file():
+    operator_guide_path = public / OPERATOR_GUIDE_FILE
+    if (
+        not manifest_path.is_file()
+        or not cases_path.is_file()
+        or not operator_guide_path.is_file()
+    ):
         raise ValueError("held-out public pack is incomplete")
     manifest_bytes = manifest_path.read_bytes()
     cases_bytes = cases_path.read_bytes()
+    operator_guide_bytes = operator_guide_path.read_bytes()
     try:
         manifest = json.loads(manifest_bytes.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
@@ -667,6 +950,8 @@ def validate_heldout_public_pack(
         raise ValueError("held-out public cases hash is stale")
     if not isinstance(hashes.get("oracle.released.jsonl"), str):
         raise ValueError("held-out oracle commitment is missing")
+    if hashes.get(OPERATOR_GUIDE_FILE) != _sha256_bytes(operator_guide_bytes):
+        raise ValueError("held-out operator guide hash is stale")
     if require_unreleased and (root / HELDOUT_ORACLE_RELEASE_PATH).exists():
         raise ValueError(
             "held-out oracle is already released; prepare a new pack version"
@@ -680,13 +965,26 @@ def validate_heldout_public_pack(
     ):
         raise ValueError("held-out cases require unique IDs")
     policy = load_stage1_policy(root)
+    try:
+        operator_guide = json.loads(operator_guide_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError("held-out operator guide is invalid") from error
+    if operator_guide != build_operator_guide(policy):
+        raise ValueError("held-out operator guide is stale")
     errors = [error for case in cases for error in validate_operator_case(case, policy)]
     if errors:
         raise ValueError("invalid held-out cases: " + "; ".join(errors))
     for case in cases:
         if case.get("dataset_role") != HELDOUT_DATASET_ROLE:
             raise ValueError("held-out case dataset role is stale")
-    return manifest, cases, manifest_bytes, cases_bytes, policy_bytes
+    return (
+        manifest,
+        cases,
+        manifest_bytes,
+        cases_bytes,
+        policy_bytes,
+        operator_guide_bytes,
+    )
 
 
 def _relative_public_path(root: Path, path: Path, label: str) -> str:
@@ -706,12 +1004,14 @@ def validate_heldout_run_bindings(
     *,
     public_manifest_bytes: bytes,
     public_cases_bytes: bytes,
+    public_operator_guide_bytes: bytes,
     prepared_case_pack_bytes: bytes,
+    prepared_operator_guide_bytes: bytes,
     policy_bytes: bytes,
     prepared_policy_bytes: bytes,
     instructions_bytes: bytes,
 ) -> None:
-    """Bind a prepared run to the one committed V1 pack and protocol."""
+    """Bind a prepared run to the current committed pack and protocol."""
     if (
         run_metadata.get("schema_version") != HELDOUT_RUN_MANIFEST_SCHEMA_VERSION
         or run_metadata.get("dataset_role") != HELDOUT_DATASET_ROLE
@@ -745,10 +1045,17 @@ def validate_heldout_run_bindings(
         oracle_hash, str
     ):
         raise ValueError("held-out public artifact commitments are stale")
+    operator_guide_hash = _sha256_bytes(public_operator_guide_bytes)
+    if public_hashes.get(OPERATOR_GUIDE_FILE) != operator_guide_hash:
+        raise ValueError("held-out public operator guide commitment is stale")
     if public_manifest.get("policy_sha256") != _sha256_bytes(policy_bytes):
         raise ValueError("held-out public policy commitment is stale")
     if prepared_case_pack_bytes != public_cases_bytes:
         raise ValueError("prepared case pack differs from the public held-out cases")
+    if prepared_operator_guide_bytes != public_operator_guide_bytes:
+        raise ValueError(
+            "prepared operator guide differs from the public held-out guide"
+        )
     if prepared_policy_bytes != policy_bytes:
         raise ValueError("prepared policy differs from the held-out policy")
 
@@ -800,6 +1107,10 @@ def validate_heldout_run_bindings(
             "path": f"{HELDOUT_PUBLIC_PATH}/manifest.json",
             "sha256": _sha256_bytes(public_manifest_bytes),
         },
+        "operator_guide": {
+            "path": f"{HELDOUT_PUBLIC_PATH}/{OPERATOR_GUIDE_FILE}",
+            "sha256": operator_guide_hash,
+        },
     }
     if run_metadata.get("artifacts") != expected_artifacts:
         raise ValueError("run manifest artifact bindings are stale")
@@ -829,6 +1140,10 @@ def validate_heldout_run_bindings(
         "policy_copy": {
             "path": "policy.json",
             "sha256": _sha256_bytes(prepared_policy_bytes),
+        },
+        "operator_guide_copy": {
+            "path": OPERATOR_GUIDE_FILE,
+            "sha256": _sha256_bytes(prepared_operator_guide_bytes),
         },
     }
     for name, expected in expected_run_files.items():
@@ -862,9 +1177,14 @@ def prepare_heldout_run(
         raise ValueError("held-out run output directory must not already exist")
     if output.name != run_id:
         raise ValueError("held-out run output directory name must match run_id")
-    manifest, cases, manifest_bytes, cases_bytes, policy_bytes = (
-        validate_heldout_public_pack(root, public)
-    )
+    (
+        manifest,
+        cases,
+        manifest_bytes,
+        cases_bytes,
+        policy_bytes,
+        operator_guide_bytes,
+    ) = validate_heldout_public_pack(root, public)
     output.parent.mkdir(parents=True, exist_ok=True)
     instructions_path = root / HELDOUT_INSTRUCTIONS_PUBLIC_PATH
     if not instructions_path.is_file():
@@ -880,9 +1200,11 @@ def prepare_heldout_run(
     try:
         case_pack = staging / "case-pack.jsonl"
         policy_copy = staging / "policy.json"
+        operator_guide_copy = staging / OPERATOR_GUIDE_FILE
         records = staging / "manual-records.csv"
         case_pack.write_bytes(cases_bytes)
         policy_copy.write_bytes(policy_bytes)
+        operator_guide_copy.write_bytes(operator_guide_bytes)
         write_manual_template(
             records,
             cases,
@@ -935,6 +1257,14 @@ def prepare_heldout_run(
                     ),
                     "sha256": _sha256_bytes(manifest_bytes),
                 },
+                "operator_guide": {
+                    "path": _relative_public_path(
+                        root,
+                        public / OPERATOR_GUIDE_FILE,
+                        "operator guide",
+                    ),
+                    "sha256": _sha256_bytes(operator_guide_bytes),
+                },
             },
             "instructions": {
                 "path": HELDOUT_INSTRUCTIONS_PUBLIC_PATH,
@@ -954,6 +1284,9 @@ def prepare_heldout_run(
             "run_files": {
                 "case_pack": _file_pin(case_pack, "case-pack.jsonl"),
                 "policy_copy": _file_pin(policy_copy, "policy.json"),
+                "operator_guide_copy": _file_pin(
+                    operator_guide_copy, OPERATOR_GUIDE_FILE
+                ),
                 "records_template": _file_pin(records, "manual-records.csv"),
             },
             "release_gate": {

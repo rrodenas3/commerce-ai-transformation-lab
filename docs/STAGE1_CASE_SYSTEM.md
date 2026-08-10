@@ -74,7 +74,7 @@ recommendations + oracle -> scorer -> calibration summary
 current: committed held-out cases -> withheld oracle file -> human record pending -> record freeze -> oracle release -> score
 ```
 
-Model development may use the public discovery cases. It must not use the held-out cases or oracle before the human baseline is frozen. After release, the V1 pack becomes evaluation evidence rather than a reusable blind set; later confirmatory evaluation requires a new pack version.
+Model development may use the public discovery cases. It must not use the held-out cases or oracle before the human baseline is frozen. Invalidated V1 can never enter baseline evidence. After release, V2 becomes evaluation evidence rather than a reusable blind set; later confirmatory evaluation requires a new pack version.
 
 ## Deterministic calibration result
 

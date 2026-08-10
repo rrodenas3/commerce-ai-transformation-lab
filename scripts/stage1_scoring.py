@@ -34,7 +34,7 @@ MANUAL_RUN_TYPE_BY_OPERATOR_ROLE = {
 }
 RUN_MANIFEST_SCHEMA_VERSION = "1.1.0"
 PUBLIC_ORACLE_EXPOSURE_STATUS = "public-oracle-available"
-HELDOUT_RUN_MANIFEST_SCHEMA_VERSION = "2.0.0"
+HELDOUT_RUN_MANIFEST_SCHEMA_VERSION = "2.1.0"
 HELDOUT_ORACLE_EXPOSURE_PREPARED = "oracle-file-withheld-at-preparation"
 HELDOUT_ORACLE_EXPOSURE_RELEASED = "oracle-file-released-after-record-freeze"
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
@@ -56,7 +56,10 @@ DEFAULT_PROHIBITED_TOOLS = (
 HELDOUT_ALLOWED_TOOLS = (
     "provided held-out case pack",
     "provided policy",
+    "provided operator guide",
+    "plain-text editor with AI features disabled",
     "calculator",
+    "system clock",
 )
 HELDOUT_PROHIBITED_TOOLS = (
     "generative AI",
@@ -193,11 +196,13 @@ def evaluate_decisions(
     if len(dataset_roles) != 1:
         raise ValueError("cases must declare one non-empty dataset_role")
     dataset_role = next(iter(dataset_roles))
+    cases_by_id = {case["case_id"]: case for case in cases}
     decisions_by_id = {decision["case_id"]: decision for decision in decisions}
     oracles_by_id = {oracle["case_id"]: oracle for oracle in oracles}
 
     rows: list[dict[str, Any]] = []
     for case_id in sorted(case_ids):
+        case = cases_by_id[case_id]
         decision = decisions_by_id[case_id]
         oracle = oracles_by_id[case_id]
         action = decision["recommended_action"]
@@ -214,8 +219,17 @@ def evaluate_decisions(
 
         action_allowed = action in oracle["allowed_actions"]
         route_correct = decision["route"] == oracle["required_route"]
+        evidence_used = decision["evidence_used"]
+        if not isinstance(evidence_used, list) or any(
+            not isinstance(code, str) or not code for code in evidence_used
+        ):
+            raise ValueError(f"{case_id}: evidence_used must contain source codes")
+        if set(evidence_used) - set(case["evidence"]["sources"]):
+            raise ValueError(
+                f"{case_id}: evidence_used contains an unknown source code"
+            )
         evidence_complete = set(oracle["required_evidence"]).issubset(
-            set(decision["evidence_used"])
+            set(evidence_used)
         )
         message_facts = _validated_message_facts(decision)
         unsupported_facts = sorted(message_facts - set(oracle["allowed_message_facts"]))

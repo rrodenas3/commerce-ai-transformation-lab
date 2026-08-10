@@ -1,0 +1,248 @@
+{
+  "authoritative_postconditions": {
+    "by_prior_action_type": {
+      "REFUND_MISSING": "PAYMENT is available and fresh, and payment.refunded_cents is at least order.affected_value_cents",
+      "RESHIP_MISSING": "INVENTORY is available and fresh; replacement_reservation has the same action_id, VERIFIED status, and reserved_qty at least order.remaining_qty"
+    },
+    "common_requirement": "evidence.source_conflict is false",
+    "selection_rule": "apply the rule matching history.prior_action.type"
+  },
+  "authority_routing_priority": [
+    {
+      "decision_owner": "finance_duty_approver",
+      "priority": 1,
+      "route": "approval",
+      "when": "order.affected_value_cents > 10000 or order.order_value_cents > 50000"
+    },
+    {
+      "decision_owner": "workflow_owner",
+      "priority": 2,
+      "route": "approval",
+      "when": "order.affected_value_cents > 2500 or history.repeat_recovery is true"
+    },
+    {
+      "decision_owner": "customer_recovery_specialist",
+      "priority": 3,
+      "route": "delegated",
+      "when": "neither approval condition applies"
+    }
+  ],
+  "decision_priority": [
+    {
+      "action": "ESCALATE_SPECIALIST",
+      "priority": 1,
+      "route": "specialist",
+      "when": "risk_flags is non-empty or payment.active_chargeback is true"
+    },
+    {
+      "action": "NO_ACTION_ALREADY_RECOVERED",
+      "priority": 2,
+      "route": "delegated",
+      "when": "history.prior_action is VERIFIED and its authoritative refund or replacement postcondition is complete"
+    },
+    {
+      "action": "ESCALATE_ACTION_RECOVERY",
+      "priority": 3,
+      "route": "specialist",
+      "when": "history.prior_action exists but is PENDING, FAILED_SAFE, UNVERIFIED, or VERIFIED without its authoritative postcondition"
+    },
+    {
+      "action": "ESCALATE_EVIDENCE",
+      "priority": 4,
+      "route": "specialist",
+      "when": "evidence.source_conflict is true or any required source is missing or stale"
+    },
+    {
+      "action": "NO_ACTION_DUPLICATE_SIGNAL",
+      "priority": 5,
+      "route": "delegated",
+      "when": "trigger.duplicate is true"
+    },
+    {
+      "action": "WAIT_VERIFIED_ETA",
+      "priority": 6,
+      "route": "delegated",
+      "when": "carrier.status is IN_TRANSIT and customer.preference is wait"
+    },
+    {
+      "action": "RESHIP_MISSING",
+      "priority": 7,
+      "route": "apply authority routing",
+      "when": "inventory.reservable is true and customer.preference is not refund_missing"
+    },
+    {
+      "action": "REFUND_MISSING",
+      "priority": 8,
+      "route": "apply authority routing",
+      "when": "none of the earlier conditions applies"
+    }
+  ],
+  "evaluation_pack_id": "SCC-01-HO-V2",
+  "evidence_codes": [
+    "OMS",
+    "WMS",
+    "CARRIER",
+    "INVENTORY",
+    "PAYMENT",
+    "CRM",
+    "POLICY"
+  ],
+  "evidence_rules": {
+    "ESCALATION": "list every available source code",
+    "NO_ACTION_ALREADY_RECOVERED": [
+      "OMS",
+      "WMS",
+      "CARRIER",
+      "POLICY",
+      "CRM",
+      "PAYMENT"
+    ],
+    "NO_ACTION_DUPLICATE_SIGNAL": [
+      "OMS",
+      "WMS",
+      "CARRIER",
+      "POLICY",
+      "CRM",
+      "PAYMENT"
+    ],
+    "REFUND_MISSING": [
+      "OMS",
+      "WMS",
+      "CARRIER",
+      "INVENTORY",
+      "PAYMENT",
+      "CRM",
+      "POLICY"
+    ],
+    "RESHIP_MISSING": [
+      "OMS",
+      "WMS",
+      "CARRIER",
+      "INVENTORY",
+      "PAYMENT",
+      "CRM",
+      "POLICY"
+    ],
+    "WAIT_VERIFIED_ETA": [
+      "OMS",
+      "WMS",
+      "CARRIER",
+      "POLICY"
+    ]
+  },
+  "handling_rules": [
+    "Apply decision_priority from lowest number to highest and stop at the first match.",
+    "Use pipe characters between multiple evidence or message-fact codes.",
+    "Record only supported message facts; a recommendation is never a verified outcome.",
+    "Do not include personal data, secrets, or copied customer free text in notes."
+  ],
+  "message_fact_codes": {
+    "case_received": "The recovery case was received.",
+    "no_new_action_created": "No new recovery action was created.",
+    "order_reference_confirmed": "The synthetic order reference was confirmed.",
+    "recovery_under_review": "Recovery remains under review.",
+    "refund_requires_verified_execution": "A refund recommendation is not a completed refund.",
+    "replacement_requires_verified_execution": "A replacement recommendation is not a completed reshipment.",
+    "revised_eta_is_estimate": "A revised ETA remains an estimate."
+  },
+  "message_fact_rules": {
+    "additional_by_action": {
+      "ESCALATE_ACTION_RECOVERY": [],
+      "ESCALATE_EVIDENCE": [],
+      "ESCALATE_SPECIALIST": [],
+      "NO_ACTION_ALREADY_RECOVERED": [
+        "no_new_action_created"
+      ],
+      "NO_ACTION_DUPLICATE_SIGNAL": [
+        "no_new_action_created"
+      ],
+      "REFUND_MISSING": [
+        "refund_requires_verified_execution"
+      ],
+      "RESHIP_MISSING": [
+        "replacement_requires_verified_execution"
+      ],
+      "WAIT_VERIFIED_ETA": [
+        "revised_eta_is_estimate"
+      ]
+    },
+    "always_allowed": [
+      "case_received",
+      "order_reference_confirmed",
+      "recovery_under_review"
+    ]
+  },
+  "policy": {
+    "policy_id": "SCC-01-RECOVERY-POLICY",
+    "version": "1.0.0"
+  },
+  "purpose": "Apply the frozen synthetic recovery policy to each case. This guide defines worksheet codes and decision priority; it contains no case answers.",
+  "schema_version": "1.0.0",
+  "worksheet_codes": {
+    "confidence_1_to_5": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "help_requested": [
+      "true",
+      "false"
+    ],
+    "message_facts": [
+      "case_received",
+      "no_new_action_created",
+      "order_reference_confirmed",
+      "recovery_under_review",
+      "refund_requires_verified_execution",
+      "replacement_requires_verified_execution",
+      "revised_eta_is_estimate"
+    ],
+    "recommended_action": [
+      "WAIT_VERIFIED_ETA",
+      "RESHIP_MISSING",
+      "REFUND_MISSING",
+      "NO_ACTION_ALREADY_RECOVERED",
+      "NO_ACTION_DUPLICATE_SIGNAL",
+      "ESCALATE_EVIDENCE",
+      "ESCALATE_ACTION_RECOVERY",
+      "ESCALATE_SPECIALIST"
+    ],
+    "route": [
+      "delegated",
+      "approval",
+      "specialist"
+    ]
+  },
+  "worksheet_fields": {
+    "active_handling_seconds": "Whole seconds spent actively reading, deciding, and recording this case. Exclude interruptions; enter 0 or more and never exceed the elapsed time between the two UTC timestamps.",
+    "case_id": "Prefilled immutable case identifier. Do not edit or reorder rows.",
+    "confidence_1_to_5": "Whole number from 1 (very uncertain) to 5 (very certain) describing confidence in the recorded decision, not confidence in an outcome.",
+    "ended_at_utc": "Use the allowed system clock immediately after completing the row; record UTC as YYYY-MM-DDTHH:MM:SSZ and not before started_at_utc.",
+    "evidence_used_pipe_delimited": "One or more exact evidence codes actually used. Separate multiple codes with | and no surrounding spaces; never invent a source code.",
+    "handoff_count": "Whole number 0 or greater counting actual transfers of handling responsibility during this case. A recommended approval or specialist route alone is not an observed handoff.",
+    "help_requested": "true only if interpretive help from another person was requested during this case; otherwise false. A prohibited tool or coaching exposure invalidates the run rather than counting as help.",
+    "message_facts_pipe_delimited": "One or more supported message-fact codes. Separate multiple codes with | and no surrounding spaces; do not write customer prose.",
+    "notes_without_personal_data": "Optional brief observation about friction, ambiguity, or reasoning. Leave blank or use synthetic-safe text only; never add personal data, secrets, customer prose, or external content.",
+    "policy_lookup_count": "Whole number 0 or greater counting distinct consultation episodes of the prepared policy or operator guide after case timing begins. Continuous reading in one episode counts once.",
+    "recommended_action": "One exact recommended_action code from worksheet_codes. This is a recommendation, not proof of execution.",
+    "reviewer_code": "Prefilled pseudonymous operator code. Do not edit.",
+    "route": "One exact route code from worksheet_codes. This is the required operational route, not an observed handoff.",
+    "run_type": "Prefilled evidence mode. Do not edit.",
+    "started_at_utc": "Use the allowed system clock immediately before reading the case; record UTC as YYYY-MM-DDTHH:MM:SSZ."
+  },
+  "worksheet_serialization": {
+    "column_delimiter": ",",
+    "encoding": "UTF-8 without BOM",
+    "final_line_ending": "required",
+    "format": "CSV using the existing header and row order",
+    "line_ending": "LF only",
+    "multi_value_delimiter": "|",
+    "rules": [
+      "Preserve every column, prefilled value, case ID, and row order.",
+      "Use standard CSV quoting when a value contains a comma or quote.",
+      "Do not add columns, comments, formulas, or spreadsheet metadata."
+    ]
+  }
+}

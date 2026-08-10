@@ -32,9 +32,11 @@ from scripts.stage1_heldout import (
     HELDOUT_ORACLE_RELEASE_PATH,
     HELDOUT_PACK_SCHEMA_VERSION,
     HELDOUT_PUBLIC_PATH,
+    OPERATOR_GUIDE_FILE,
     _canonical_json_bytes,
     _canonical_jsonl_bytes,
     build_heldout_cases,
+    build_operator_guide,
     build_operator_case_pack,
     load_private_generation_material,
     load_private_oracle,
@@ -258,6 +260,9 @@ def load_records_freeze_anchor(
     policy_copy_relative = manifest_relative.parent / Path(
         run_files["policy_copy"]["path"]
     )
+    operator_guide_copy_relative = manifest_relative.parent / Path(
+        run_files["operator_guide_copy"]["path"]
+    )
     anchored_files = {
         manifest_relative: run_manifest_path.read_bytes(),
         case_pack_relative: _prepared_file_path(
@@ -266,11 +271,17 @@ def load_records_freeze_anchor(
         policy_copy_relative: _prepared_file_path(
             run_manifest_path, run_metadata, "policy_copy"
         ).read_bytes(),
+        operator_guide_copy_relative: _prepared_file_path(
+            run_manifest_path, run_metadata, "operator_guide_copy"
+        ).read_bytes(),
         Path(HELDOUT_PUBLIC_PATH) / "cases.jsonl": (
             root / HELDOUT_PUBLIC_PATH / "cases.jsonl"
         ).read_bytes(),
         Path(HELDOUT_PUBLIC_PATH) / "manifest.json": (
             root / HELDOUT_PUBLIC_PATH / "manifest.json"
+        ).read_bytes(),
+        Path(HELDOUT_PUBLIC_PATH) / OPERATOR_GUIDE_FILE: (
+            root / HELDOUT_PUBLIC_PATH / OPERATOR_GUIDE_FILE
         ).read_bytes(),
         Path("data/stage1/policy.json"): (
             root / "data" / "stage1" / "policy.json"
@@ -385,16 +396,19 @@ def release_heldout_oracle(
     public = root / HELDOUT_PUBLIC_PATH
     public_manifest_path = public / "manifest.json"
     cases_path = public / "cases.jsonl"
+    operator_guide_path = public / OPERATOR_GUIDE_FILE
     policy_path = root / "data" / "stage1" / "policy.json"
     for path, label in (
         (public_manifest_path, "public manifest"),
         (cases_path, "held-out cases"),
+        (operator_guide_path, "held-out operator guide"),
         (policy_path, "policy"),
     ):
         if not path.is_file():
             raise ValueError(f"required {label} does not exist")
     public_manifest_bytes = public_manifest_path.read_bytes()
     public_cases_bytes = cases_path.read_bytes()
+    public_operator_guide_bytes = operator_guide_path.read_bytes()
     policy_bytes = policy_path.read_bytes()
     public_manifest = json.loads(public_manifest_bytes.decode("utf-8"))
     if (
@@ -409,6 +423,9 @@ def release_heldout_oracle(
     prepared_policy_path = _prepared_file_path(
         run_manifest_path, run_metadata, "policy_copy"
     )
+    prepared_operator_guide_path = _prepared_file_path(
+        run_manifest_path, run_metadata, "operator_guide_copy"
+    )
     instructions_path = root / HELDOUT_INSTRUCTIONS_PUBLIC_PATH
     if not instructions_path.is_file():
         raise ValueError("held-out protocol does not exist")
@@ -417,7 +434,9 @@ def release_heldout_oracle(
         public_manifest,
         public_manifest_bytes=public_manifest_bytes,
         public_cases_bytes=public_cases_bytes,
+        public_operator_guide_bytes=public_operator_guide_bytes,
         prepared_case_pack_bytes=prepared_case_path.read_bytes(),
+        prepared_operator_guide_bytes=prepared_operator_guide_path.read_bytes(),
         policy_bytes=policy_bytes,
         prepared_policy_bytes=prepared_policy_path.read_bytes(),
         instructions_bytes=instructions_path.read_bytes(),
@@ -426,6 +445,10 @@ def release_heldout_oracle(
     generation_material = load_private_generation_material(private_output)
     private_oracles = load_private_oracle(private_output)
     policy = load_stage1_policy(root)
+    if public_operator_guide_bytes != _canonical_json_bytes(
+        build_operator_guide(policy)
+    ):
+        raise ValueError("held-out operator guide does not match the frozen policy")
     regenerated_internal_cases = build_heldout_cases(policy, generation_material)
     regenerated_cases = build_operator_case_pack(regenerated_internal_cases)
     regenerated_oracles = [
@@ -465,7 +488,7 @@ def release_heldout_oracle(
     material_commitment = _sha256_bytes(generation_material.encode("utf-8"))
     release_manifest = {
         "schema_version": ORACLE_RELEASE_SCHEMA_VERSION,
-        "release_id": "SCC-01-HO-V1-ORACLE-RELEASE",
+        "release_id": f"{HELDOUT_EVALUATION_PACK_ID}-ORACLE-RELEASE",
         "evaluation_pack_id": HELDOUT_EVALUATION_PACK_ID,
         "run_id": run_metadata["run_provenance"]["run_id"],
         "state_transition": {
