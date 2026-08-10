@@ -21,15 +21,42 @@ MANDATORY_EVIDENCE_FIELDS = {
     "maturity",
     "limitations",
 }
+MANDATORY_CANONICAL_SOURCE_FIELDS = {
+    "source",
+    "owner",
+    "version",
+    "evidence_status",
+    "sensitivity",
+    "permitted_use",
+    "review_state",
+    "replacement_or_expiry",
+    "knowledge_type",
+    "authority_scope",
+    "conflict_policy",
+    "generated_content_authority",
+    "visual_evidence_boundary",
+    "regression_trigger",
+    "outcome_evidence",
+    "research_as_of",
+    "source_freshness",
+}
 NONEMPTY_STRING_LIST_POLICY_KEYS = {
     "allowed_evidence_statuses",
+    "allowed_knowledge_types",
     "allowed_maturities",
+    "allowed_review_states",
+    "allowed_sensitivities",
+    "allowed_visual_evidence_boundaries",
+    "canonical_source_globs",
     "required_journey_fields",
+    "required_canonical_source_fields",
     "evidence_artifact_globs",
     "forbidden_file_names",
     "forbidden_file_suffixes",
     "forbidden_path_globs",
     "required_root_files",
+    "required_source_release_paths",
+    "source_release_globs",
 }
 
 
@@ -94,6 +121,16 @@ def validate_policy(policy: Any) -> None:
             + ", ".join(missing_fields)
         )
 
+    required_canonical_fields = set(policy["required_canonical_source_fields"])
+    missing_canonical_fields = sorted(
+        MANDATORY_CANONICAL_SOURCE_FIELDS - required_canonical_fields
+    )
+    if missing_canonical_fields:
+        raise policy_error(
+            "'required_canonical_source_fields' is missing mandatory field(s): "
+            + ", ".join(missing_canonical_fields)
+        )
+
     patterns = policy["forbidden_text_patterns"]
     if not isinstance(patterns, list) or not patterns:
         raise policy_error("'forbidden_text_patterns' must be a nonempty list")
@@ -125,10 +162,19 @@ def validate_policy(policy: Any) -> None:
     ):
         raise policy_error("'allowed_binary_files' must be a list of exact paths")
 
-    for key in ("required_root_files", "allowed_binary_files"):
+    for key in (
+        "required_root_files",
+        "required_source_release_paths",
+        "allowed_binary_files",
+    ):
         for value in policy[key]:
             _validate_relative_policy_path(value, key=key, allow_glob=False)
-    for key in ("evidence_artifact_globs", "forbidden_path_globs"):
+    for key in (
+        "canonical_source_globs",
+        "evidence_artifact_globs",
+        "forbidden_path_globs",
+        "source_release_globs",
+    ):
         for value in policy[key]:
             _validate_relative_policy_path(value, key=key, allow_glob=True)
 
@@ -329,6 +375,94 @@ def _evidence_files(
     return sorted(matched_paths, key=lambda path: path.relative_to(root).as_posix())
 
 
+def _canonical_source_files(
+    root: Path,
+    text_by_path: dict[Path, str | None],
+    policy: dict[str, Any],
+) -> list[Path]:
+    publishable_paths = set(text_by_path)
+    matched_paths: set[Path] = set()
+    for pattern in policy["canonical_source_globs"]:
+        matched_paths.update(
+            path
+            for path in root.glob(pattern)
+            if path in publishable_paths and path.suffix.lower() == ".md"
+        )
+    return sorted(matched_paths, key=lambda path: path.relative_to(root).as_posix())
+
+
+def check_artifact_metadata(
+    relative: str,
+    text: str | None,
+    policy: dict[str, Any],
+    *,
+    canonical_source: bool,
+) -> list[str]:
+    """Validate public metadata without exposing the artifact body."""
+    if text is None:
+        return [f"evidence artifact must be UTF-8 text: {relative}"]
+
+    metadata = parse_front_matter(text)
+    if metadata is None:
+        return [f"missing front matter: {relative}"]
+
+    errors: list[str] = []
+    for field in policy["required_journey_fields"]:
+        if not metadata.get(field):
+            errors.append(f"missing evidence field '{field}': {relative}")
+    if canonical_source:
+        for field in policy["required_canonical_source_fields"]:
+            if not metadata.get(field):
+                errors.append(
+                    f"missing canonical source field '{field}': {relative}"
+                )
+
+    evidence_status = metadata.get("evidence_status")
+    if evidence_status and evidence_status not in policy["allowed_evidence_statuses"]:
+        errors.append(f"unsupported evidence_status: {relative}")
+    if metadata.get("public_safe", "").lower() != "true":
+        errors.append(f"public_safe must be true: {relative}")
+
+    maturity = metadata.get("maturity")
+    allowed_maturities = policy["allowed_maturities"]
+    current_maturity = policy["current_maturity"]
+    if maturity and maturity not in allowed_maturities:
+        errors.append(f"unsupported maturity: {relative}")
+    elif (
+        maturity
+        and allowed_maturities.index(maturity)
+        > allowed_maturities.index(current_maturity)
+    ):
+        errors.append(
+            f"maturity '{maturity}' exceeds current maturity "
+            f"'{current_maturity}': {relative}"
+        )
+
+    if canonical_source:
+        constrained_fields = {
+            "knowledge_type": "allowed_knowledge_types",
+            "review_state": "allowed_review_states",
+            "sensitivity": "allowed_sensitivities",
+            "visual_evidence_boundary": "allowed_visual_evidence_boundaries",
+        }
+        for field, policy_key in constrained_fields.items():
+            value = metadata.get(field)
+            if value and value not in policy[policy_key]:
+                errors.append(f"unsupported {field}: {relative}")
+
+        exact_values = {
+            "conflict_policy": "surface-and-block-dependent-claims",
+            "generated_content_authority": "none",
+            "regression_trigger": "material-change",
+            "outcome_evidence": "none",
+        }
+        for field, expected in exact_values.items():
+            value = metadata.get(field)
+            if value and value != expected:
+                errors.append(f"unsupported {field}: {relative}")
+    return errors
+
+
 def check_journey_metadata(
     root: Path,
     text_by_path: dict[Path, str | None],
@@ -336,48 +470,23 @@ def check_journey_metadata(
 ) -> list[str]:
     errors: list[str] = []
     if not (root / "journey").is_dir():
-        return ["missing journey directory"]
+        errors.append("missing journey directory")
 
-    required_fields = policy["required_journey_fields"]
-    allowed_statuses = set(policy["allowed_evidence_statuses"])
-    allowed_maturities = policy["allowed_maturities"]
-    current_maturity = policy["current_maturity"]
-    current_maturity_index = allowed_maturities.index(current_maturity)
-
-    for path in _evidence_files(root, text_by_path, policy):
+    evidence_files = set(_evidence_files(root, text_by_path, policy))
+    canonical_files = set(_canonical_source_files(root, text_by_path, policy))
+    for path in sorted(
+        evidence_files | canonical_files,
+        key=lambda candidate: candidate.relative_to(root).as_posix(),
+    ):
         relative = path.relative_to(root).as_posix()
-        text = text_by_path[path]
-        if text is None:
-            errors.append(f"evidence artifact must be UTF-8 text: {relative}")
-            continue
-        metadata = parse_front_matter(text)
-        if metadata is None:
-            errors.append(f"missing front matter: {relative}")
-            continue
-
-        for field in required_fields:
-            if not metadata.get(field):
-                errors.append(f"missing evidence field '{field}': {relative}")
-
-        evidence_status = metadata.get("evidence_status")
-        if evidence_status and evidence_status not in allowed_statuses:
-            errors.append(
-                f"unsupported evidence_status '{evidence_status}': {relative}"
+        errors.extend(
+            check_artifact_metadata(
+                relative,
+                text_by_path[path],
+                policy,
+                canonical_source=path in canonical_files,
             )
-        if metadata.get("public_safe", "").lower() != "true":
-            errors.append(f"public_safe must be true: {relative}")
-
-        maturity = metadata.get("maturity")
-        if maturity and maturity not in allowed_maturities:
-            errors.append(f"unsupported maturity '{maturity}': {relative}")
-        elif (
-            maturity
-            and allowed_maturities.index(maturity) > current_maturity_index
-        ):
-            errors.append(
-                f"maturity '{maturity}' exceeds current maturity "
-                f"'{current_maturity}': {relative}"
-            )
+        )
     return errors
 
 
