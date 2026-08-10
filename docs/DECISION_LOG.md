@@ -105,3 +105,20 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 - **Status:** Accepted
 - **Decision:** Create each manual run through a fail-closed preparation command that freezes pseudonymous reviewer identity, creator or independent role, UTC preparation time, tool policy, protocol hash, assignment, copied inputs, and blank worksheet before handling starts.
 - **Reason:** A generic worksheet can be copied, substituted, backfilled, or attached to a newer manifest. Evidence of human work requires provenance that predates the answers and preserves the complete denominator.
+
+## D-015 — Reclassify the exposed creator pack
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Retain the prepared public creator pack unchanged, but classify it as familiarisation material and exclude it from any clean manual-baseline claim. Create the measured baseline from a separately seeded held-out pack whose oracle remains temporarily sealed until the source record is frozen.
+- **Trigger:** During guided practice, a broad repository search surfaced answer-bearing oracle lines before the creator run was completed.
+- **Reason:** Exposure does not invalidate the public cases as transparent contract-calibration material, but it does invalidate their use as a blind test of unaided judgment. Preserving the failure and changing the evaluation design is stronger evidence governance than silently replacing or completing the pack.
+- **Consequence:** No score from the exposed pack will enter a before-and-after comparison. The current protocol and scripts remain public-discovery tooling and must not be presented as a held-out path. Future run metadata must record oracle exposure truthfully, and the held-out generator, assignment, answer key, and release sequence must be verified before handling begins.
+
+## D-016 — Make AI assistance and accountable authorship explicit
+
+- **Date:** 2026-08-09
+- **Status:** Accepted
+- **Decision:** Attribute the mandate, constraints, transformation choices, evidence standards, acceptance judgments, and publication decisions to Raul, while disclosing that AI assisted research, drafting, coding, and review.
+- **Reason:** Accountable leadership is demonstrated through decisions and evidence quality, not by implying every artifact was produced without tools. Human-performance evidence requires a separately documented run; repository output alone is not evidence of unaided human work or independent validation.
+- **Consequence:** Public summaries must distinguish accountable authorship, AI-assisted implementation, human-reviewed evidence, and independent review.

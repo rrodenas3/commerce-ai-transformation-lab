@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: proposed manual workflow awaiting creator-run and independent human observation
+limitations: proposed manual workflow awaiting a clean held-out manual run and independent human observation
 ---
 
 # Proposed current state and manual workflow
@@ -109,4 +109,3 @@ Active handling time, actual queue time, and hypothetical modelled waiting time 
 - end-to-end trace or automated learning.
 
 Those capabilities must be designed in Stage 2 and evaluated after implementation.
-
