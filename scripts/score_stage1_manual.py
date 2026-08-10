@@ -26,6 +26,11 @@ from scripts.stage1_scoring import (
     DEFAULT_ALLOWED_TOOLS,
     DEFAULT_PROHIBITED_TOOLS,
     ESCALATION_ACTIONS,
+    HELDOUT_ALLOWED_TOOLS,
+    HELDOUT_INSTRUCTIONS_PUBLIC_PATH,
+    HELDOUT_ORACLE_EXPOSURE_PREPARED,
+    HELDOUT_PROHIBITED_TOOLS,
+    HELDOUT_RUN_MANIFEST_SCHEMA_VERSION,
     INSTRUCTIONS_PUBLIC_PATH,
     MANUAL_RUN_TYPE_BY_OPERATOR_ROLE,
     PUBLIC_ORACLE_EXPOSURE_STATUS,
@@ -174,18 +179,27 @@ def _validated_run_provenance(run_metadata: dict[str, Any]) -> dict[str, Any]:
         provenance.get("prepared_at_utc"), "run_provenance.prepared_at_utc"
     )
 
+    heldout = (
+        run_metadata.get("schema_version") == HELDOUT_RUN_MANIFEST_SCHEMA_VERSION
+    )
+    expected_instructions_path = (
+        HELDOUT_INSTRUCTIONS_PUBLIC_PATH if heldout else INSTRUCTIONS_PUBLIC_PATH
+    )
+    expected_tool_policy = {
+        "allowed": list(HELDOUT_ALLOWED_TOOLS if heldout else DEFAULT_ALLOWED_TOOLS),
+        "prohibited": list(
+            HELDOUT_PROHIBITED_TOOLS if heldout else DEFAULT_PROHIBITED_TOOLS
+        ),
+    }
     instructions = run_metadata.get("instructions")
     if not isinstance(instructions, dict) or set(instructions) != {"path", "sha256"}:
         raise ValueError("run manifest requires an instructions pin")
-    if instructions.get("path") != INSTRUCTIONS_PUBLIC_PATH:
+    if instructions.get("path") != expected_instructions_path:
         raise ValueError("run manifest instructions path is unsupported")
     _validated_sha256(instructions.get("sha256"), "run manifest instructions")
 
     tool_policy = run_metadata.get("tool_policy")
-    if tool_policy != {
-        "allowed": list(DEFAULT_ALLOWED_TOOLS),
-        "prohibited": list(DEFAULT_PROHIBITED_TOOLS),
-    }:
+    if tool_policy != expected_tool_policy:
         raise ValueError("run manifest tool_policy does not match the protocol")
     return {**provenance, "prepared_at": prepared_at}
 
@@ -223,14 +237,23 @@ def _validate_run_metadata(
 ) -> tuple[list[str], dict[str, dict[str, str]], dict[str, Any]]:
     if not isinstance(run_metadata, dict):
         raise ValueError("manual run manifest must be a JSON object")
-    if run_metadata.get("schema_version") != RUN_MANIFEST_SCHEMA_VERSION:
+    schema_version = run_metadata.get("schema_version")
+    if schema_version not in {
+        RUN_MANIFEST_SCHEMA_VERSION,
+        HELDOUT_RUN_MANIFEST_SCHEMA_VERSION,
+    }:
         raise ValueError("unsupported manual run manifest schema_version")
     if run_metadata.get("run_type") not in ALLOWED_MANUAL_RUN_TYPES:
         raise ValueError("unsupported manual run manifest run_type")
-    if run_metadata.get("oracle_exposure_status") != PUBLIC_ORACLE_EXPOSURE_STATUS:
+    expected_exposure_status = (
+        HELDOUT_ORACLE_EXPOSURE_PREPARED
+        if schema_version == HELDOUT_RUN_MANIFEST_SCHEMA_VERSION
+        else PUBLIC_ORACLE_EXPOSURE_STATUS
+    )
+    if run_metadata.get("oracle_exposure_status") != expected_exposure_status:
         raise ValueError(
-            "public discovery runs must declare oracle_exposure_status "
-            f"as '{PUBLIC_ORACLE_EXPOSURE_STATUS}'"
+            "run manifest oracle_exposure_status must match its evidence protocol "
+            f"('{expected_exposure_status}')"
         )
     if not isinstance(run_metadata.get("dataset_role"), str) or not run_metadata[
         "dataset_role"

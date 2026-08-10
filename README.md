@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: Stage 1 synthetic foundation only; the public creator pack is familiarisation material after oracle exposure, and there is no clean human baseline, held-out evaluation, AI-assisted run, deployment, adoption, or realised business outcome
+limitations: Stage 1 synthetic foundation only; a process-controlled held-out instrument exists but no human record is complete, and there is no AI-assisted run, deployment, adoption, or realised business outcome
 ---
 
 <div align="center">
@@ -35,7 +35,7 @@ limitations: Stage 1 synthetic foundation only; the public creator pack is famil
 | **North-star outcome** | Increase the proportion of eligible exceptions that reach a correct, policy-compliant, independently verified recovery within the target time. |
 | **Lighthouse workflow** | Delayed or partial fulfilment, from the first reliable signal to verified recovery and evidence-bound customer communication. |
 | **Operating principle** | People retain authority over financial, customer-facing, irreversible, high-risk, and policy-changing decisions. |
-| **Current gate** | Stage 1 foundation: public discovery evidence and controls are in place; the exposed creator pack is familiarisation material, and a separately seeded held-out manual evaluation is the next evidence gate. |
+| **Current gate** | Stage 1 foundation: a 32-case held-out pack, blank creator instrument, and fail-closed answer-file release control exist; Raul's manual-no-AI record under disclosed process controls is the next evidence gate. |
 | **Final decision** | Scale, revise, pause, or stop based on outcome quality, risk, review burden, adoption friction, reliability, and operating cost. |
 
 The lab is deliberately built as a transformation programme rather than an autonomous-agent showcase. Code and agents are useful only when they improve a governed workflow and generate evidence strong enough to support an investment decision.
@@ -146,14 +146,14 @@ The detailed [future workflow and decision rights](docs/FIRST_VERTICAL_SLICE.md)
 | Stage | Decision gate | Status |
 | --- | --- | --- |
 | **0. Foundation** | Is the outcome, scope, evidence boundary, and investment question clear? | Complete |
-| **1. Current state and baseline** | Is the coordination problem measured rather than assumed? | **Active: held-out manual evaluation next** |
+| **1. Current state and baseline** | Is the coordination problem measured rather than assumed? | **Active: held-out instrument ready; human run next** |
 | **2. Workflow and operating-model redesign** | Does every consequential decision have an owner and every AI task have a boundary? | Planned |
 | **3. Governed vertical slice** | Can the minimum slice operate safely with reconstructable evidence? | Planned |
 | **4. Evaluation and adaptation** | Does the workflow improve verified resolution without hiding risk or review cost? | Planned |
 | **5. Enablement and independent review** | Can another person use, challenge, and recover the workflow? | Planned |
 | **6. Benefits and scale decision** | Is the value-risk case strong enough to scale, or should it be revised, paused, or stopped? | Planned |
 
-During guided practice, answer-bearing oracle content from the public discovery set was exposed before the creator run. The blank pack remains public and unchanged, but it is now familiarisation material rather than a clean baseline. The next gate is a separately seeded held-out case pack with a temporarily sealed oracle, followed by a provenance-bound manual run. The AI-assisted workflow is not built until that evidence is preserved.
+During guided practice, answer-bearing oracle content from the public discovery set was exposed before the creator run. The blank pack remains public and unchanged as familiarisation material. The adaptation is now implemented: a new 32-case pack commits the cases, seed commitment, oracle commitment, blank worksheet, and run provenance while the answer key remains private. The release command fails unless a later Git commit contains the complete human record. The AI-assisted workflow is not built until that record is preserved and scored.
 
 See the [full delivery roadmap](docs/DELIVERY_ROADMAP.md) and the [public journey](journey/README.md).
 
@@ -172,14 +172,15 @@ See the [full delivery roadmap](docs/DELIVERY_ROADMAP.md) and the [public journe
 - [Measurement plan](docs/MEASUREMENT_PLAN.md): north-star measure, baselines, exact-zero controls, and final decision logic.
 - [Case and oracle system](docs/STAGE1_CASE_SYSTEM.md): 24-case design, data separation, calibration, and supported claims.
 - [Public-discovery manual protocol](docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md): the frozen historical evidence contract; it is not a valid held-out execution path after exposure.
+- [Held-out evaluation protocol](docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md): public-pack verification, human handling, record freeze, answer-file release, scoring, and invalidation rules.
 - [Evidence policy](docs/EVIDENCE_POLICY.md): claim classes, maturity ladder, and publication gate.
 - [Decision log](docs/DECISION_LOG.md): durable choices, alternatives, and evidence rationale.
 - [Research base](docs/RESEARCH_BASE.md): transformation, governance, and commerce grounding.
 
 ### Executable evidence
 
-- [Stage 1 data](data/README.md): generated cases, oracle, decisions, summaries, and the exposed familiarisation pack.
-- [`scripts/`](scripts): public-discovery generation, transparent calibration, exposed-pack preparation and scoring controls, and public-safety verification. Held-out preparation and scoring are not implemented.
+- [Stage 1 data](data/README.md): discovery calibration, the exposed familiarisation pack, the process-controlled 32-case held-out pack, and its blank creator instrument.
+- [`scripts/`](scripts): public-discovery calibration plus held-out generation, preparation, record-before-oracle release, scoring, and public-safety controls.
 - [`tests/`](tests): policy boundaries, failure paths, provenance, canonical bytes, scoring integrity, and disclosure controls.
 - [Security policy](SECURITY.md): synthetic-data boundary and responsible disclosure.
 
@@ -199,6 +200,7 @@ python scripts/verify_public_safety.py
 ```bash
 python scripts/generate_stage1_cases.py
 python scripts/stage1_deterministic_baseline.py
+python scripts/generate_stage1_heldout.py --verify-public
 ```
 
 The automated checks cover happy paths, authority boundaries, stale and conflicting evidence, duplicate actions, chargeback stops, action-specific postconditions, malformed records, provenance mismatches, artifact drift, private paths, risky filenames, and common secret patterns.
@@ -217,6 +219,8 @@ The repository currently contains:
 - a frozen, co-designed reference oracle independent of future model output but not independent validation;
 - a transparent deterministic baseline and scorer;
 - a prepared, blank, case-only creator pack reclassified as familiarisation material after oracle exposure;
+- a separately generated 32-case held-out pack, private oracle, public commitments, and blank creator instrument;
+- a fail-closed release command that requires the completed human record to be committed before the oracle is published;
 - reproducible artifacts, CI, and public-safety controls.
 
 It does not yet contain a clean held-out human baseline, AI-assisted workflow, executed recovery, independent reviewer session, pilot, production deployment, organisational adoption, or realised business outcome.

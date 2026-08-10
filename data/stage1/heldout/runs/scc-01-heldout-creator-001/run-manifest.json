@@ -1,0 +1,116 @@
+{
+  "artifacts": {
+    "artifact_manifest": {
+      "path": "data/stage1/heldout/v1/manifest.json",
+      "sha256": "6a2fc058e6836226ccb2c082f55bb8580125018a1c477f280d46517571025136"
+    },
+    "cases": {
+      "path": "data/stage1/heldout/v1/cases.jsonl",
+      "sha256": "2caee4f2533918b950135dc6ba192e28d86355a2e75aa1d110e3aa3b24026f77"
+    },
+    "oracle": {
+      "path": "data/stage1/heldout/v1/oracle.released.jsonl",
+      "sha256": "8fd170201317311591af70a953708074065b6ee836587d60ec69298990d1616a"
+    },
+    "policy": {
+      "path": "data/stage1/policy.json",
+      "sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d"
+    }
+  },
+  "assigned_case_ids": [
+    "SCC-01-HO1-001",
+    "SCC-01-HO1-002",
+    "SCC-01-HO1-003",
+    "SCC-01-HO1-004",
+    "SCC-01-HO1-005",
+    "SCC-01-HO1-006",
+    "SCC-01-HO1-007",
+    "SCC-01-HO1-008",
+    "SCC-01-HO1-009",
+    "SCC-01-HO1-010",
+    "SCC-01-HO1-011",
+    "SCC-01-HO1-012",
+    "SCC-01-HO1-013",
+    "SCC-01-HO1-014",
+    "SCC-01-HO1-015",
+    "SCC-01-HO1-016",
+    "SCC-01-HO1-017",
+    "SCC-01-HO1-018",
+    "SCC-01-HO1-019",
+    "SCC-01-HO1-020",
+    "SCC-01-HO1-021",
+    "SCC-01-HO1-022",
+    "SCC-01-HO1-023",
+    "SCC-01-HO1-024",
+    "SCC-01-HO1-025",
+    "SCC-01-HO1-026",
+    "SCC-01-HO1-027",
+    "SCC-01-HO1-028",
+    "SCC-01-HO1-029",
+    "SCC-01-HO1-030",
+    "SCC-01-HO1-031",
+    "SCC-01-HO1-032"
+  ],
+  "dataset_role": "process-controlled-held-out-evaluation",
+  "evaluation_pack": {
+    "evaluation_pack_id": "SCC-01-HO-V1",
+    "generator_name": "scc-01-heldout-case-generator",
+    "generator_seed_commitment_sha256": "331906c80783ef7a6773cd9f01b1d610a1c207c149bd0274547b3f93eeb95eb6",
+    "generator_version": "1.0.0"
+  },
+  "instructions": {
+    "path": "docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md",
+    "sha256": "3331a1a26ccb2e402d2495649cae63e33fedba97531a38c0210298d1cace30fd"
+  },
+  "oracle": {
+    "release_path": "data/stage1/heldout/v1/oracle.released.jsonl",
+    "sha256_commitment": "8fd170201317311591af70a953708074065b6ee836587d60ec69298990d1616a",
+    "version": "1.0.0"
+  },
+  "oracle_exposure_status": "oracle-file-withheld-at-preparation",
+  "policy": {
+    "policy_id": "SCC-01-RECOVERY-POLICY",
+    "version": "1.0.0"
+  },
+  "release_gate": {
+    "release_manifest_path": "data/stage1/heldout/v1/oracle-release-manifest.json",
+    "required_transition": "completed-records-commit-before-oracle-release"
+  },
+  "run_files": {
+    "case_pack": {
+      "path": "case-pack.jsonl",
+      "sha256": "2caee4f2533918b950135dc6ba192e28d86355a2e75aa1d110e3aa3b24026f77"
+    },
+    "policy_copy": {
+      "path": "policy.json",
+      "sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d"
+    },
+    "records_template": {
+      "path": "manual-records.csv",
+      "sha256": "b1845c789c08591e330c3a4403d59b3143b986b487024ad30ed36b80f492b438"
+    }
+  },
+  "run_provenance": {
+    "operator_role": "creator",
+    "prepared_at_utc": "2026-08-10T04:56:03Z",
+    "reviewer_code": "CREATOR-01",
+    "run_id": "scc-01-heldout-creator-001",
+    "status": "prepared"
+  },
+  "run_type": "manual-no-ai",
+  "schema_version": "2.0.0",
+  "tool_policy": {
+    "allowed": [
+      "provided held-out case pack",
+      "provided policy",
+      "calculator"
+    ],
+    "prohibited": [
+      "generative AI",
+      "oracle or oracle-generating code consultation during handling",
+      "deterministic answer consultation during handling",
+      "public repository consultation during handling",
+      "creator coaching during an independent run"
+    ]
+  }
+}

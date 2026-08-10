@@ -37,6 +37,18 @@ python -m unittest tests.test_stage1_case_system -v
 
 Prepared manual runs live under `data/stage1/runs/<run-id>/`. A blank prepared pack remains an instrument, not a human result. The first public creator pack was exposed to answer-bearing oracle content during guided practice and is therefore familiarisation material, not a clean baseline. [D-015](../docs/DECISION_LOG.md#d-015--reclassify-the-exposed-creator-pack) records the adaptation.
 
-Held-out preparation and scoring are **not implemented yet**. The current preparation command, scorer, and frozen protocol are bound to the public discovery artifacts and the exposed creator pack. Do not complete or score that pack as baseline evidence.
+## Stage 1 held-out evaluation pack
 
-The next implementation unit will add a separately seeded case pack, a temporarily sealed oracle, explicit exposure states, and a release sequence that freezes the source record before scoring. Until that unit is verified, the commands above reproduce public contract-calibration evidence only; they do not create a valid held-out run.
+`data/stage1/heldout/v1/` contains a separately generated 32-case operator pack and public hash commitments. Operator cases expose incident facts but omit evaluator-only titles, family labels, and generator metadata. The answer-bearing oracle and deterministic generation material remain under ignored `artifacts/private/` until a completed human record is committed.
+
+The held-out workflow is implemented as a fail-closed evidence-state transition:
+
+1. generate public cases and private oracle;
+2. prepare and commit a case-only blank run;
+3. complete and commit the human record outside an AI session;
+4. release the oracle only after Git verifies that record freeze;
+5. score only the byte-identical frozen record.
+
+The [held-out protocol](../docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md) contains the exact commands and invalidation rules. The committed creator run is still a blank evidence instrument until Raul completes it. No held-out human result exists yet.
+
+The original public-discovery preparation command and scorer remain bound to the exposed discovery pack. Do not complete or score that pack as baseline evidence.

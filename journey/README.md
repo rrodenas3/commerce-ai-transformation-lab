@@ -25,10 +25,13 @@ This index is the public narrative spine. It records what was known, decided, im
 - [Case and oracle system](../docs/STAGE1_CASE_SYSTEM.md)
 - [Frozen public-discovery manual protocol](../docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md) — historical contract only; not a valid held-out execution path
 - [Exposed familiarisation-pack manifest](../data/stage1/runs/scc-01-creator-manual-001/run-manifest.json)
+- [Held-out evaluation protocol](../docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md)
+- [Process-controlled held-out pack manifest](../data/stage1/heldout/v1/manifest.json)
+- [Blank held-out creator instrument](../data/stage1/heldout/runs/scc-01-heldout-creator-001/run-manifest.json)
 - [Stage 1 research notes](../docs/STAGE1_RESEARCH_NOTES.md)
 - [Journey 01 narrative](01-stage-1-baseline.md)
 
-The 24-case deterministic result is a disclosed public calibration artifact. The original creator pack is frozen and blank, but answer-bearing oracle content was exposed during guided practice. It remains familiarisation material; Stage 1 stays active until a separately seeded held-out manual run is frozen, completed, and scored.
+The 24-case deterministic result is a disclosed public calibration artifact. The original creator pack is familiarisation material after oracle exposure. A new 32-case held-out pack and blank creator instrument now implement a process-controlled answer-file release sequence, but Stage 1 stays active until Raul completes and freezes the worksheet before oracle release and scoring.
 
 ## Future evidence
 
