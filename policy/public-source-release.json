@@ -1,0 +1,323 @@
+{
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "e6a73511dc0bb5738d02044068961f0b231f1c6cd9fa807a1e870c77d2c3b1d4"
+    },
+    {
+      "path": "docs/DECISION_LOG.md",
+      "sha256": "ccb99f2aad3b043dc226429c2ba62ca553ee884469802165ef892dca7cc31c26"
+    },
+    {
+      "path": "docs/EVIDENCE_POLICY.md",
+      "sha256": "4619448d7c67aec23e875345654e054c4b4e2c60a23a43e3b2344b1384936111"
+    },
+    {
+      "path": "docs/FIRST_VERTICAL_SLICE.md",
+      "sha256": "252fd70dff1a0145d3b20d7d2159e9229fef02f183bf6be310940ec71af9e97c"
+    },
+    {
+      "path": "docs/PROJECT_CHARTER.md",
+      "sha256": "f66df352c7dd1a44331e4a0b1d45a32ae9f9025ceb085db6622f9941b5611790"
+    },
+    {
+      "path": "docs/RESEARCH_BASE.md",
+      "sha256": "9b803e070890263371eeca33db65a299f4f7f547b92f6facdd2a3c83020cd601"
+    },
+    {
+      "path": "docs/STAGE1_CASE_SYSTEM.md",
+      "sha256": "011d4a34f90dee8913627dfe8c0938d2b0566d2796b006f9bfd3f18f575d92b6"
+    },
+    {
+      "path": "docs/STAGE1_CURRENT_STATE.md",
+      "sha256": "38dfa74adfc88dedb3bc1b5d5a3ec6b994af3a5045c881110acae0955b13178f"
+    },
+    {
+      "path": "docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md",
+      "sha256": "905318766fb363b4d27f427b0b287519c8009743108dee9185387485eb164af0"
+    },
+    {
+      "path": "docs/STAGE1_OPERATING_MODEL.md",
+      "sha256": "3137bce7782abab8ded5f4b48736617c9fc6ab9fcadcba2ed877cbf1d204dea1"
+    },
+    {
+      "path": "docs/STAGE1_RESEARCH_NOTES.md",
+      "sha256": "353fd5e7a2da506dd7295022d47764c49e815e044e09bdd034b58b95993485f2"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/01_EXECUTIVE_BLUEPRINT.md",
+      "sha256": "706e3224e59008aefaa0f319719a3687e436bfc08997484d2a1bcc286cec4d7c"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/02_SYSTEM_MODEL_ONTOLOGY_TOPOLOGY_ARCHITECTURE.md",
+      "sha256": "3772bbc143892e3a7b67d5ecc35152f6bde93b04cc1e6f04393fdd3206b0dd1e"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/03_TRANSFORMATION_DELIVERY_MANUAL.md",
+      "sha256": "6b81faed214a076a305106ea054bad7e64a79829eb428df9bb35f3946c59d3f3"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/04_ENABLEMENT_AND_ADOPTION_PLAYBOOK.md",
+      "sha256": "cea4995db3bf616cdf1d3b98340c4153f65467516942d09aeec9f0f63b79a301"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/05_USE_CASE_PORTFOLIO_AND_PATTERNS.md",
+      "sha256": "bba7c322fa00235db6a94282701000a5fccfebfe68508babc8266bfbf30027dd"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/06_GOVERNANCE_RISK_AND_EVIDENCE.md",
+      "sha256": "88b714f3792e476f40ab917914c6ac9289519310a17b3c5b627aaf1f82e8d995"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/07_WORKSHOPS_CANVASES_AND_COMMUNICATION.md",
+      "sha256": "64118393d6362caf8bd3164127427fe8081828d0eaf180d8a5291858d171ba8e"
+    },
+    {
+      "metadata": {
+        "authority_scope": "official sources govern external frameworks; synthesis does not establish conformance",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "external-research",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "cited official and authoritative sources recorded in this module",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+      "sha256": "0d75e640e346207d489cdcefb9e948910db49b09d25ab668ee3a04d23152c50c"
+    },
+    {
+      "metadata": {
+        "authority_scope": "explanatory visual method only; observed client evidence requires authorised sources",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md",
+      "sha256": "52ff0b7ca2c49860440c91960251782e9a70959223a31dd280611dc050d62088"
+    },
+    {
+      "metadata": {
+        "authority_scope": "Raul method; client facts, policy, and decisions require client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/README.md",
+      "sha256": "b30a2ccba89293a1f2241116050c325495ac4a3a6c2184847a85e5ab8d64d7e0"
+    },
+    {
+      "metadata": {
+        "authority_scope": "accepted Product Contract; Raul retains final release and client authority",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "decision",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "accepted RausellOS Product Contract and implementation plan",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/plans/2026-08-10-001-feat-rausellos-engagement-engine-plan.md",
+      "sha256": "2ebc004178a7e2b554a3151b2f759c25966ae05c92ebbc8b9c391b345ed08dbd"
+    },
+    {
+      "path": "journey/01-stage-1-baseline.md",
+      "sha256": "fe5885de7456e1e8a789de627b5cfea1f2eab1181359b25d65310d737339e81c"
+    },
+    {
+      "path": "journey/README.md",
+      "sha256": "d8ea988713f12c3009019ac9279835bf98bdd0341b49ce3e5ad3e77d78483a3a"
+    },
+    {
+      "path": "policy/publication-policy.json",
+      "sha256": "6022088351c4de22e04b8853dafc9e49dfe842cb0c7bb776e6857569a4653f17"
+    }
+  ],
+  "generator_version": "1.0.0",
+  "hash_algorithm": "sha256",
+  "maturity": "foundation",
+  "release_boundary": {
+    "client_outcome_evidence": false,
+    "generated_content_changes_authority": false,
+    "material_change_requires_regression": true
+  },
+  "schema_version": "public-source-release/v1",
+  "source_commit": "83ca404a3f42ae2012968b85cd40a1e6b385b1bc"
+}
