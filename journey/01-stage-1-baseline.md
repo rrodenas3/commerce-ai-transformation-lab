@@ -2,7 +2,7 @@
 evidence_status: synthetic-observed
 public_safe: true
 maturity: foundation
-limitations: deterministic calibration and a prepared creator-run pack on author-designed public cases, with no completed human baseline, action execution, customer outcome, adoption, or held-out AI evaluation
+limitations: deterministic calibration on author-designed public cases; the prepared creator pack is familiarisation material after oracle exposure, with no clean held-out human baseline, action execution, customer outcome, adoption, or held-out AI evaluation
 ---
 
 # Journey 01 — from concept to a measurable current state
@@ -15,17 +15,18 @@ Stage 0 selected delayed or partial fulfilment to verified customer recovery. St
 - a proposed eight-queue manual workflow across seven systems of record;
 - frozen recovery authority and exact control stops;
 - 24 deterministic synthetic discovery cases across eight families;
-- an oracle independent of future model output;
+- a frozen, co-designed oracle independent of future model output but not independent validation;
 - a transparent rules baseline and scorer;
 - a manual baseline protocol and empty data-capture instrument;
 - a deterministic run manifest that freezes the assignment, versions, artifact hashes, run type, and truthful public-oracle exposure status.
-- a case-only creator-run pack that freezes reviewer role, preparation time, tool policy, protocol hash, copied inputs, and blank worksheet before any human handling begins.
+- a case-only creator pack that freezes reviewer role, preparation time, tool policy, protocol hash, copied inputs, and blank worksheet before handling begins;
+- a recorded oracle-exposure failure that reclassifies that public pack as familiarisation material and moves the measured baseline to a separately seeded held-out set.
 
 No AI-assisted workflow has been built.
 
-## Raul's role and decisions
+## Raul's accountability and AI assistance
 
-Raul acted as transformation and evidence owner. The material decisions were:
+Raul acted as transformation and evidence owner: he defined the mandate, constraints, material transformation choices, evidence standards, acceptance judgments, and publication boundaries. AI assisted research, drafting, coding, and review. The repository therefore demonstrates accountable decision-making and implementation, not unaided human performance. The material decisions were:
 
 1. Define the outcome as verified recovery, not faster message generation.
 2. Keep one domestic market, warehouse, carrier, channel, and policy version.
@@ -62,6 +63,7 @@ Because the rules and oracle encode the same public policy and the cases are aut
 | Coverage, abstention, and the manual denominator trusted caller-supplied rows or flags. | Difficult cases could disappear and a boolean could manufacture a better result. | IDs must be complete and unique, abstention is derived from the action, critical controls are named, and every manual run is scored against a frozen assignment manifest. |
 | Only cases and the oracle were checked for committed-artifact drift. | A stale summary or worksheet could remain public while tests passed. | The complete generated evidence set is reproduced byte-for-byte and checked alongside the public-safety verifier. |
 | A blank worksheet and generic manifest still depended on manual copying and self-reported provenance. | A result could be attached to substituted files, a different reviewer, or a manifest created after the answers. | A preparation command now creates a new case-only directory, freezes role/time/tool/instruction provenance, refuses overwrite, and makes the scorer bind exact paths and source hashes. |
+| During guided practice, a broad repository search surfaced answer-bearing oracle lines before the prepared creator run was completed. | Completing the public pack could be presented as a blind human baseline even though expected answers had been exposed. | The pack remains blank and unchanged but is now familiarisation material. [D-015](../docs/DECISION_LOG.md#d-015--reclassify-the-exposed-creator-pack) moves the measured baseline to a separately seeded held-out pack with a temporarily sealed oracle and explicit exposure provenance. |
 
 ## Evidence safe to show
 
@@ -71,7 +73,7 @@ Because the rules and oracle encode the same public policy and the cases are aut
 - example records using `SYN-*` identifiers;
 - deterministic decision and score traces;
 - the pinned, public-safe manual-run evidence contract;
-- the prepared but blank creator-run case pack and its frozen manifest;
+- the prepared but blank creator pack, its frozen manifest, and its explicit familiarisation status;
 - automated test and public-safety results.
 
 No real names, organisations, orders, tracking IDs, communications, reviewer identities, or former-company details are used.
@@ -80,4 +82,4 @@ No real names, organisations, orders, tracking IDs, communications, reviewer ide
 
 This remains a **foundation-stage synthetic transformation laboratory**. Stage 1 is active, not complete.
 
-The next evidence gate is personal completion of the frozen creator-run worksheet without generative AI or answer-file consultation, followed by scoring and publication of the unedited source record. Only after those manual observations are preserved should the project redesign human and AI work in Stage 2.
+The next evidence gate is generation and verification of a separately seeded held-out pack, followed by personal completion without generative AI or answer-file consultation while its oracle remains sealed. The unedited source record and exposure metadata must be frozen before scoring. Only after those manual observations are preserved should the project redesign human and AI work in Stage 2.
