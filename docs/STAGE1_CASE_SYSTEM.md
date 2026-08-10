@@ -59,7 +59,7 @@ The oracle is computed from frozen case facts and the versioned policy. It recor
 
 Freshness is derived from timezone-aware source age against the policy threshold; a caller-supplied `fresh` flag cannot override the timestamp. Active chargeback is derived from the payment record, and a prior action marked `VERIFIED` counts as recovered only when its action-specific authoritative postcondition agrees.
 
-The oracle ignores any `model_output` field and is not called by the deterministic decision function. This makes it independent of future model output, but not independently authored: the same project author designed the cases, policy, rules baseline, and oracle. Independent reviewers and a separately frozen held-out evaluation set are required before stronger claims.
+The oracle ignores any `model_output` field and is not called by the deterministic decision function. This makes it independent of future model output, but not independently authored: the same project author designed the cases, policy, rules baseline, and oracle. A separately generated 32-case held-out instrument now exists, but its human record is blank; independent reviewers and completed observations are still required before stronger claims.
 
 ## Data separation
 
@@ -71,10 +71,10 @@ policy.json
 public discovery cases -> transparent rules baseline -> recommendations
 recommendations + oracle -> scorer -> calibration summary
 
-future: preregistration -> separately seeded held-out cases -> sealed oracle -> evaluated runs
+current: committed held-out cases -> withheld oracle file -> human record pending -> record freeze -> oracle release -> score
 ```
 
-Future model development may use the public discovery cases. It must not use the future held-out oracle.
+Model development may use the public discovery cases. It must not use the held-out cases or oracle before the human baseline is frozen. After release, the V1 pack becomes evaluation evidence rather than a reusable blind set; later confirmatory evaluation requires a new pack version.
 
 ## Deterministic calibration result
 

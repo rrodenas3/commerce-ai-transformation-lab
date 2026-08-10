@@ -15,6 +15,8 @@ GENERATOR_NAME = "scc-01-foundation-case-generator"
 GENERATOR_VERSION = "1.0.0"
 GENERATOR_SEED = 20260809
 FOUNDATION_CASE_COUNT = 24
+PUBLIC_DATASET_ROLE = "public-foundation-discovery"
+HELDOUT_DATASET_ROLE = "process-controlled-held-out-evaluation"
 CASE_FAMILIES = (
     "delayed_reliable",
     "partial_stock_available",
@@ -50,7 +52,9 @@ def load_stage1_policy(root: Path) -> dict[str, Any]:
     if policy["synthetic_only"] is not True:
         raise ValueError("stage1 policy must remain synthetic_only")
     if set(policy["required_case_sources"]) != set(SOURCE_NAMES):
-        raise ValueError("stage1 policy source inventory does not match the case contract")
+        raise ValueError(
+            "stage1 policy source inventory does not match the case contract"
+        )
     return policy
 
 
@@ -96,8 +100,11 @@ def _parse_aware_iso(value: Any, field_name: str) -> datetime:
 
 
 def _format_utc(value: datetime) -> str:
-    return value.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace(
-        "+00:00", "Z"
+    return (
+        value.astimezone(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
     )
 
 
@@ -135,7 +142,7 @@ def _base_case(
         "case_family": family,
         "title": title,
         "synthetic": True,
-        "dataset_role": "public-foundation-discovery",
+        "dataset_role": PUBLIC_DATASET_ROLE,
         "generator": {
             "name": GENERATOR_NAME,
             "version": GENERATOR_VERSION,
@@ -223,30 +230,228 @@ def build_foundation_cases(policy: dict[str, Any]) -> list[dict[str, Any]]:
         raise ValueError("generator supports only recovery policy version 1.0.0")
 
     cases = [
-        _base_case(policy, 1, "delayed_reliable", "Reliable short delay; customer accepts wait", customer_preference="wait", carrier_status="IN_TRANSIT"),
-        _base_case(policy, 2, "delayed_reliable", "Reliable delay; replacement is available", replacement_stock_qty=2, affected_value_cents=2400),
-        _base_case(policy, 3, "delayed_reliable", "Confirmed loss; no replacement stock", carrier_status="LOST_CONFIRMED", revised_eta_reliable=False, affected_value_cents=1800),
-        _base_case(policy, 4, "partial_stock_available", "One of two units missing; delegated reship", delivered_qty=1, replacement_stock_qty=1, affected_value_cents=2000),
-        _base_case(policy, 5, "partial_stock_available", "Two of four units missing; approval reship", ordered_qty=4, delivered_qty=2, replacement_stock_qty=2, affected_value_cents=6000),
-        _base_case(policy, 6, "partial_stock_available", "Missing unit available; customer prefers refund", delivered_qty=1, replacement_stock_qty=1, affected_value_cents=2000, customer_preference="refund_missing"),
-        _base_case(policy, 7, "partial_no_stock", "Missing unit unavailable; delegated refund", delivered_qty=1, affected_value_cents=2000),
-        _base_case(policy, 8, "partial_no_stock", "Missing quantity unavailable; approval refund", ordered_qty=3, delivered_qty=1, affected_value_cents=7000),
-        _base_case(policy, 9, "partial_no_stock", "High-value missing quantity; finance review", delivered_qty=1, affected_value_cents=12500, order_value_cents=65000),
-        _base_case(policy, 10, "conflicting_evidence", "OMS and carrier quantities conflict", delivered_qty=1, source_conflict=True, carrier_status="DELIVERED"),
-        _base_case(policy, 11, "conflicting_evidence", "Warehouse shipment and carrier state conflict", delivered_qty=0, source_conflict=True, carrier_status="DELIVERED"),
-        _base_case(policy, 12, "conflicting_evidence", "Required payment evidence is unavailable", delivered_qty=1, missing_sources=("PAYMENT",)),
-        _base_case(policy, 13, "duplicate_or_stale", "Duplicate signal after verified refund", delivered_qty=1, duplicate_signal=True, refunded_cents=2000, prior_action={"action_id": "SYN-ACT-013", "type": "REFUND_MISSING", "status": "VERIFIED"}),
-        _base_case(policy, 14, "duplicate_or_stale", "Duplicate signal with no consequential action", duplicate_signal=True, customer_preference="wait", carrier_status="IN_TRANSIT"),
-        _base_case(policy, 15, "duplicate_or_stale", "Carrier evidence exceeds freshness policy", delivered_qty=1, stale_sources=("CARRIER",)),
-        _base_case(policy, 16, "authority_boundary", "Exact delegated boundary for reship", delivered_qty=1, replacement_stock_qty=1, affected_value_cents=2500),
-        _base_case(policy, 17, "authority_boundary", "One cent above delegated boundary", delivered_qty=1, replacement_stock_qty=1, affected_value_cents=2501),
-        _base_case(policy, 18, "authority_boundary", "One cent above team-lead boundary", delivered_qty=1, affected_value_cents=10001, order_value_cents=55000),
-        _base_case(policy, 19, "retry_and_verification", "Refund submitted but postcondition pending", delivered_qty=1, prior_action={"action_id": "SYN-ACT-019", "type": "REFUND_MISSING", "status": "PENDING"}),
-        _base_case(policy, 20, "retry_and_verification", "Refund failed safely with no state change", delivered_qty=1, prior_action={"action_id": "SYN-ACT-020", "type": "REFUND_MISSING", "status": "FAILED_SAFE"}),
-        _base_case(policy, 21, "retry_and_verification", "Replacement exists without inventory reservation", delivered_qty=1, replacement_stock_qty=1, prior_action={"action_id": "SYN-ACT-021", "type": "RESHIP_MISSING", "status": "UNVERIFIED"}),
-        _base_case(policy, 22, "out_of_scope_risk", "Safety concern requires specialist stop", risk_flags=("safety",)),
-        _base_case(policy, 23, "out_of_scope_risk", "Privacy concern requires specialist stop", risk_flags=("privacy",)),
-        _base_case(policy, 24, "out_of_scope_risk", "Suspected fraud requires specialist stop", risk_flags=("suspected_fraud",)),
+        _base_case(
+            policy,
+            1,
+            "delayed_reliable",
+            "Reliable short delay; customer accepts wait",
+            customer_preference="wait",
+            carrier_status="IN_TRANSIT",
+        ),
+        _base_case(
+            policy,
+            2,
+            "delayed_reliable",
+            "Reliable delay; replacement is available",
+            replacement_stock_qty=2,
+            affected_value_cents=2400,
+        ),
+        _base_case(
+            policy,
+            3,
+            "delayed_reliable",
+            "Confirmed loss; no replacement stock",
+            carrier_status="LOST_CONFIRMED",
+            revised_eta_reliable=False,
+            affected_value_cents=1800,
+        ),
+        _base_case(
+            policy,
+            4,
+            "partial_stock_available",
+            "One of two units missing; delegated reship",
+            delivered_qty=1,
+            replacement_stock_qty=1,
+            affected_value_cents=2000,
+        ),
+        _base_case(
+            policy,
+            5,
+            "partial_stock_available",
+            "Two of four units missing; approval reship",
+            ordered_qty=4,
+            delivered_qty=2,
+            replacement_stock_qty=2,
+            affected_value_cents=6000,
+        ),
+        _base_case(
+            policy,
+            6,
+            "partial_stock_available",
+            "Missing unit available; customer prefers refund",
+            delivered_qty=1,
+            replacement_stock_qty=1,
+            affected_value_cents=2000,
+            customer_preference="refund_missing",
+        ),
+        _base_case(
+            policy,
+            7,
+            "partial_no_stock",
+            "Missing unit unavailable; delegated refund",
+            delivered_qty=1,
+            affected_value_cents=2000,
+        ),
+        _base_case(
+            policy,
+            8,
+            "partial_no_stock",
+            "Missing quantity unavailable; approval refund",
+            ordered_qty=3,
+            delivered_qty=1,
+            affected_value_cents=7000,
+        ),
+        _base_case(
+            policy,
+            9,
+            "partial_no_stock",
+            "High-value missing quantity; finance review",
+            delivered_qty=1,
+            affected_value_cents=12500,
+            order_value_cents=65000,
+        ),
+        _base_case(
+            policy,
+            10,
+            "conflicting_evidence",
+            "OMS and carrier quantities conflict",
+            delivered_qty=1,
+            source_conflict=True,
+            carrier_status="DELIVERED",
+        ),
+        _base_case(
+            policy,
+            11,
+            "conflicting_evidence",
+            "Warehouse shipment and carrier state conflict",
+            delivered_qty=0,
+            source_conflict=True,
+            carrier_status="DELIVERED",
+        ),
+        _base_case(
+            policy,
+            12,
+            "conflicting_evidence",
+            "Required payment evidence is unavailable",
+            delivered_qty=1,
+            missing_sources=("PAYMENT",),
+        ),
+        _base_case(
+            policy,
+            13,
+            "duplicate_or_stale",
+            "Duplicate signal after verified refund",
+            delivered_qty=1,
+            duplicate_signal=True,
+            refunded_cents=2000,
+            prior_action={
+                "action_id": "SYN-ACT-013",
+                "type": "REFUND_MISSING",
+                "status": "VERIFIED",
+            },
+        ),
+        _base_case(
+            policy,
+            14,
+            "duplicate_or_stale",
+            "Duplicate signal with no consequential action",
+            duplicate_signal=True,
+            customer_preference="wait",
+            carrier_status="IN_TRANSIT",
+        ),
+        _base_case(
+            policy,
+            15,
+            "duplicate_or_stale",
+            "Carrier evidence exceeds freshness policy",
+            delivered_qty=1,
+            stale_sources=("CARRIER",),
+        ),
+        _base_case(
+            policy,
+            16,
+            "authority_boundary",
+            "Exact delegated boundary for reship",
+            delivered_qty=1,
+            replacement_stock_qty=1,
+            affected_value_cents=2500,
+        ),
+        _base_case(
+            policy,
+            17,
+            "authority_boundary",
+            "One cent above delegated boundary",
+            delivered_qty=1,
+            replacement_stock_qty=1,
+            affected_value_cents=2501,
+        ),
+        _base_case(
+            policy,
+            18,
+            "authority_boundary",
+            "One cent above team-lead boundary",
+            delivered_qty=1,
+            affected_value_cents=10001,
+            order_value_cents=55000,
+        ),
+        _base_case(
+            policy,
+            19,
+            "retry_and_verification",
+            "Refund submitted but postcondition pending",
+            delivered_qty=1,
+            prior_action={
+                "action_id": "SYN-ACT-019",
+                "type": "REFUND_MISSING",
+                "status": "PENDING",
+            },
+        ),
+        _base_case(
+            policy,
+            20,
+            "retry_and_verification",
+            "Refund failed safely with no state change",
+            delivered_qty=1,
+            prior_action={
+                "action_id": "SYN-ACT-020",
+                "type": "REFUND_MISSING",
+                "status": "FAILED_SAFE",
+            },
+        ),
+        _base_case(
+            policy,
+            21,
+            "retry_and_verification",
+            "Replacement exists without inventory reservation",
+            delivered_qty=1,
+            replacement_stock_qty=1,
+            prior_action={
+                "action_id": "SYN-ACT-021",
+                "type": "RESHIP_MISSING",
+                "status": "UNVERIFIED",
+            },
+        ),
+        _base_case(
+            policy,
+            22,
+            "out_of_scope_risk",
+            "Safety concern requires specialist stop",
+            risk_flags=("safety",),
+        ),
+        _base_case(
+            policy,
+            23,
+            "out_of_scope_risk",
+            "Privacy concern requires specialist stop",
+            risk_flags=("privacy",),
+        ),
+        _base_case(
+            policy,
+            24,
+            "out_of_scope_risk",
+            "Suspected fraud requires specialist stop",
+            risk_flags=("suspected_fraud",),
+        ),
     ]
     errors = [error for case in cases for error in validate_case(case, policy)]
     if errors:
@@ -254,20 +459,20 @@ def build_foundation_cases(policy: dict[str, Any]) -> list[dict[str, Any]]:
     return cases
 
 
-def _authority_for_exposure(case: dict[str, Any], policy: dict[str, Any]) -> tuple[str, str]:
+def _authority_for_exposure(
+    case: dict[str, Any], policy: dict[str, Any]
+) -> tuple[str, str]:
     exposure = case["order"]["affected_value_cents"]
     authority = policy["authority"]
     if (
         exposure > authority["team_lead_max_exposure_cents"]
-        or case["order"]["order_value_cents"] > authority["finance_review_order_value_cents"]
+        or case["order"]["order_value_cents"]
+        > authority["finance_review_order_value_cents"]
     ):
         return "approval", "finance_duty_approver"
-    if (
-        exposure > authority["delegated_max_exposure_cents"]
-        or (
-            authority["repeat_recovery_requires_approval"]
-            and case["history"]["repeat_recovery"]
-        )
+    if exposure > authority["delegated_max_exposure_cents"] or (
+        authority["repeat_recovery_requires_approval"]
+        and case["history"]["repeat_recovery"]
     ):
         return "approval", "workflow_owner"
     return "delegated", "customer_recovery_specialist"
@@ -304,8 +509,23 @@ def _authoritative_postcondition_verified(case: dict[str, Any]) -> bool:
     return False
 
 
-def build_oracle(case: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
+def build_oracle(
+    case: dict[str, Any],
+    policy: dict[str, Any],
+    *,
+    heldout_release_material: str | None = None,
+) -> dict[str, Any]:
     """Derive the independent lab oracle from case facts and frozen policy only."""
+    if case.get("dataset_role") == HELDOUT_DATASET_ROLE:
+        commitment = case.get("generator", {}).get("seed_commitment_sha256")
+        if (
+            not isinstance(heldout_release_material, str)
+            or hashlib.sha256(heldout_release_material.encode("utf-8")).hexdigest()
+            != commitment
+        ):
+            raise ValueError(
+                "held-out oracle generation requires the withheld release material"
+            )
     facts = case
     route, decision_owner = _authority_for_exposure(facts, policy)
     action: str
@@ -313,8 +533,14 @@ def build_oracle(case: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]
     critical_under_escalation = False
 
     sources = facts["evidence"]["sources"]
-    unavailable = sorted(name for name, record in sources.items() if not record["available"])
-    stale = sorted(name for name, record in sources.items() if record["available"] and not record["fresh"])
+    unavailable = sorted(
+        name for name, record in sources.items() if not record["available"]
+    )
+    stale = sorted(
+        name
+        for name, record in sources.items()
+        if record["available"] and not record["fresh"]
+    )
     prior_action = facts["history"]["prior_action"]
 
     active_risk_flags = set(facts["risk_flags"])
@@ -363,17 +589,26 @@ def build_oracle(case: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]
         route = "delegated"
         decision_owner = "customer_recovery_specialist"
         rationale = ["duplicate_signal_without_new_state"]
-    elif facts["carrier"]["status"] == "IN_TRANSIT" and facts["customer"]["preference"] == "wait":
+    elif (
+        facts["carrier"]["status"] == "IN_TRANSIT"
+        and facts["customer"]["preference"] == "wait"
+    ):
         action = "WAIT_VERIFIED_ETA"
         route = "delegated"
         decision_owner = "customer_recovery_specialist"
         rationale = ["reliable_revised_eta", "customer_prefers_wait"]
-    elif facts["inventory"]["reservable"] and facts["customer"]["preference"] != "refund_missing":
+    elif (
+        facts["inventory"]["reservable"]
+        and facts["customer"]["preference"] != "refund_missing"
+    ):
         action = "RESHIP_MISSING"
         rationale = ["missing_quantity_confirmed", "replacement_stock_reservable"]
     else:
         action = "REFUND_MISSING"
-        rationale = ["missing_quantity_confirmed", "replacement_not_selected_or_unavailable"]
+        rationale = [
+            "missing_quantity_confirmed",
+            "replacement_not_selected_or_unavailable",
+        ]
 
     required_evidence = ["OMS", "WMS", "CARRIER", "POLICY"]
     if action in {"RESHIP_MISSING", "REFUND_MISSING"}:
@@ -381,7 +616,9 @@ def build_oracle(case: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]
     elif action.startswith("NO_ACTION"):
         required_evidence.extend(["CRM", "PAYMENT"])
     if action.startswith("ESCALATE"):
-        required_evidence = sorted(name for name, record in sources.items() if record["available"])
+        required_evidence = sorted(
+            name for name, record in sources.items() if record["available"]
+        )
 
     allowed_message_facts = [
         "case_received",
@@ -420,11 +657,11 @@ def build_oracle(case: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]
         "allowed_message_facts": sorted(allowed_message_facts),
         "rationale_codes": sorted(rationale),
         "critical_if_under_escalated": critical_under_escalation,
-        "applicable_critical_zero_controls": sorted(
-            applicable_critical_zero_controls
-        ),
+        "applicable_critical_zero_controls": sorted(applicable_critical_zero_controls),
         "prohibited_actions": sorted(
-            action_name for action_name in policy["allowed_actions"] if action_name != action
+            action_name
+            for action_name in policy["allowed_actions"]
+            if action_name != action
         ),
     }
 
@@ -464,7 +701,10 @@ def validate_case(case: dict[str, Any], policy: dict[str, Any]) -> list[str]:
         errors.append(f"{case_id}: quantity invariant failed")
     if order["remaining_qty"] <= 0:
         errors.append(f"{case_id}: foundation exception must have remaining quantity")
-    if order["affected_value_cents"] < 0 or order["order_value_cents"] < order["affected_value_cents"]:
+    if (
+        order["affected_value_cents"] < 0
+        or order["order_value_cents"] < order["affected_value_cents"]
+    ):
         errors.append(f"{case_id}: invalid monetary values")
     sources = case["evidence"].get("sources", {})
     if set(sources) != set(policy["required_case_sources"]):
@@ -492,7 +732,9 @@ def validate_case(case: dict[str, Any], policy: dict[str, Any]) -> list[str]:
                 errors.append(f"{case_id}: {error}")
                 continue
             if as_of > observed_at:
-                errors.append(f"{case_id}: {source_name}.as_of cannot be after observed_at")
+                errors.append(
+                    f"{case_id}: {source_name}.as_of cannot be after observed_at"
+                )
                 continue
             expected_fresh = observed_at - as_of <= timedelta(
                 hours=policy["freshness_hours"][source_name]
@@ -507,9 +749,9 @@ def validate_case(case: dict[str, Any], policy: dict[str, Any]) -> list[str]:
     reservation = case["inventory"].get("replacement_reservation")
     if reservation is not None:
         required_reservation_fields = {"action_id", "status", "reserved_qty"}
-        if not isinstance(reservation, dict) or not required_reservation_fields.issubset(
-            reservation
-        ):
+        if not isinstance(
+            reservation, dict
+        ) or not required_reservation_fields.issubset(reservation):
             errors.append(f"{case_id}: invalid replacement reservation postcondition")
         elif (
             reservation["status"] != "VERIFIED"
@@ -580,7 +822,9 @@ def generate_stage1_artifacts(project_root: Path, output_root: Path) -> dict[str
     policy = load_stage1_policy(project_root)
     cases = build_foundation_cases(policy)
     oracles = [build_oracle(case, policy) for case in cases]
-    oracle_errors = [error for oracle in oracles for error in validate_oracle(oracle, policy)]
+    oracle_errors = [
+        error for oracle in oracles for error in validate_oracle(oracle, policy)
+    ]
     if oracle_errors:
         raise ValueError("invalid generated oracles: " + "; ".join(oracle_errors))
     output_root.mkdir(parents=True, exist_ok=True)
@@ -599,7 +843,7 @@ def generate_stage1_artifacts(project_root: Path, output_root: Path) -> dict[str
         "case_families": dict(
             sorted(Counter(case["case_family"] for case in cases).items())
         ),
-        "dataset_role": "public-foundation-discovery",
+        "dataset_role": PUBLIC_DATASET_ROLE,
         "held_out_evaluation_set": False,
         "contains_real_data": False,
         "artifacts_sha256": {

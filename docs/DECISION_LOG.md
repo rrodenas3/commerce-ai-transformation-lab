@@ -68,7 +68,7 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 
 - **Date:** 2026-08-09
 - **Status:** Accepted
-- **Decision:** Publish 24 balanced discovery cases and their oracle as contract-calibration evidence; create a separately seeded and temporarily sealed set for future evaluation.
+- **Decision:** Publish 24 balanced discovery cases and their oracle as contract-calibration evidence; create a separately seeded set with a temporarily withheld answer file for future evaluation.
 - **Reason:** A public oracle enables transparency and reproducibility but cannot remain blind to future model development.
 
 ## D-010 — Do not headline the perfect calibration score
@@ -110,7 +110,7 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 
 - **Date:** 2026-08-09
 - **Status:** Accepted
-- **Decision:** Retain the prepared public creator pack unchanged, but classify it as familiarisation material and exclude it from any clean manual-baseline claim. Create the measured baseline from a separately seeded held-out pack whose oracle remains temporarily sealed until the source record is frozen.
+- **Decision:** Retain the prepared public creator pack unchanged, but classify it as familiarisation material and exclude it from any clean manual-baseline claim. Create the measured baseline from a separately seeded held-out pack whose oracle file remains withheld until the source record is frozen.
 - **Trigger:** During guided practice, a broad repository search surfaced answer-bearing oracle lines before the creator run was completed.
 - **Reason:** Exposure does not invalidate the public cases as transparent contract-calibration material, but it does invalidate their use as a blind test of unaided judgment. Preserving the failure and changing the evaluation design is stronger evidence governance than silently replacing or completing the pack.
 - **Consequence:** No score from the exposed pack will enter a before-and-after comparison. The current protocol and scripts remain public-discovery tooling and must not be presented as a held-out path. Future run metadata must record oracle exposure truthfully, and the held-out generator, assignment, answer key, and release sequence must be verified before handling begins.
@@ -122,3 +122,39 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 - **Decision:** Attribute the mandate, constraints, transformation choices, evidence standards, acceptance judgments, and publication decisions to Raul, while disclosing that AI assisted research, drafting, coding, and review.
 - **Reason:** Accountable leadership is demonstrated through decisions and evidence quality, not by implying every artifact was produced without tools. Human-performance evidence requires a separately documented run; repository output alone is not evidence of unaided human work or independent validation.
 - **Consequence:** Public summaries must distinguish accountable authorship, AI-assisted implementation, human-reviewed evidence, and independent review.
+
+## D-017 — Make oracle exposure an evidence-state transition
+
+- **Date:** 2026-08-10
+- **Status:** Accepted
+- **Decision:** Treat answer-file publication as a controlled transition from `oracle-file-withheld-at-preparation` to `oracle-file-released-after-record-freeze`. The release command must prove a committed blank instrument, a later complete records commit, unchanged evidence-input bytes, and an oracle matching the pre-run hash commitment before publishing answers.
+- **Trigger:** D-015 showed that a case-only folder was insufficient while answer-bearing content remained reachable elsewhere in the public repository.
+- **Reason:** “Do not look” is a weak control when the evidence chain can technically enforce ordering and byte identity. Separating generation material, preparation, human handling, record freeze, release, and scoring makes contamination visible and makes silent answer-first scoring fail closed.
+- **Consequence:** A pre-freeze exposure invalidates the pack rather than changing its label. The released seed and oracle make the result reproducible after the source record is immutable. Git anchors support provenance but do not independently prove tool avoidance or prior ignorance.
+
+## D-018 — Reject answer-bearing case titles before publication
+
+- **Date:** 2026-08-10
+- **Status:** Accepted
+- **Decision:** Reject the first uncommitted V1 draft because 23 of 32 operator-visible titles disclosed an action, route, authority level, or control conclusion. Replace every title with a neutral variant label, regenerate all public commitments and the blank instrument, and add an automated leakage check before handling.
+- **Trigger:** Independent preflight review challenged the difference between withholding an oracle file and withholding answer cues from the operator pack.
+- **Reason:** A hash-bound release sequence cannot rescue a baseline whose allowed input already suggests the expected decision. The operator should infer the action and route from case facts and policy, not from editorial labels.
+- **Consequence:** The rejected draft remains only in the ignored local audit store and produced no human record. V1 is described as a process-controlled novel-case evaluation, not cryptographic blinding: the public policy and implementation still reveal decision logic, so repository and oracle-generating-code consultation remain prohibited during handling.
+
+## D-019 — Remove evaluator-only metadata from operator cases
+
+- **Date:** 2026-08-10
+- **Status:** Accepted
+- **Decision:** Publish and prepare an operator projection containing only incident facts, opaque synthetic identifiers, the dataset role, and the policy reference. Exclude `case_family`, generator metadata, and editorial titles from every operator-visible case while retaining aggregate family balance in the manifest and deterministic reconstruction material in the ignored evidence store.
+- **Trigger:** A second independent preflight found that neutral titles were insufficient: labels such as `authority_boundary`, `out_of_scope_risk`, and `conflicting_evidence` still suggested the expected route, while numbered variants could be matched to generator blueprints.
+- **Reason:** Evaluation metadata is useful for design and stratified analysis but is not evidence an operator would receive in the workflow. The baseline must require inference from operational facts and policy.
+- **Consequence:** The metadata-cued preflight pack was rejected before handling, preserved only in the ignored audit store, and regenerated in place because no preparation commit or human record existed. Automated tests now require all evaluator-only fields to be absent from every operator case. Public generator code still makes this process-controlled rather than cryptographically blind.
+
+## D-020 — Make the records commit the immediate child of preparation
+
+- **Date:** 2026-08-10
+- **Status:** Accepted
+- **Decision:** Require exactly one commit between the preparation and records anchors. That commit may modify only the assigned `manual-records.csv`; the canonical oracle and release manifest must be absent at both anchors.
+- **Trigger:** Adversarial review proved that endpoint-only checks could miss an oracle committed temporarily between the two anchors and deleted before the completed records commit.
+- **Reason:** A clean final tree is not evidence of a clean handling interval. Eliminating intermediate commits makes the complete Git interval inspectable and prevents an answer artifact from appearing and disappearing inside it.
+- **Consequence:** Any intermediate commit invalidates the run. Work unrelated to the worksheet must wait until after record freeze and oracle release, and a regression test reproduces the original bypass attempt.

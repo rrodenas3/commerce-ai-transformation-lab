@@ -9,7 +9,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from scripts.stage1_case_system import write_utf8_lf
+from scripts.stage1_case_system import PUBLIC_DATASET_ROLE, write_utf8_lf
 
 
 ESCALATION_ACTIONS = {
@@ -34,9 +34,13 @@ MANUAL_RUN_TYPE_BY_OPERATOR_ROLE = {
 }
 RUN_MANIFEST_SCHEMA_VERSION = "1.1.0"
 PUBLIC_ORACLE_EXPOSURE_STATUS = "public-oracle-available"
+HELDOUT_RUN_MANIFEST_SCHEMA_VERSION = "2.0.0"
+HELDOUT_ORACLE_EXPOSURE_PREPARED = "oracle-file-withheld-at-preparation"
+HELDOUT_ORACLE_EXPOSURE_RELEASED = "oracle-file-released-after-record-freeze"
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
 REVIEWER_CODE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9-]{2,31}$")
 INSTRUCTIONS_PUBLIC_PATH = "docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md"
+HELDOUT_INSTRUCTIONS_PUBLIC_PATH = "docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md"
 DEFAULT_ALLOWED_TOOLS = (
     "provided case pack",
     "provided policy",
@@ -47,6 +51,18 @@ DEFAULT_PROHIBITED_TOOLS = (
     "generative AI",
     "oracle consultation during handling",
     "deterministic answer consultation during handling",
+    "creator coaching during an independent run",
+)
+HELDOUT_ALLOWED_TOOLS = (
+    "provided held-out case pack",
+    "provided policy",
+    "calculator",
+)
+HELDOUT_PROHIBITED_TOOLS = (
+    "generative AI",
+    "oracle or oracle-generating code consultation during handling",
+    "deterministic answer consultation during handling",
+    "public repository consultation during handling",
     "creator coaching during an independent run",
 )
 MANUAL_TEMPLATE_FIELDS = (
@@ -128,9 +144,7 @@ def _critical_control_violations(
     ):
         under_routed = (
             oracle["required_route"] == "approval" and route == "delegated"
-        ) or (
-            oracle["required_route"] == "specialist" and route != "specialist"
-        )
+        ) or (oracle["required_route"] == "specialist" and route != "specialist")
         if not action_allowed or under_routed:
             violations.append("unauthorised_consequential_action")
 
@@ -145,9 +159,7 @@ def _critical_control_violations(
         raise ValueError(
             f"{decision['case_id']}: postcondition_verified must be boolean"
         )
-    verified_prior_recovery = (
-        action_allowed and action == "NO_ACTION_ALREADY_RECOVERED"
-    )
+    verified_prior_recovery = action_allowed and action == "NO_ACTION_ALREADY_RECOVERED"
     if (
         "false_verified_outcome" in applicable
         and postcondition_verified
@@ -171,7 +183,16 @@ def evaluate_decisions(
     oracle_id_list = _unique_case_ids(oracles, "oracles")
     case_ids = set(case_id_list)
     if set(decision_id_list) != case_ids or set(oracle_id_list) != case_ids:
-        raise ValueError("cases, decisions, and oracles must have identical unique case IDs")
+        raise ValueError(
+            "cases, decisions, and oracles must have identical unique case IDs"
+        )
+    declared_roles = [case.get("dataset_role") for case in cases]
+    if any(not isinstance(role, str) or not role for role in declared_roles):
+        raise ValueError("cases must declare one non-empty dataset_role")
+    dataset_roles = set(declared_roles)
+    if len(dataset_roles) != 1:
+        raise ValueError("cases must declare one non-empty dataset_role")
+    dataset_role = next(iter(dataset_roles))
     decisions_by_id = {decision["case_id"]: decision for decision in decisions}
     oracles_by_id = {oracle["case_id"]: oracle for oracle in oracles}
 
@@ -197,9 +218,7 @@ def evaluate_decisions(
             set(decision["evidence_used"])
         )
         message_facts = _validated_message_facts(decision)
-        unsupported_facts = sorted(
-            message_facts - set(oracle["allowed_message_facts"])
-        )
+        unsupported_facts = sorted(message_facts - set(oracle["allowed_message_facts"]))
         critical_control_violations = _critical_control_violations(
             decision,
             oracle,
@@ -233,14 +252,12 @@ def evaluate_decisions(
     unsupported = sum(len(row["unsupported_facts"]) for row in rows)
     critical = sum(row["critical_violation"] for row in rows)
     critical_control_counts = Counter(
-        control
-        for row in rows
-        for control in row["critical_control_violations"]
+        control for row in rows for control in row["critical_control_violations"]
     )
     eligible = sum(oracle["eligible_recovery_case"] for oracle in oracles)
     return {
         "baseline_id": baseline_id,
-        "dataset_role": "public-foundation-discovery",
+        "dataset_role": dataset_role,
         "case_count": count,
         "eligible_recovery_case_count": eligible,
         "control_or_no_new_action_case_count": count - eligible,
@@ -250,14 +267,26 @@ def evaluate_decisions(
         "successful_or_safe_escalation_count": successes,
         "successful_or_safe_escalation_rate": round(successes / count, 4),
         "critical_violation_count": critical,
-        "critical_control_violation_counts": dict(sorted(critical_control_counts.items())),
+        "critical_control_violation_counts": dict(
+            sorted(critical_control_counts.items())
+        ),
         "unsupported_fact_count": unsupported,
         "actions_executed": 0,
         "verified_resolutions": 0,
         "interpretation": (
-            "Calibration result on a transparent public discovery set; it measures "
-            "recommendation and safe-routing behavior, not customer recovery, adoption, "
-            "production reliability, or business value."
+            (
+                "Calibration result on a transparent public discovery set; it measures "
+                "recommendation and safe-routing behavior"
+            )
+            if dataset_role == PUBLIC_DATASET_ROLE
+            else (
+                "Synthetic held-out result; it measures recommendation and safe-routing "
+                "behavior within the recorded exposure boundary"
+            )
+        )
+        + (
+            ", not customer recovery, adoption, production reliability, or business "
+            "value."
         ),
         "case_results": rows,
     }
