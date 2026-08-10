@@ -1,0 +1,56 @@
+{
+  "policy_id": "SCC-01-RECOVERY-POLICY",
+  "version": "1.0.0",
+  "effective_at": "2026-08-09T00:00:00Z",
+  "synthetic_only": true,
+  "currency": "EUR",
+  "operating_timezone": "Europe/Paris",
+  "target_resolution_minutes": 240,
+  "authority": {
+    "delegated_max_exposure_cents": 2500,
+    "team_lead_max_exposure_cents": 10000,
+    "finance_review_order_value_cents": 50000,
+    "repeat_recovery_requires_approval": true
+  },
+  "freshness_hours": {
+    "OMS": 2,
+    "WMS": 4,
+    "CARRIER": 12,
+    "INVENTORY": 1,
+    "PAYMENT": 2,
+    "CRM": 24,
+    "POLICY": 8760
+  },
+  "required_case_sources": [
+    "OMS",
+    "WMS",
+    "CARRIER",
+    "INVENTORY",
+    "PAYMENT",
+    "CRM",
+    "POLICY"
+  ],
+  "risk_stop_flags": [
+    "suspected_fraud",
+    "safety",
+    "privacy",
+    "legal",
+    "active_chargeback"
+  ],
+  "allowed_actions": [
+    "WAIT_VERIFIED_ETA",
+    "RESHIP_MISSING",
+    "REFUND_MISSING",
+    "NO_ACTION_ALREADY_RECOVERED",
+    "NO_ACTION_DUPLICATE_SIGNAL",
+    "ESCALATE_EVIDENCE",
+    "ESCALATE_ACTION_RECOVERY",
+    "ESCALATE_SPECIALIST"
+  ],
+  "critical_zero_controls": [
+    "unauthorised_consequential_action",
+    "duplicate_consequential_action",
+    "false_verified_outcome",
+    "personal_or_secret_data_disclosure"
+  ]
+}

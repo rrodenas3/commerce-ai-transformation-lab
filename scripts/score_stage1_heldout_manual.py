@@ -36,6 +36,7 @@ from scripts.stage1_heldout import (
     HELDOUT_ORACLE_RELEASE_PATH,
     HELDOUT_PACK_SCHEMA_VERSION,
     _sha256_bytes,
+    build_operator_guide,
     validate_heldout_run_bindings,
 )
 from scripts.stage1_heldout_release import (
@@ -139,6 +140,9 @@ def score_heldout_run(
     case_pack_path = _run_file_path(run_manifest_path, run_files["case_pack"])
     records_path = _run_file_path(run_manifest_path, run_files["records_template"])
     policy_path = _run_file_path(run_manifest_path, run_files["policy_copy"])
+    operator_guide_copy_path = _run_file_path(
+        run_manifest_path, run_files["operator_guide_copy"]
+    )
     if not _same_path(cases_path, case_pack_path):
         raise ValueError("--cases must use the prepared held-out case pack")
     if not _same_path(input_path, records_path):
@@ -151,6 +155,7 @@ def score_heldout_run(
         raise ValueError("--release-manifest must use the held-out release record")
     public_manifest_path = _pinned_path(root, pins["artifact_manifest"])
     public_cases_path = _pinned_path(root, pins["cases"])
+    public_operator_guide_path = _pinned_path(root, pins["operator_guide"])
     source_policy_path = _pinned_path(root, pins["policy"])
     instructions_path = root / HELDOUT_INSTRUCTIONS_PUBLIC_PATH
     source_paths = [
@@ -160,7 +165,9 @@ def score_heldout_run(
         run_manifest_path,
         release_manifest_path,
         policy_path,
+        operator_guide_copy_path,
         public_cases_path,
+        public_operator_guide_path,
         source_policy_path,
         public_manifest_path,
         instructions_path,
@@ -173,20 +180,36 @@ def score_heldout_run(
             "oracle": oracle_path,
             "release_manifest": release_manifest_path,
             "policy": policy_path,
+            "operator_guide_copy": operator_guide_copy_path,
             "public_cases": public_cases_path,
+            "public_operator_guide": public_operator_guide_path,
             "source_policy": source_policy_path,
             "artifact_manifest": public_manifest_path,
             "instructions": instructions_path,
         }
     )
-    for name in ("cases", "oracle", "policy", "artifact_manifest"):
-        _verify_snapshot(snapshots[name], pins[name], name)
+    for name in (
+        "cases",
+        "oracle",
+        "policy",
+        "artifact_manifest",
+        "operator_guide",
+    ):
+        snapshot_name = "public_operator_guide" if name == "operator_guide" else name
+        _verify_snapshot(snapshots[snapshot_name], pins[name], name)
     _verify_snapshot(snapshots["public_cases"], pins["cases"], "public cases")
     _verify_snapshot(snapshots["source_policy"], pins["policy"], "source policy")
     _verify_snapshot(snapshots["cases"], run_files["case_pack"], "prepared case pack")
     _verify_snapshot(
         snapshots["policy"], run_files["policy_copy"], "prepared policy copy"
     )
+    _verify_snapshot(
+        snapshots["operator_guide_copy"],
+        run_files["operator_guide_copy"],
+        "prepared operator guide",
+    )
+    if snapshots["operator_guide_copy"] != snapshots["public_operator_guide"]:
+        raise ValueError("prepared operator guide differs from the public guide")
     _verify_snapshot(
         snapshots["instructions"], run_metadata["instructions"], "instructions"
     )
@@ -205,12 +228,19 @@ def score_heldout_run(
         public_manifest,
         public_manifest_bytes=snapshots["artifact_manifest"],
         public_cases_bytes=snapshots["public_cases"],
+        public_operator_guide_bytes=snapshots["public_operator_guide"],
         prepared_case_pack_bytes=snapshots["cases"],
+        prepared_operator_guide_bytes=snapshots["operator_guide_copy"],
         policy_bytes=snapshots["source_policy"],
         prepared_policy_bytes=snapshots["policy"],
         instructions_bytes=snapshots["instructions"],
     )
     release = _snapshot_json(snapshots["release_manifest"], "oracle release manifest")
+    policy = _snapshot_json(snapshots["policy"], "held-out policy")
+    if snapshots["public_operator_guide"] != (
+        json.dumps(build_operator_guide(policy), indent=2, sort_keys=True) + "\n"
+    ).encode("utf-8"):
+        raise ValueError("held-out operator guide does not match the frozen policy")
     records_freeze = _validate_release_manifest(
         release,
         run_metadata,

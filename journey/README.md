@@ -26,8 +26,8 @@ This index is the public narrative spine. It records what was known, decided, im
 - [Frozen public-discovery manual protocol](../docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md) — historical contract only; not a valid held-out execution path
 - [Exposed familiarisation-pack manifest](../data/stage1/runs/scc-01-creator-manual-001/run-manifest.json)
 - [Held-out evaluation protocol](../docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md)
-- [Process-controlled held-out pack manifest](../data/stage1/heldout/v1/manifest.json)
-- [Blank held-out creator instrument](../data/stage1/heldout/runs/scc-01-heldout-creator-001/run-manifest.json)
+- [Process-controlled V2 held-out pack manifest](../data/stage1/heldout/v2/manifest.json)
+- [Blank V2 held-out creator instrument](../data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/run-manifest.json)
 - [Stage 1 research notes](../docs/STAGE1_RESEARCH_NOTES.md)
 - [Journey 01 narrative](01-stage-1-baseline.md)
 

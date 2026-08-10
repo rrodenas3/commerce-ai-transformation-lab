@@ -27,6 +27,7 @@ from scripts.stage1_heldout import (
     HELDOUT_ORACLE_EXPOSURE_PREPARED,
     HELDOUT_PRIVATE_PATH,
     HELDOUT_PUBLIC_PATH,
+    OPERATOR_GUIDE_FILE,
     OPERATOR_HIDDEN_FIELDS,
     build_heldout_cases,
     generate_heldout_artifacts,
@@ -37,7 +38,11 @@ from scripts.stage1_heldout_release import (
     release_heldout_oracle,
     validate_completed_records_for_release,
 )
-from scripts.stage1_scoring import MANUAL_TEMPLATE_FIELDS
+from scripts.stage1_scoring import (
+    HELDOUT_ALLOWED_TOOLS,
+    MANUAL_TEMPLATE_FIELDS,
+    SAFE_MESSAGE_FACTS,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -72,13 +77,18 @@ class Stage1HeldoutTests(unittest.TestCase):
 
     def _prepare(self, root: Path, public: Path) -> Path:
         output = (
-            root / "data" / "stage1" / "heldout" / "runs" / "scc-01-heldout-creator-001"
+            root
+            / "data"
+            / "stage1"
+            / "heldout"
+            / "runs"
+            / "scc-01-heldout-v2-creator-001"
         )
         prepare_heldout_run(
             root,
             public,
             output,
-            run_id="scc-01-heldout-creator-001",
+            run_id="scc-01-heldout-v2-creator-001",
             reviewer_code="CREATOR-01",
             operator_role="creator",
             prepared_at=datetime(2026, 8, 10, 9, 0, tzinfo=timezone.utc),
@@ -159,6 +169,10 @@ class Stage1HeldoutTests(unittest.TestCase):
                 (second_public / "cases.jsonl").read_bytes(),
             )
             self.assertEqual(
+                (first_public / OPERATOR_GUIDE_FILE).read_bytes(),
+                (second_public / OPERATOR_GUIDE_FILE).read_bytes(),
+            )
+            self.assertEqual(
                 (first_private / "oracle.jsonl").read_bytes(),
                 (second_private / "oracle.jsonl").read_bytes(),
             )
@@ -185,6 +199,36 @@ class Stage1HeldoutTests(unittest.TestCase):
                 all(OPERATOR_HIDDEN_FIELDS.isdisjoint(case) for case in cases)
             )
             policy = load_stage1_policy(first_root)
+            guide_bytes = (first_public / OPERATOR_GUIDE_FILE).read_bytes()
+            guide = json.loads(guide_bytes.decode("utf-8"))
+            self.assertEqual(
+                set(policy["allowed_actions"]),
+                {rule["action"] for rule in guide["decision_priority"]},
+            )
+            self.assertEqual(
+                {"delegated", "approval", "specialist"},
+                set(guide["worksheet_codes"]["route"]),
+            )
+            self.assertEqual(
+                SAFE_MESSAGE_FACTS,
+                set(guide["worksheet_codes"]["message_facts"]),
+            )
+            self.assertEqual(
+                set(policy["allowed_actions"]),
+                set(guide["message_fact_rules"]["additional_by_action"]),
+            )
+            self.assertEqual(
+                set(MANUAL_TEMPLATE_FIELDS), set(guide["worksheet_fields"])
+            )
+            self.assertEqual(
+                "UTF-8 without BOM", guide["worksheet_serialization"]["encoding"]
+            )
+            self.assertEqual("LF only", guide["worksheet_serialization"]["line_ending"])
+            self.assertTrue(
+                all(
+                    case["case_id"].encode("utf-8") not in guide_bytes for case in cases
+                )
+            )
             with self.assertRaisesRegex(ValueError, "withheld release material"):
                 build_oracle(cases[0], policy)
             internal_cases = build_heldout_cases(policy, FIXED_MATERIAL)
@@ -218,6 +262,93 @@ class Stage1HeldoutTests(unittest.TestCase):
                 (second_public / "cases.jsonl").read_bytes(),
             )
 
+    def test_heldout_pinned_files_remain_lf_in_autocrlf_checkout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            checkout = root / "checkout"
+            (source / "docs").mkdir(parents=True)
+            shutil.copyfile(PROJECT_ROOT / ".gitattributes", source / ".gitattributes")
+            shutil.copyfile(
+                PROJECT_ROOT / "docs" / "STAGE1_HELDOUT_EVALUATION_PROTOCOL.md",
+                source / "docs" / "STAGE1_HELDOUT_EVALUATION_PROTOCOL.md",
+            )
+            shutil.copytree(
+                PROJECT_ROOT / "data" / "stage1" / "heldout",
+                source / "data" / "stage1" / "heldout",
+            )
+
+            self._git(source, "init")
+            self._git(source, "config", "core.autocrlf", "true")
+            self._git(source, "config", "user.email", "lab@example.invalid")
+            self._git(source, "config", "user.name", "Synthetic Lab")
+            self._git(source, "add", ".")
+            self._git(source, "commit", "-m", "test: freeze held-out bytes")
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "core.autocrlf=true",
+                    "clone",
+                    "--quiet",
+                    str(source),
+                    str(checkout),
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+
+            pinned_paths = [
+                Path("docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md"),
+                Path("data/stage1/heldout/v2/cases.jsonl"),
+                Path("data/stage1/heldout/v2/operator-guide.json"),
+                Path("data/stage1/heldout/v2/manifest.json"),
+                Path(
+                    "data/stage1/heldout/runs/"
+                    "scc-01-heldout-v2-creator-001/manual-records.csv"
+                ),
+                Path(
+                    "data/stage1/heldout/runs/"
+                    "scc-01-heldout-v2-creator-001/run-manifest.json"
+                ),
+            ]
+            for relative in pinned_paths:
+                with self.subTest(path=relative.as_posix()):
+                    expected = (source / relative).read_bytes()
+                    observed = (checkout / relative).read_bytes()
+                    self.assertNotIn(b"\r\n", observed)
+                    self.assertEqual(expected, observed)
+
+    def test_preparation_sha_path_is_writable_in_linked_worktree(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            linked = root / "linked"
+            source.mkdir()
+            (source / "marker.txt").write_text("preparation\n", encoding="utf-8")
+            self._git(source, "init")
+            self._git(source, "config", "user.email", "lab@example.invalid")
+            self._git(source, "config", "user.name", "Synthetic Lab")
+            self._git(source, "add", "marker.txt")
+            self._git(source, "commit", "-m", "test: preparation anchor")
+            self._git(source, "worktree", "add", "-b", "evidence-run", str(linked))
+
+            preparation_sha = self._git(linked, "rev-parse", "HEAD")
+            git_path_text = self._git(
+                linked, "rev-parse", "--git-path", "heldout-v2-preparation-sha"
+            )
+            git_path = Path(git_path_text)
+            if not git_path.is_absolute():
+                git_path = linked / git_path
+            git_path = git_path.resolve()
+            git_path.write_text(preparation_sha, encoding="ascii")
+
+            self.assertTrue((linked / ".git").is_file())
+            self.assertNotEqual(linked / ".git" / git_path.name, git_path)
+            self.assertEqual(preparation_sha, git_path.read_text(encoding="ascii"))
+
     def test_committed_pack_and_blank_run_match_every_public_commitment(self):
         public = PROJECT_ROOT / HELDOUT_PUBLIC_PATH
         run = (
@@ -226,7 +357,7 @@ class Stage1HeldoutTests(unittest.TestCase):
             / "stage1"
             / "heldout"
             / "runs"
-            / "scc-01-heldout-creator-001"
+            / "scc-01-heldout-v2-creator-001"
         )
         manifest_bytes = (public / "manifest.json").read_bytes()
         cases_bytes = (public / "cases.jsonl").read_bytes()
@@ -235,6 +366,10 @@ class Stage1HeldoutTests(unittest.TestCase):
         cases = read_jsonl(public / "cases.jsonl")
 
         self.assertEqual(HELDOUT_CASE_COUNT, len(cases))
+        self.assertEqual(
+            list(HELDOUT_ALLOWED_TOOLS), metadata["tool_policy"]["allowed"]
+        )
+        self.assertIn("system clock", metadata["tool_policy"]["allowed"])
         self.assertEqual(
             hashlib.sha256(cases_bytes).hexdigest(),
             manifest["artifacts_sha256"]["cases.jsonl"],
@@ -254,6 +389,10 @@ class Stage1HeldoutTests(unittest.TestCase):
         self.assertEqual(
             hashlib.sha256((run / "policy.json").read_bytes()).hexdigest(),
             metadata["run_files"]["policy_copy"]["sha256"],
+        )
+        self.assertEqual(
+            hashlib.sha256((run / OPERATOR_GUIDE_FILE).read_bytes()).hexdigest(),
+            metadata["run_files"]["operator_guide_copy"]["sha256"],
         )
         self.assertEqual(
             hashlib.sha256((run / "manual-records.csv").read_bytes()).hexdigest(),
@@ -280,13 +419,14 @@ class Stage1HeldoutTests(unittest.TestCase):
             / "stage1"
             / "heldout"
             / "runs"
-            / "scc-01-heldout-creator-001"
+            / "scc-01-heldout-v2-creator-001"
         )
         self.assertFalse((PROJECT_ROOT / HELDOUT_ORACLE_RELEASE_PATH).exists())
         self.assertFalse((PROJECT_ROOT / HELDOUT_ORACLE_RELEASE_MANIFEST_PATH).exists())
         self.assertFalse((run / "manual-summary.json").exists())
         self.assertEqual(
-            {"cases.jsonl", "manifest.json"}, {path.name for path in public.iterdir()}
+            {"cases.jsonl", "manifest.json", OPERATOR_GUIDE_FILE},
+            {path.name for path in public.iterdir()},
         )
         with (run / "manual-records.csv").open(encoding="utf-8", newline="") as handle:
             records = list(csv.DictReader(handle))
@@ -302,6 +442,7 @@ class Stage1HeldoutTests(unittest.TestCase):
                 {
                     "case-pack.jsonl",
                     "manual-records.csv",
+                    OPERATOR_GUIDE_FILE,
                     "policy.json",
                     "run-manifest.json",
                 },
@@ -359,7 +500,13 @@ class Stage1HeldoutTests(unittest.TestCase):
                     public_manifest,
                     public_manifest_bytes=public_manifest_bytes,
                     public_cases_bytes=(public / "cases.jsonl").read_bytes(),
+                    public_operator_guide_bytes=(
+                        public / OPERATOR_GUIDE_FILE
+                    ).read_bytes(),
                     prepared_case_pack_bytes=(run / "case-pack.jsonl").read_bytes(),
+                    prepared_operator_guide_bytes=(
+                        run / OPERATOR_GUIDE_FILE
+                    ).read_bytes(),
                     policy_bytes=(
                         root / "data" / "stage1" / "policy.json"
                     ).read_bytes(),
@@ -549,6 +696,47 @@ class Stage1HeldoutTests(unittest.TestCase):
             with self.assertRaisesRegex(
                 ValueError, "must be absent before oracle release"
             ):
+                release_heldout_oracle(
+                    root,
+                    run / "run-manifest.json",
+                    private,
+                    preparation_ref=preparation_sha,
+                    records_ref=records_sha,
+                    released_at=datetime(2026, 8, 10, 12, 0, tzinfo=timezone.utc),
+                )
+
+    def test_release_rejects_historical_operator_guide_substitution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = self._project(directory)
+            _, public, private = self._generate(root)
+            run = self._prepare(root, public)
+            self._git(root, "init")
+            self._git(root, "config", "user.email", "lab@example.invalid")
+            self._git(root, "config", "user.name", "Synthetic Lab")
+            self._git(root, "add", ".")
+            self._git(
+                root,
+                "commit",
+                "-m",
+                "evidence: freeze blank held-out run",
+                when="2026-08-10T09:10:00+00:00",
+            )
+            preparation_sha = self._git(root, "rev-parse", "HEAD")
+            guide_path = run / OPERATOR_GUIDE_FILE
+            original_guide = guide_path.read_bytes()
+            self._complete_records(run, private)
+            guide_path.write_bytes(original_guide + b"\n")
+            self._git(root, "add", ".")
+            self._git(
+                root,
+                "commit",
+                "-m",
+                "evidence: invalid substituted operator guide",
+                when="2026-08-10T11:00:00+00:00",
+            )
+            records_sha = self._git(root, "rev-parse", "HEAD")
+            guide_path.write_bytes(original_guide)
+            with self.assertRaisesRegex(ValueError, "operator-guide.json bytes"):
                 release_heldout_oracle(
                     root,
                     run / "run-manifest.json",

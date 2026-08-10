@@ -39,7 +39,9 @@ Prepared manual runs live under `data/stage1/runs/<run-id>/`. A blank prepared p
 
 ## Stage 1 held-out evaluation pack
 
-`data/stage1/heldout/v1/` contains a separately generated 32-case operator pack and public hash commitments. Operator cases expose incident facts but omit evaluator-only titles, family labels, and generator metadata. The answer-bearing oracle and deterministic generation material remain under ignored `artifacts/private/` until a completed human record is committed.
+`data/stage1/heldout/v1/` is retained as an invalidated pre-run instrument. Its worksheet stayed blank and its oracle was never released, but its permitted files omitted route and message-fact vocabulary required by the worksheet. [D-021](../docs/DECISION_LOG.md#d-021--replace-the-incomplete-operator-instrument) records why it cannot produce baseline evidence.
+
+`data/stage1/heldout/v2/` contains the replacement 32-case operator pack, a complete answer-free operator guide, and public hash commitments. Operator cases expose incident facts but omit evaluator-only titles, family labels, and generator metadata. The answer-bearing oracle and deterministic generation material remain under ignored `artifacts/private/` until a completed human record is committed.
 
 The held-out workflow is implemented as a fail-closed evidence-state transition:
 

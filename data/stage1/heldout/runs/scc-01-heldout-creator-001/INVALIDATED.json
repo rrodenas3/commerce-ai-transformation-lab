@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "scc-01-heldout-creator-001",
+  "evaluation_pack_id": "SCC-01-HO-V1",
+  "status": "invalidated-before-handling",
+  "completed_record_count": 0,
+  "oracle_released": false,
+  "reason_code": "incomplete-operator-instructions",
+  "superseded_by_run_id": "scc-01-heldout-v2-creator-001",
+  "decision_record": "docs/DECISION_LOG.md#d-021--replace-the-incomplete-operator-instrument"
+}

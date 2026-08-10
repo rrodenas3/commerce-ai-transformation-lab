@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "evaluation_pack_id": "SCC-01-HO-V1",
+  "status": "invalidated-before-handling",
+  "invalidated_at_utc": "2026-08-10T06:30:00Z",
+  "reason_code": "incomplete-operator-instructions",
+  "completed_record_count": 0,
+  "oracle_released": false,
+  "superseded_by": "SCC-01-HO-V2",
+  "decision_record": "docs/DECISION_LOG.md#d-021--replace-the-incomplete-operator-instrument"
+}

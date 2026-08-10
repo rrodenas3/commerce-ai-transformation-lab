@@ -1,0 +1,35 @@
+{
+  "artifacts_sha256": {
+    "cases.jsonl": "3d59ccb412f5de16825084850eeae9af1b8672f6b3d5aa97bb01fad21f88bcd9",
+    "operator-guide.json": "0af79ed4133408e07158461f2a935d711f3edafbb351307086bef1dbdd9b9aa1",
+    "oracle.released.jsonl": "9ce003feb8362e712b02e37fc72f06dca5723a5a07511b262fd9776a718b6f8c"
+  },
+  "case_count": 32,
+  "case_families": {
+    "authority_boundary": 4,
+    "conflicting_evidence": 4,
+    "delayed_reliable": 4,
+    "duplicate_or_stale": 4,
+    "out_of_scope_risk": 4,
+    "partial_no_stock": 4,
+    "partial_stock_available": 4,
+    "retry_and_verification": 4
+  },
+  "contains_real_data": false,
+  "dataset_role": "process-controlled-held-out-evaluation",
+  "evaluation_pack_id": "SCC-01-HO-V2",
+  "generated_at": "2026-08-09T10:00:00Z",
+  "generator_name": "scc-01-heldout-case-generator",
+  "generator_seed_commitment_sha256": "d5b8b7339ccb270cb9c22e317f6e46da77fdf96c0aa6f83f93b501a5eae6e28f",
+  "generator_seed_status": "withheld-until-record-freeze",
+  "generator_version": "2.0.0",
+  "held_out_evaluation_set": true,
+  "oracle_release_manifest_path": "data/stage1/heldout/v2/oracle-release-manifest.json",
+  "oracle_release_path": "data/stage1/heldout/v2/oracle.released.jsonl",
+  "oracle_release_status": "answer-file-not-published",
+  "oracle_version": "1.0.0",
+  "policy_id": "SCC-01-RECOVERY-POLICY",
+  "policy_sha256": "81eeb166bbb45992dc33bc206495ba49d3726afb5af1b43d0ee298213b258a4d",
+  "policy_version": "1.0.0",
+  "schema_version": "1.1.0"
+}
