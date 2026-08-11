@@ -147,14 +147,18 @@ class Stage1MultiPersonaPracticeTests(unittest.TestCase):
         self.assertEqual(32, len(rows))
         self.assertTrue(all(not row["recommended_action"] and not row["route"] for row in rows))
 
-    def test_generation_is_byte_stable_and_committed_artifacts_verify(self):
-        verify(PROJECT_ROOT, self.output)
+    def test_generation_is_byte_stable_and_committed_public_artifacts_verify(self):
         verify_public(PROJECT_ROOT, self.output)
         with tempfile.TemporaryDirectory() as directory:
             regenerated = Path(directory) / "practice"
             generate(PROJECT_ROOT, regenerated, validate_private_oracle=False)
             for path in regenerated.iterdir():
                 self.assertEqual(path.read_bytes(), (self.output / path.name).read_bytes())
+
+    def test_private_artifact_verification_runs_when_oracle_is_available(self):
+        if not (PROJECT_ROOT / PRIVATE_ORACLE_RELATIVE).exists():
+            self.skipTest("ignored private oracle is unavailable in this checkout")
+        verify(PROJECT_ROOT, self.output)
 
     def test_public_verification_does_not_claim_oracle_revalidation(self):
         missing_oracle = Path("artifacts/private/stage1/heldout/v2/missing.jsonl")
