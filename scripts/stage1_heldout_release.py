@@ -40,6 +40,7 @@ from scripts.stage1_heldout import (
     build_operator_case_pack,
     load_private_generation_material,
     load_private_oracle,
+    reject_invalidated_heldout_transition,
     validate_heldout_run_bindings,
 )
 from scripts.stage1_scoring import (
@@ -392,6 +393,11 @@ def release_heldout_oracle(
         != HELDOUT_ORACLE_EXPOSURE_PREPARED
     ):
         raise ValueError("run manifest is not a process-controlled held-out run")
+    reject_invalidated_heldout_transition(
+        root,
+        transition="oracle release",
+        run_directory=run_manifest_path.resolve().parent,
+    )
 
     public = root / HELDOUT_PUBLIC_PATH
     public_manifest_path = public / "manifest.json"

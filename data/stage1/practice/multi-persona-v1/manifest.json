@@ -1,0 +1,22 @@
+{
+  "artifacts_sha256": {
+    "manual-records.ai-assisted.csv": "ffeed883968f4e39851983ea1d78b08b6445db0a27b625ba6c7403ef1d3f2a8e",
+    "multi-persona-decisions.csv": "0852536d28b5466493451ea17cf42e9677cf9c04c078188849f53e04fa475676",
+    "personas.csv": "f16ccac4a3d1da6cf0ef2e696b5d307cbe0aed7fa0d0fb5e692c634d80a830f4",
+    "summary.json": "920dc96da753620f4e01b33eab7e65e1a723ae06b1ddc53274926b456b8a4f06"
+  },
+  "case_count": 32,
+  "claim_boundary": "Shows policy application and adversarial design practice; does not show human performance, independent review, adoption, execution, or business outcomes.",
+  "construction_method": "deterministic multi-persona adversarial simulation with policy-derived final decisions",
+  "contains_real_data": false,
+  "evidence_class": "ai-assisted-synthetic-practice",
+  "generated_at_utc": "2026-08-11T04:05:13Z",
+  "independence_status": "simulated-lenses-not-independent-reviewers",
+  "practice_id": "SCC-01-MP-V1",
+  "private_oracle_validation": "performed-before-publication-against-the-pre-exposure-commitment; not-repeated-by-public-byte-verification",
+  "schema_version": "1.0.0",
+  "simulated_persona_count": 5,
+  "source_pack_id": "SCC-01-HO-V2",
+  "source_pack_status": "invalidated-before-human-handling",
+  "timing_status": "not-human-observed"
+}

@@ -59,6 +59,102 @@ OPERATOR_GUIDE_FILE = "operator-guide.json"
 GENERATION_MATERIAL_FILE = "generation-material.json"
 PRIVATE_ORACLE_FILE = "oracle.jsonl"
 OPERATOR_HIDDEN_FIELDS = frozenset({"case_family", "generator", "title"})
+HELDOUT_INVALIDATION_FILE = "invalidation.json"
+HELDOUT_RUN_INVALIDATION_FILE = "INVALIDATED.json"
+HELDOUT_INVALIDATION_STATUS = "invalidated-before-human-handling"
+HELDOUT_INVALIDATION_REASON = "ai-assisted-case-exposure-requested"
+
+
+def _read_json_object(path: Path, label: str) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError(f"{label} is invalid JSON") from error
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be a JSON object")
+    return value
+
+
+def validate_heldout_invalidation(
+    project_root: Path,
+    *,
+    run_directory: Path | None = None,
+    require: bool = False,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Validate the public and optional run-level invalidation declarations."""
+    root = project_root.resolve()
+    public_path = root / HELDOUT_PUBLIC_PATH / HELDOUT_INVALIDATION_FILE
+    resolved_run = run_directory.resolve() if run_directory is not None else None
+    run_path = (
+        resolved_run / HELDOUT_RUN_INVALIDATION_FILE
+        if resolved_run is not None
+        else None
+    )
+    public_exists = public_path.is_file()
+    run_exists = bool(run_path and run_path.is_file())
+    if not public_exists and not run_exists:
+        if require:
+            raise ValueError("held-out invalidation declaration is required")
+        return None, None
+    if not public_exists:
+        raise ValueError("run invalidation exists without a public declaration")
+
+    public = _read_json_object(public_path, "public held-out invalidation")
+    expected_public = {
+        "schema_version": "1.0.0",
+        "evaluation_pack_id": HELDOUT_EVALUATION_PACK_ID,
+        "status": HELDOUT_INVALIDATION_STATUS,
+        "reason_code": HELDOUT_INVALIDATION_REASON,
+        "completed_record_count": 0,
+        "oracle_released": False,
+        "future_blind_pack_required": True,
+    }
+    for key, expected in expected_public.items():
+        if public.get(key) != expected:
+            raise ValueError(f"public held-out invalidation has stale {key}")
+    for key in ("invalidated_at_utc", "decision_record"):
+        if not isinstance(public.get(key), str) or not public[key].strip():
+            raise ValueError(f"public held-out invalidation has stale {key}")
+
+    if resolved_run is None:
+        return public, None
+    if not run_exists or run_path is None:
+        raise ValueError("public invalidation is missing its run declaration")
+    run = _read_json_object(run_path, "held-out run invalidation")
+    expected_run = {**expected_public, "run_id": resolved_run.name}
+    for key, expected in expected_run.items():
+        if run.get(key) != expected:
+            raise ValueError(f"held-out run invalidation has stale {key}")
+    shared_fields = (
+        "schema_version",
+        "evaluation_pack_id",
+        "status",
+        "invalidated_at_utc",
+        "reason_code",
+        "completed_record_count",
+        "oracle_released",
+        "future_blind_pack_required",
+        "decision_record",
+    )
+    if any(run.get(key) != public.get(key) for key in shared_fields):
+        raise ValueError("held-out invalidation declarations are inconsistent")
+    return public, run
+
+
+def reject_invalidated_heldout_transition(
+    project_root: Path,
+    *,
+    transition: str,
+    run_directory: Path | None = None,
+) -> None:
+    public, _ = validate_heldout_invalidation(
+        project_root,
+        run_directory=run_directory,
+    )
+    if public is not None:
+        raise ValueError(
+            f"held-out pack is invalidated; {transition} requires a new pack identity"
+        )
 
 
 def _sha256_bytes(value: bytes) -> str:
@@ -1177,6 +1273,7 @@ def prepare_heldout_run(
         raise ValueError("held-out run output directory must not already exist")
     if output.name != run_id:
         raise ValueError("held-out run output directory name must match run_id")
+    reject_invalidated_heldout_transition(root, transition="preparation")
     (
         manifest,
         cases,
