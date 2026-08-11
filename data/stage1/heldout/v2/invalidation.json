@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "evaluation_pack_id": "SCC-01-HO-V2",
+  "status": "invalidated-before-human-handling",
+  "invalidated_at_utc": "2026-08-11T04:05:13Z",
+  "reason_code": "ai-assisted-case-exposure-requested",
+  "completed_record_count": 0,
+  "oracle_released": false,
+  "future_blind_pack_required": true,
+  "decision_record": "docs/DECISION_LOG.md#d-022--reclassify-v2-as-ai-assisted-simulation-material"
+}

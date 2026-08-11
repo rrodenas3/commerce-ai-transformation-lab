@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: Stage 1 synthetic foundation only; a process-controlled held-out instrument exists but no human record is complete, and there is no AI-assisted run, deployment, adoption, or realised business outcome
+limitations: Stage 1 synthetic foundation and AI-assisted adversarial practice only; V2 was invalidated before human handling, and there is no clean human baseline, operated workflow, deployment, adoption, or realised business outcome
 ---
 
 <div align="center">
@@ -39,7 +39,7 @@ limitations: Stage 1 synthetic foundation only; a process-controlled held-out in
 | **North-star outcome** | Increase the proportion of eligible exceptions that reach a correct, policy-compliant, independently verified recovery within the target time. |
 | **Lighthouse workflow** | Delayed or partial fulfilment, from the first reliable signal to verified recovery and evidence-bound customer communication. |
 | **Operating principle** | People retain authority over financial, customer-facing, irreversible, high-risk, and policy-changing decisions. |
-| **Current gate** | Stage 1 foundation: a 32-case V2 held-out pack, complete answer-free operator guide, blank creator instrument, and fail-closed answer-file release control exist; Raul's manual-no-AI record under disclosed process controls is the next evidence gate. |
+| **Current gate** | Stage 1 practice: V2 is preserved blank and invalidated after the project intentionally switched to a 32-case AI-assisted multi-persona exercise. A future clean human baseline requires a newly identified pack; the persona dataset cannot substitute for it. |
 | **Final decision** | Scale, revise, pause, or stop based on outcome quality, risk, review burden, adoption friction, reliability, and operating cost. |
 
 The lab is deliberately built as a transformation programme rather than an autonomous-agent showcase. Code and agents are useful only when they improve a governed workflow and generate evidence strong enough to support an investment decision.
@@ -96,6 +96,10 @@ The governing question is:
 | Unsupported customer-message facts | **0** | Output is restricted to evidence the frozen oracle permits. |
 | Consequential actions executed | **0** | No adapter execution is claimed at this maturity. |
 | Verified customer recoveries | **0** | Recommendation quality is not confused with an achieved outcome. |
+| AI-assisted persona cases | **32** across 8 outcome categories | Complete adversarial practice coverage; simulated lenses are not human reviewers. |
+| Simulated operating lenses | **5** | Customer, operations, workflow, technical, and risk priorities are made explicit. |
+| First instincts adapted after challenge | **18/32, 56.3%** | Demonstrates designed failure-to-adaptation reasoning, not observed human learning. |
+| Governed final decisions checked | **32/32** against the committed oracle | Construction validation after exposure; explicitly not model accuracy or blind evaluation. |
 | Automated verification | **[Executable verification](.github/workflows/public-safety.yml)** | Case generation, policy boundaries, scoring, artifact integrity, and public-safety controls are executable. |
 
 The rules and frozen, co-designed reference oracle aligned across all 24 discovery cases. The oracle is independent of future model output, but it is not independent validation. The result is an **internal contract calibration**, not model accuracy or business value. The decision-useful signal is the disclosed coverage and abstention trade-off.
@@ -112,7 +116,8 @@ Status is part of the evidence. **Implemented** means executable in this reposit
 | **Governance and responsible AI** | Implemented + designed | Executable policy boundaries, abstention and evidence controls are implemented; future approval, execution, verification, and learning controls are specified. |
 | **Evaluation and evidence engineering** | Implemented + synthetic-observed | Deterministic generation, transparent rules, a frozen co-designed oracle, scoring, artifact pinning, canonical-byte checks, provenance, and public-safety verification. |
 | **Enterprise and solution architecture** | Designed | Source authority, policy service, dry-run adapters, idempotency, observability, postcondition verification, and human/AI allocation are specified. Runtime components are not implemented. |
-| **AI-assisted workflow** | Planned | The governed vertical slice begins only after a valid held-out manual baseline is preserved. |
+| **AI-assisted adversarial practice** | Implemented + synthetic-observed | Five generated operating lenses challenge all 32 V2 cases; 18 first decisions change before a policy-derived final decision. This is not an operated workflow or human evidence. |
+| **AI-assisted workflow** | Planned | The governed vertical slice remains separate from this oracle-checked practice dataset. |
 | **Value realisation and adoption** | Planned | Review burden, reliability, operating cost, friction, outcome quality, and benefits sensitivity will inform the investment decision. No realised value or adoption is claimed. |
 
 ## Leadership decisions in evidence
@@ -129,6 +134,7 @@ The repository records transformation choices, not only technical outputs.
 | Separate recommendation, execution, and verification | Prevents an intended action from being counted as a completed recovery. | [Measurement plan](docs/MEASUREMENT_PLAN.md) |
 | Publish negative and zero results | Keeps maturity, risk, and value claims decision-grade. | [Evidence policy](docs/EVIDENCE_POLICY.md) |
 | Reclassify an exposed creator pack | Protects the validity of the future manual baseline instead of hiding a process failure. | [Decision log](docs/DECISION_LOG.md#d-015--reclassify-the-exposed-creator-pack) |
+| Invalidate V2 before AI-assisted filling | Preserves 0-row human provenance while converting the cases into clearly labelled practice material. | [Decision log](docs/DECISION_LOG.md#d-022--reclassify-v2-as-ai-assisted-simulation-material) |
 
 ## Evidence and authorship boundary
 
@@ -150,14 +156,14 @@ The detailed [future workflow and decision rights](docs/FIRST_VERTICAL_SLICE.md)
 | Stage | Decision gate | Status |
 | --- | --- | --- |
 | **0. Foundation** | Is the outcome, scope, evidence boundary, and investment question clear? | Complete |
-| **1. Current state and baseline** | Is the coordination problem measured rather than assumed? | **Active: held-out instrument ready; human run next** |
+| **1. Current state and baseline** | Is the coordination problem measured rather than assumed? | **Active: persona practice complete; a new pack is required for clean human evidence** |
 | **2. Workflow and operating-model redesign** | Does every consequential decision have an owner and every AI task have a boundary? | Planned |
 | **3. Governed vertical slice** | Can the minimum slice operate safely with reconstructable evidence? | Planned |
 | **4. Evaluation and adaptation** | Does the workflow improve verified resolution without hiding risk or review cost? | Planned |
 | **5. Enablement and independent review** | Can another person use, challenge, and recover the workflow? | Planned |
 | **6. Benefits and scale decision** | Is the value-risk case strong enough to scale, or should it be revised, paused, or stopped? | Planned |
 
-During guided practice, answer-bearing oracle content from the public discovery set was exposed before the creator run. The blank pack remains public and unchanged as familiarisation material. The adaptation is now implemented: a new 32-case pack commits the cases, seed commitment, oracle commitment, blank worksheet, and run provenance while the answer key remains private. The release command fails unless a later Git commit contains the complete human record. The AI-assisted workflow is not built until that record is preserved and scored.
+During guided practice, answer-bearing oracle content from the public discovery set was exposed before the creator run. A stronger 32-case V2 pack then implemented a hash-bound release sequence. Before any human row was completed, the project intentionally switched to AI-assisted multi-persona filling; V2 was therefore invalidated and preserved blank. The new practice dataset shows adversarial reasoning and adaptation but cannot support human-performance, independence, or AI-accuracy claims. A future clean human baseline requires a new pack identity.
 
 See the [full delivery roadmap](docs/DELIVERY_ROADMAP.md) and the [public journey](journey/README.md).
 
@@ -183,7 +189,7 @@ See the [full delivery roadmap](docs/DELIVERY_ROADMAP.md) and the [public journe
 
 ### Executable evidence
 
-- [Stage 1 data](data/README.md): discovery calibration, the exposed familiarisation pack, invalidated held-out V1, and the process-controlled V2 pack with its operator guide and blank creator instrument.
+- [Stage 1 data](data/README.md): discovery calibration, invalidated held-out instruments, and the complete AI-assisted multi-persona practice dataset.
 - [`scripts/`](scripts): public-discovery calibration plus held-out generation, preparation, record-before-oracle release, scoring, and public-safety controls.
 - [`tests/`](tests): policy boundaries, failure paths, provenance, canonical bytes, scoring integrity, and disclosure controls.
 - [Security policy](SECURITY.md): synthetic-data boundary and responsible disclosure.
@@ -240,11 +246,12 @@ The repository currently contains:
 - a frozen, co-designed reference oracle independent of future model output but not independent validation;
 - a transparent deterministic baseline and scorer;
 - a prepared, blank, case-only creator pack reclassified as familiarisation material after oracle exposure;
-- a separately generated 32-case V2 held-out pack, complete answer-free operator guide, private oracle, public commitments, and blank creator instrument;
-- a fail-closed release command that requires the completed human record to be committed before the oracle is published;
+- a separately generated 32-case V2 held-out pack, complete answer-free operator guide, private oracle, public commitments, and blank creator instrument, now invalidated before human handling;
+- a fail-closed release command retained as a historical control design;
+- a 32-case AI-assisted adversarial practice set across five simulated operating lenses, with 18 recorded adaptations and explicit non-human claim boundaries;
 - reproducible artifacts, CI, and public-safety controls.
 
-It does not yet contain a clean held-out human baseline, AI-assisted workflow, executed recovery, independent reviewer session, pilot, production deployment, organisational adoption, or realised business outcome.
+It does not yet contain a clean held-out human baseline, operated AI-assisted workflow, executed recovery, independent reviewer session, pilot, production deployment, organisational adoption, or realised business outcome.
 
 </details>
 

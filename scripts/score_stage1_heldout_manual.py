@@ -37,6 +37,7 @@ from scripts.stage1_heldout import (
     HELDOUT_PACK_SCHEMA_VERSION,
     _sha256_bytes,
     build_operator_guide,
+    reject_invalidated_heldout_transition,
     validate_heldout_run_bindings,
 )
 from scripts.stage1_heldout_release import (
@@ -135,6 +136,11 @@ def score_heldout_run(
         != HELDOUT_ORACLE_EXPOSURE_PREPARED
     ):
         raise ValueError("run manifest is not a process-controlled held-out run")
+    reject_invalidated_heldout_transition(
+        root,
+        transition="scoring",
+        run_directory=run_manifest_path.resolve().parent,
+    )
     pins = _validated_artifact_pins(run_metadata)
     run_files = _validated_run_files(run_metadata)
     case_pack_path = _run_file_path(run_manifest_path, run_files["case_pack"])

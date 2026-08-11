@@ -32,6 +32,7 @@ from scripts.stage1_heldout import (
     build_heldout_cases,
     generate_heldout_artifacts,
     prepare_heldout_run,
+    validate_heldout_invalidation,
     validate_heldout_run_bindings,
 )
 from scripts.stage1_heldout_release import (
@@ -425,9 +426,20 @@ class Stage1HeldoutTests(unittest.TestCase):
         self.assertFalse((PROJECT_ROOT / HELDOUT_ORACLE_RELEASE_MANIFEST_PATH).exists())
         self.assertFalse((run / "manual-summary.json").exists())
         self.assertEqual(
-            {"cases.jsonl", "manifest.json", OPERATOR_GUIDE_FILE},
+            {
+                "cases.jsonl",
+                "manifest.json",
+                OPERATOR_GUIDE_FILE,
+                "invalidation.json",
+            },
             {path.name for path in public.iterdir()},
         )
+        invalidation = json.loads(
+            (public / "invalidation.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("invalidated-before-human-handling", invalidation["status"])
+        self.assertEqual(0, invalidation["completed_record_count"])
+        self.assertFalse(invalidation["oracle_released"])
         with (run / "manual-records.csv").open(encoding="utf-8", newline="") as handle:
             records = list(csv.DictReader(handle))
         self.assertEqual(HELDOUT_CASE_COUNT, len(records))
@@ -817,6 +829,102 @@ class Stage1HeldoutTests(unittest.TestCase):
                     operator_role="creator",
                     prepared_at=datetime(2026, 8, 10, 9, 0, tzinfo=timezone.utc),
                 )
+
+    def test_committed_invalidation_blocks_prepare_release_and_score(self):
+        public = PROJECT_ROOT / HELDOUT_PUBLIC_PATH
+        run = (
+            PROJECT_ROOT
+            / "data"
+            / "stage1"
+            / "heldout"
+            / "runs"
+            / "scc-01-heldout-v2-creator-001"
+        )
+        private = PROJECT_ROOT / HELDOUT_PRIVATE_PATH
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "scc-01-heldout-v2-creator-002"
+            with self.assertRaisesRegex(ValueError, "pack is invalidated"):
+                prepare_heldout_run(
+                    PROJECT_ROOT,
+                    public,
+                    output,
+                    run_id=output.name,
+                    reviewer_code="CREATOR-02",
+                    operator_role="creator",
+                    prepared_at=datetime(2026, 8, 11, 8, 0, tzinfo=timezone.utc),
+                )
+            with self.assertRaisesRegex(ValueError, "pack is invalidated"):
+                release_heldout_oracle(
+                    PROJECT_ROOT,
+                    run / "run-manifest.json",
+                    private,
+                    preparation_ref="HEAD",
+                    records_ref="HEAD",
+                    released_at=datetime(2026, 8, 11, 8, 0, tzinfo=timezone.utc),
+                )
+            with self.assertRaisesRegex(ValueError, "pack is invalidated"):
+                score_heldout_run(
+                    PROJECT_ROOT,
+                    input_path=run / "manual-records.csv",
+                    output_path=Path(directory) / "score.json",
+                    cases_path=run / "case-pack.jsonl",
+                    oracle_path=PROJECT_ROOT / HELDOUT_ORACLE_RELEASE_PATH,
+                    run_manifest_path=run / "run-manifest.json",
+                    release_manifest_path=(
+                        PROJECT_ROOT / HELDOUT_ORACLE_RELEASE_MANIFEST_PATH
+                    ),
+                )
+
+    def test_invalidation_declarations_fail_closed_on_tampering(self):
+        source_public = PROJECT_ROOT / HELDOUT_PUBLIC_PATH / "invalidation.json"
+        source_run = (
+            PROJECT_ROOT
+            / "data"
+            / "stage1"
+            / "heldout"
+            / "runs"
+            / "scc-01-heldout-v2-creator-001"
+            / "INVALIDATED.json"
+        )
+        tampered_values = {
+            "evaluation_pack_id": "SCC-01-HO-VX",
+            "status": "prepared",
+            "reason_code": "different-reason",
+            "completed_record_count": 1,
+            "oracle_released": True,
+            "future_blind_pack_required": False,
+        }
+        for field, value in tampered_values.items():
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                public = root / HELDOUT_PUBLIC_PATH
+                run = (
+                    root
+                    / "data"
+                    / "stage1"
+                    / "heldout"
+                    / "runs"
+                    / "scc-01-heldout-v2-creator-001"
+                )
+                public.mkdir(parents=True)
+                run.mkdir(parents=True)
+                public_invalidation = json.loads(source_public.read_text(encoding="utf-8"))
+                run_invalidation = json.loads(source_run.read_text(encoding="utf-8"))
+                public_invalidation[field] = value
+                (public / "invalidation.json").write_text(
+                    json.dumps(public_invalidation),
+                    encoding="utf-8",
+                )
+                (run / "INVALIDATED.json").write_text(
+                    json.dumps(run_invalidation),
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(ValueError, f"stale {field}"):
+                    validate_heldout_invalidation(
+                        root,
+                        run_directory=run,
+                        require=True,
+                    )
 
 
 if __name__ == "__main__":

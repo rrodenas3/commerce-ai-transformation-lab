@@ -1,0 +1,45 @@
+{
+  "adapted_decision_count": 18,
+  "adapted_decision_rate": 0.5625,
+  "case_count": 32,
+  "claim_boundary": "Shows policy application and adversarial design practice; does not show human performance, independent review, adoption, execution, or business outcomes.",
+  "counts_by_final_action": {
+    "ESCALATE_ACTION_RECOVERY": 5,
+    "ESCALATE_EVIDENCE": 4,
+    "ESCALATE_SPECIALIST": 4,
+    "NO_ACTION_ALREADY_RECOVERED": 2,
+    "NO_ACTION_DUPLICATE_SIGNAL": 1,
+    "REFUND_MISSING": 8,
+    "RESHIP_MISSING": 7,
+    "WAIT_VERIFIED_ETA": 1
+  },
+  "counts_by_final_route": {
+    "approval": 10,
+    "delegated": 9,
+    "specialist": 13
+  },
+  "counts_by_primary_persona": {
+    "P-CUST": 7,
+    "P-OPS": 7,
+    "P-RISK": 6,
+    "P-TECH": 6,
+    "P-WORK": 6
+  },
+  "counts_by_scenario_category": {
+    "delayed-with-customer-wait-preference": 1,
+    "duplicate-signal-control": 1,
+    "evidence-integrity-stop": 4,
+    "partial-fulfilment-refund": 8,
+    "partial-fulfilment-with-stock": 7,
+    "risk-or-chargeback-stop": 4,
+    "unresolved-action-state": 5,
+    "verified-prior-recovery": 2
+  },
+  "evidence_class": "ai-assisted-synthetic-practice",
+  "generated_at_utc": "2026-08-11T04:05:13Z",
+  "independence_status": "simulated-lenses-not-independent-reviewers",
+  "practice_id": "SCC-01-MP-V1",
+  "schema_version": "1.0.0",
+  "simulated_persona_count": 5,
+  "timing_status": "not-human-observed"
+}

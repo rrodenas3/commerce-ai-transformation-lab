@@ -41,7 +41,7 @@ Prepared manual runs live under `data/stage1/runs/<run-id>/`. A blank prepared p
 
 `data/stage1/heldout/v1/` is retained as an invalidated pre-run instrument. Its worksheet stayed blank and its oracle was never released, but its permitted files omitted route and message-fact vocabulary required by the worksheet. [D-021](../docs/DECISION_LOG.md#d-021--replace-the-incomplete-operator-instrument) records why it cannot produce baseline evidence.
 
-`data/stage1/heldout/v2/` contains the replacement 32-case operator pack, a complete answer-free operator guide, and public hash commitments. Operator cases expose incident facts but omit evaluator-only titles, family labels, and generator metadata. The answer-bearing oracle and deterministic generation material remain under ignored `artifacts/private/` until a completed human record is committed.
+`data/stage1/heldout/v2/` contains the replacement 32-case operator pack, a complete answer-free operator guide, and public hash commitments. Operator cases expose incident facts but omit evaluator-only titles, family labels, and generator metadata. V2 was subsequently invalidated before human handling when AI-assisted case exposure was requested. Its worksheet remains blank and its oracle remains unreleased; [D-022](../docs/DECISION_LOG.md#d-022--reclassify-v2-as-ai-assisted-simulation-material) records the transition.
 
 The held-out workflow is implemented as a fail-closed evidence-state transition:
 
@@ -51,6 +51,12 @@ The held-out workflow is implemented as a fail-closed evidence-state transition:
 4. release the oracle only after Git verifies that record freeze;
 5. score only the byte-identical frozen record.
 
-The [held-out protocol](../docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md) contains the exact commands and invalidation rules. The committed creator run is still a blank evidence instrument until Raul completes it. No held-out human result exists yet.
+The [held-out protocol](../docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md) is retained as the exact historical control contract. Do not complete V2 as a clean human result. A future blind human evaluation requires a new pack identity and private oracle. No held-out human result exists yet.
+
+## Stage 1 AI-assisted multi-persona practice
+
+`data/stage1/practice/multi-persona-v1/` contains five simulated operating lenses and a complete 32-case adversarial decision set. The original V2 worksheet is not overwritten. The practice CSVs expose first instincts, challenges, adaptations, governed final decisions, controls, and customer/economic trade-offs.
+
+The dataset is AI-assisted synthetic practice, not a human result. Persona lenses are not independent reviewers; zero-second timestamps are not handling measurements; simulated routes are not observed handoffs; and oracle-checked construction is not model accuracy. See the [practice README](stage1/practice/multi-persona-v1/README.md) for the exact boundary.
 
 The original public-discovery preparation command and scorer remain bound to the exposed discovery pack. Do not complete or score that pack as baseline evidence.

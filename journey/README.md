@@ -2,7 +2,7 @@
 evidence_status: research-grounded
 public_safe: true
 maturity: foundation
-limitations: Stage 1 synthetic calibration exists; the prepared creator pack is familiarisation material after oracle exposure, and no clean held-out human baseline, AI-assisted workflow, action execution, or customer outcome exists
+limitations: Stage 1 synthetic calibration and AI-assisted persona practice exist; V2 was invalidated before human handling, and no clean held-out human baseline, operated AI workflow, action execution, or customer outcome exists
 ---
 
 # Journey index
@@ -26,12 +26,13 @@ This index is the public narrative spine. It records what was known, decided, im
 - [Frozen public-discovery manual protocol](../docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md) — historical contract only; not a valid held-out execution path
 - [Exposed familiarisation-pack manifest](../data/stage1/runs/scc-01-creator-manual-001/run-manifest.json)
 - [Held-out evaluation protocol](../docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md)
-- [Process-controlled V2 held-out pack manifest](../data/stage1/heldout/v2/manifest.json)
-- [Blank V2 held-out creator instrument](../data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/run-manifest.json)
+- [Invalidated V2 held-out pack manifest](../data/stage1/heldout/v2/manifest.json)
+- [Blank, invalidated V2 creator instrument](../data/stage1/heldout/runs/scc-01-heldout-v2-creator-001/run-manifest.json)
+- [AI-assisted multi-persona practice](../data/stage1/practice/multi-persona-v1/README.md)
 - [Stage 1 research notes](../docs/STAGE1_RESEARCH_NOTES.md)
 - [Journey 01 narrative](01-stage-1-baseline.md)
 
-The 24-case deterministic result is a disclosed public calibration artifact. The original creator pack is familiarisation material after oracle exposure. A new 32-case held-out pack and blank creator instrument now implement a process-controlled answer-file release sequence, but Stage 1 stays active until Raul completes and freezes the worksheet before oracle release and scoring.
+The 24-case deterministic result is a disclosed public calibration artifact. The original creator pack is familiarisation material after oracle exposure. V2 implemented a stronger answer-file release sequence but was invalidated with 0 completed rows when the work intentionally switched to AI-assisted multi-persona practice. The resulting 32-case dataset exercises operating-model tensions and adaptations; it is not human or independent-review evidence. Stage 1 stays active until a newly identified pack supports a clean human run or the programme explicitly proceeds without that baseline.
 
 ## Future evidence
 
