@@ -5,6 +5,18 @@
     "human-reviewed",
     "hypothetical-impact"
   ],
+  "allowed_knowledge_types": [
+    "client-fact",
+    "observation",
+    "external-research",
+    "raul-method",
+    "assumption",
+    "hypothesis",
+    "recommendation",
+    "generated-content",
+    "decision",
+    "approved-learning"
+  ],
   "allowed_maturities": [
     "foundation",
     "specification",
@@ -14,11 +26,95 @@
     "production"
   ],
   "current_maturity": "foundation",
+  "allowed_review_states": [
+    "accepted-public-source"
+  ],
+  "allowed_sensitivities": [
+    "public"
+  ],
+  "allowed_visual_evidence_boundaries": [
+    "explanatory-only"
+  ],
   "required_journey_fields": [
     "evidence_status",
     "public_safe",
     "maturity",
     "limitations"
+  ],
+  "canonical_source_globs": [
+    "docs/company-playbook/*.md",
+    "docs/plans/*.md"
+  ],
+  "required_canonical_source_fields": [
+    "source",
+    "owner",
+    "version",
+    "evidence_status",
+    "sensitivity",
+    "permitted_use",
+    "review_state",
+    "replacement_or_expiry",
+    "knowledge_type",
+    "authority_scope",
+    "conflict_policy",
+    "generated_content_authority",
+    "visual_evidence_boundary",
+    "regression_trigger",
+    "outcome_evidence",
+    "research_as_of",
+    "source_freshness"
+  ],
+  "source_release_globs": [
+    "policy/publication-policy.json",
+    "README.md",
+    "docs/DECISION_LOG.md",
+    "docs/EVIDENCE_POLICY.md",
+    "docs/RESEARCH_BASE.md",
+    "docs/STAGE1_*.md",
+    "docs/FIRST_VERTICAL_SLICE.md",
+    "docs/PROJECT_CHARTER.md",
+    "docs/company-playbook/*.md",
+    "docs/company-playbook/assets/infographics/*.png",
+    "docs/company-playbook/assets/infographics/manifest.json",
+    "docs/plans/*.md",
+    "journey/*.md",
+    "journey/**/*.md"
+  ],
+  "required_source_release_paths": [
+    "policy/publication-policy.json",
+    "README.md",
+    "docs/DECISION_LOG.md",
+    "docs/EVIDENCE_POLICY.md",
+    "docs/RESEARCH_BASE.md",
+    "docs/STAGE1_OPERATING_MODEL.md",
+    "docs/STAGE1_RESEARCH_NOTES.md",
+    "docs/FIRST_VERTICAL_SLICE.md",
+    "docs/PROJECT_CHARTER.md",
+    "docs/company-playbook/README.md",
+    "docs/company-playbook/01_EXECUTIVE_BLUEPRINT.md",
+    "docs/company-playbook/02_SYSTEM_MODEL_ONTOLOGY_TOPOLOGY_ARCHITECTURE.md",
+    "docs/company-playbook/03_TRANSFORMATION_DELIVERY_MANUAL.md",
+    "docs/company-playbook/04_ENABLEMENT_AND_ADOPTION_PLAYBOOK.md",
+    "docs/company-playbook/05_USE_CASE_PORTFOLIO_AND_PATTERNS.md",
+    "docs/company-playbook/06_GOVERNANCE_RISK_AND_EVIDENCE.md",
+    "docs/company-playbook/07_WORKSHOPS_CANVASES_AND_COMMUNICATION.md",
+    "docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+    "docs/company-playbook/09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md",
+    "docs/company-playbook/VISUAL_ATLAS.md",
+    "docs/company-playbook/assets/infographics/manifest.json",
+    "docs/company-playbook/assets/infographics/V01-ai-transformation-operating-system-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V02-activity-to-transformation-evidence-ladder-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V03-federated-ai-transformation-operating-model-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V04-enterprise-ai-transformation-ontology-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V05-ai-enabled-workflow-reference-architecture-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V06-transformation-delivery-journey-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V07-use-case-portfolio-decision-map-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V08-human-ai-work-autonomy-spectrum-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V09-governance-control-evidence-loop-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V10-enablement-to-adoption-flywheel-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V11-commerce-lighthouse-exception-to-recovery-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V12-company-engagement-90-day-roadmap-v03-landscape.png",
+    "docs/plans/2026-08-10-001-feat-rausellos-engagement-engine-plan.md"
   ],
   "evidence_artifact_globs": [
     "README.md",
@@ -79,7 +175,20 @@
       "pattern": "\\bAKIA[0-9A-Z]{16}\\b"
     }
   ],
-  "allowed_binary_files": [],
+  "allowed_binary_files": [
+    "docs/company-playbook/assets/infographics/V01-ai-transformation-operating-system-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V02-activity-to-transformation-evidence-ladder-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V03-federated-ai-transformation-operating-model-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V04-enterprise-ai-transformation-ontology-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V05-ai-enabled-workflow-reference-architecture-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V06-transformation-delivery-journey-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V07-use-case-portfolio-decision-map-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V08-human-ai-work-autonomy-spectrum-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V09-governance-control-evidence-loop-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V10-enablement-to-adoption-flywheel-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V11-commerce-lighthouse-exception-to-recovery-v03-landscape.png",
+    "docs/company-playbook/assets/infographics/V12-company-engagement-90-day-roadmap-v03-landscape.png"
+  ],
   "required_root_files": [
     "README.md",
     "SECURITY.md",
