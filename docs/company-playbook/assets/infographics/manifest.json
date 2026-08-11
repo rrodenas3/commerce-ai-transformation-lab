@@ -1,0 +1,211 @@
+{
+  "schema_version": "visual-asset-register/v1",
+  "series": "AI Native Enterprise Infographic Series",
+  "version": "v3",
+  "registered_on": "2026-08-10",
+  "source_prompt_path": "../../09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md",
+  "source_prompt_attachment_sha256": "90a3d385f0228387b42ec343c44ff348e8590d03632c6c3db78e6d68f90bb066",
+  "source_prompt_repository_sha256": "d58c67ffb9d6daf3c61a24f42d5bb0aed06f486ceafdbc97ce0e385a43a465c0",
+  "evidence_boundary": "Reference design. Illustrative, not operational evidence.",
+  "review": {
+    "visual_inspection": "completed_with_open_corrections",
+    "semantic_approval": "not_claimed",
+    "semantic_use": "public explanatory use",
+    "organisational_evidence": false,
+    "standalone_documentary_photographs_included": false
+  },
+  "production_record": {
+    "source_status": "supplied_v3_landscape_assets",
+    "generation_date": "not_supplied",
+    "reference_image_roles": "not_supplied",
+    "edit_history": "original supplied bytes retained; repository review did not edit pixels",
+    "exact_copy_status": "not_independently_verified",
+    "documentary_image_status": "generated_reference_design_not_documentary_evidence",
+    "approval_status": "supplied_not_approved",
+    "review_authority": "corrected prompt contracts are authoritative where an asset review remains open"
+  },
+  "asset_reviews": {
+    "V01": {
+      "playbook_section": "Executive blueprint",
+      "prompt_anchor": "visual-1-ai-transformation-operating-system",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V02": {
+      "playbook_section": "Governance, risk, and evidence",
+      "prompt_anchor": "visual-2-activity-to-transformation-evidence-ladder",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V03": {
+      "playbook_section": "System model and operating model",
+      "prompt_anchor": "visual-3-federated-ai-transformation-operating-model",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V04": {
+      "playbook_section": "System model and ontology",
+      "prompt_anchor": "visual-4-enterprise-ai-transformation-ontology",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V05": {
+      "playbook_section": "System model and architecture",
+      "prompt_anchor": "visual-5-ai-enabled-workflow-reference-architecture",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V06": {
+      "playbook_section": "Transformation delivery manual",
+      "prompt_anchor": "visual-6-transformation-delivery-journey",
+      "semantic_review_status": "correction_required_forward_gate_routes"
+    },
+    "V07": {
+      "playbook_section": "Use-case portfolio and patterns",
+      "prompt_anchor": "visual-7-use-case-portfolio-decision-map",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V08": {
+      "playbook_section": "System model and human-AI authority",
+      "prompt_anchor": "visual-8-human-ai-work-and-autonomy-spectrum",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V09": {
+      "playbook_section": "Governance, risk, and evidence",
+      "prompt_anchor": "visual-9-governance-control-and-evidence-loop",
+      "semantic_review_status": "correction_required_incident_entry_connector"
+    },
+    "V10": {
+      "playbook_section": "Enablement and adoption",
+      "prompt_anchor": "visual-10-enablement-to-adoption-capability-flywheel",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V11": {
+      "playbook_section": "Commerce lighthouse",
+      "prompt_anchor": "visual-11-commerce-lighthouse-exception-to-recovery",
+      "semantic_review_status": "inspected_no_material_correction_recorded"
+    },
+    "V12": {
+      "playbook_section": "Workshops, canvases, and engagement",
+      "prompt_anchor": "visual-12-company-engagement-and-90-day-decision-roadmap",
+      "semantic_review_status": "correction_required_four_distinct_decision_routes"
+    }
+  },
+  "assets": [
+    {
+      "id": "V01",
+      "title": "AI Transformation Operating System",
+      "decision": "AI transformation is governed operating change, not technology deployment.",
+      "filename": "V01-ai-transformation-operating-system-v03-landscape.png",
+      "bytes": 1947373,
+      "width": 1672,
+      "height": 941,
+      "sha256": "b65dc5f1f64ac455508f4b20b897dc2f663c02d5f3c05f44bae472c068db7397"
+    },
+    {
+      "id": "V02",
+      "title": "Activity-to-Transformation Evidence Ladder",
+      "decision": "A claim cannot advance without a stronger type of evidence.",
+      "filename": "V02-activity-to-transformation-evidence-ladder-v03-landscape.png",
+      "bytes": 1867308,
+      "width": 1672,
+      "height": 941,
+      "sha256": "46e78580942b830d03207a7d8ae13ef8e4f71ce1e2f848efcba4129ebf902f6f"
+    },
+    {
+      "id": "V03",
+      "title": "Federated AI Transformation Operating Model",
+      "decision": "Domains own outcomes; the centre supplies method, trust, and reusable capability.",
+      "filename": "V03-federated-ai-transformation-operating-model-v03-landscape.png",
+      "bytes": 1674794,
+      "width": 1672,
+      "height": 941,
+      "sha256": "243857618d74c45a1945c11c23fdcc54a6fbfb6186cddf7430078603cf688372"
+    },
+    {
+      "id": "V04",
+      "title": "Enterprise AI Transformation Ontology",
+      "decision": "Every claim must be traceable through explicit transformation objects and evidence.",
+      "filename": "V04-enterprise-ai-transformation-ontology-v03-landscape.png",
+      "bytes": 2034621,
+      "width": 1672,
+      "height": 941,
+      "sha256": "db737a9a5e94597e4fe4f18d2a4066743e14a9029eba264257390041f73b5f9b"
+    },
+    {
+      "id": "V05",
+      "title": "AI-Enabled Workflow Reference Architecture",
+      "decision": "A model cannot act directly on a consequential business system.",
+      "filename": "V05-ai-enabled-workflow-reference-architecture-v03-landscape.png",
+      "bytes": 1516489,
+      "width": 1672,
+      "height": 941,
+      "sha256": "ab84b45730f259a4a2904003c085275edcd55cb1fca326a4aa801244fa2a9c0d"
+    },
+    {
+      "id": "V06",
+      "title": "Transformation Delivery Journey",
+      "decision": "Delivery advances through evidence gates and can loop back, pause, or retire.",
+      "filename": "V06-transformation-delivery-journey-v03-landscape.png",
+      "bytes": 1547001,
+      "width": 1672,
+      "height": 941,
+      "sha256": "5ccdac8e234da447caec62cdfb3b844b7a05476feb0397e4d511cd00e8373228"
+    },
+    {
+      "id": "V07",
+      "title": "Use-Case Portfolio Decision Map",
+      "decision": "Opportunity cannot cancel unacceptable consequence.",
+      "filename": "V07-use-case-portfolio-decision-map-v03-landscape.png",
+      "bytes": 1773334,
+      "width": 1672,
+      "height": 941,
+      "sha256": "c712f32c93dac559d1d2326f0f0da913542f7e56c342a029e53173984aee32df"
+    },
+    {
+      "id": "V08",
+      "title": "Human-AI Work and Autonomy Spectrum",
+      "decision": "Autonomy is bounded authority, not a maturity race.",
+      "filename": "V08-human-ai-work-autonomy-spectrum-v03-landscape.png",
+      "bytes": 1862974,
+      "width": 1672,
+      "height": 941,
+      "sha256": "6b78c3b76ec7a204a5f47f5175ed92ddb62a875bd1024d3ef1b41be430611a90"
+    },
+    {
+      "id": "V09",
+      "title": "Governance, Control and Evidence Loop",
+      "decision": "Governance, measurement, and operations form one assurance loop while claims remain bounded.",
+      "filename": "V09-governance-control-evidence-loop-v03-landscape.png",
+      "bytes": 1806121,
+      "width": 1672,
+      "height": 941,
+      "sha256": "0521b4d6d4040beb27c88996b030304213fabc6589dad4d9863f9427dae201a3"
+    },
+    {
+      "id": "V10",
+      "title": "Enablement-to-Adoption Capability Flywheel",
+      "decision": "Training attendance is an event; adoption is sustained appropriate use in real work.",
+      "filename": "V10-enablement-to-adoption-flywheel-v03-landscape.png",
+      "bytes": 2047997,
+      "width": 1672,
+      "height": 941,
+      "sha256": "5a9e0d342bd57e65d49a9b453363e07d3136538544a11a51e7c3c94cfd2e2825"
+    },
+    {
+      "id": "V11",
+      "title": "Commerce Lighthouse, Exception to Recovery",
+      "decision": "AI prepares evidence and action while accountable people approve remedies and consequential execution.",
+      "filename": "V11-commerce-lighthouse-exception-to-recovery-v03-landscape.png",
+      "bytes": 2105632,
+      "width": 1672,
+      "height": 941,
+      "sha256": "8199c382e386884d94c217081f4ee34481b26ee1956e407f2dcf75fa00c31e49"
+    },
+    {
+      "id": "V12",
+      "title": "Company Engagement and 90-Day Decision Roadmap",
+      "decision": "Ninety days buys evidence for an investment decision, not guaranteed scale.",
+      "filename": "V12-company-engagement-90-day-roadmap-v03-landscape.png",
+      "bytes": 1904512,
+      "width": 1672,
+      "height": 941,
+      "sha256": "b6cc51f82dbae11c0a491f8542b9d049b096a8b5afbf5aef2c5635e12d044ac2"
+    }
+  ]
+}
