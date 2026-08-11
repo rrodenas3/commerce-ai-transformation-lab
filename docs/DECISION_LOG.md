@@ -167,3 +167,12 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 - **Trigger:** The post-merge usability gate found that the permitted V1 files listed actions and thresholds but omitted route codes, message-fact codes, and complete decision priority. An operator would have needed to guess or consult prohibited repository code.
 - **Reason:** A human baseline must measure application of a complete operating policy, not reverse engineering, hidden evaluator knowledge, or mid-run coaching. Required instructions are evidence inputs and must be frozen with the cases and policy.
 - **Consequence:** V1 remains public and blank with an explicit invalidation record; its oracle is not released and it cannot be scored as baseline evidence. V2 receives a new pack identity, new cases and commitments, a new blank run, and guide bindings at generation, preparation, both Git anchors, release, and scoring.
+
+## D-022 — Reclassify V2 as AI-assisted simulation material
+
+- **Date:** 2026-08-11
+- **Status:** Accepted
+- **Decision:** Invalidate V2 before human handling because the operator explicitly requested AI to inspect and fill all cases through multiple simulated personas. Preserve its 32-row creator worksheet unchanged and unscored. Build any persona decisions in a separate, plainly labelled AI-assisted practice dataset.
+- **Trigger:** The project moved from a blind manual-baseline exercise to an adversarial multi-persona learning exercise before any V2 row was completed and before the oracle was released.
+- **Reason:** Once AI has processed the cases, V2 cannot support a manual-no-AI or clean held-out-human claim. Preserving the blank worksheet and recording the transition before generating answers keeps practice valuable without converting assisted construction into evidence it cannot provide.
+- **Consequence:** V2 can support synthetic workflow design, persona comparison, and governed-decision practice only. Simulated personas are not people, independent reviewers, observed adoption, or business outcomes. A future clean held-out human baseline requires a newly generated pack identity and private oracle.
