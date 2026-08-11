@@ -11,19 +11,25 @@ import re
 import subprocess
 import sys
 from pathlib import Path, PurePosixPath
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 try:
     from scripts.verify_public_safety import (
         PolicyValidationError,
+        VISUAL_ASSET_DIRECTORY,
+        VISUAL_ASSET_MANIFEST,
         check_artifact_metadata,
+        check_visual_asset_snapshot,
         parse_front_matter,
         validate_policy,
     )
 except ModuleNotFoundError:  # Direct execution from the scripts directory.
     from verify_public_safety import (  # type: ignore[no-redef]
         PolicyValidationError,
+        VISUAL_ASSET_DIRECTORY,
+        VISUAL_ASSET_MANIFEST,
         check_artifact_metadata,
+        check_visual_asset_snapshot,
         parse_front_matter,
         validate_policy,
     )
@@ -98,8 +104,13 @@ def _matches_any(relative: str, patterns: Sequence[str]) -> bool:
     return any(fnmatch.fnmatchcase(relative, pattern) for pattern in patterns)
 
 
-def _load_committed_policy(root: Path, commit: str) -> dict[str, Any]:
-    raw_policy = _commit_bytes(root, commit, "policy/publication-policy.json")
+def _load_committed_policy(
+    root: Path,
+    commit: str,
+    payload_loader: Callable[[str], bytes] | None = None,
+) -> dict[str, Any]:
+    load_payload = payload_loader or (lambda relative: _commit_bytes(root, commit, relative))
+    raw_policy = load_payload("policy/publication-policy.json")
     try:
         policy = json.loads(raw_policy.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
@@ -113,12 +124,82 @@ def _load_committed_policy(root: Path, commit: str) -> dict[str, Any]:
     return policy
 
 
+def _validate_committed_visual_assets(
+    root: Path,
+    commit: str,
+    policy: dict[str, Any],
+    committed_paths: Sequence[str],
+    payload_loader: Callable[[str], bytes] | None = None,
+) -> None:
+    """Apply the visual integrity contract to bytes from one Git snapshot."""
+    load_payload = payload_loader or (lambda relative: _commit_bytes(root, commit, relative))
+    committed_by_key: dict[str, str] = {}
+    for relative in committed_paths:
+        key = relative.casefold()
+        if key in committed_by_key and committed_by_key[key] != relative:
+            raise PublicSourceReleaseError(
+                "source snapshot contains case-colliding paths"
+            )
+        committed_by_key[key] = relative
+
+    manifest_relative = committed_by_key.get(VISUAL_ASSET_MANIFEST.casefold())
+    manifest_payload = (
+        load_payload(manifest_relative)
+        if manifest_relative is not None
+        else None
+    )
+    prefix = f"{VISUAL_ASSET_DIRECTORY}/"
+    visual_paths = [
+        relative
+        for relative in committed_paths
+        if relative.startswith(prefix)
+        and PurePosixPath(relative).suffix.lower() == ".png"
+    ]
+    asset_payloads = {
+        relative.casefold(): load_payload(relative)
+        for relative in visual_paths
+    }
+
+    def load_committed_payload(relative: str) -> bytes | None:
+        committed_relative = committed_by_key.get(relative.casefold())
+        if committed_relative is None:
+            return None
+        return load_payload(committed_relative)
+
+    errors = check_visual_asset_snapshot(
+        policy,
+        manifest_payload,
+        asset_payloads,
+        visual_control_present=manifest_relative is not None or bool(visual_paths),
+        repository_payload_loader=load_committed_payload,
+    )
+    if errors:
+        raise PublicSourceReleaseError(
+            "source snapshot fails visual asset validation: "
+            + "; ".join(sorted(set(errors)))
+        )
+
+
 def build_source_release_manifest(root: Path, commit: str) -> dict[str, Any]:
     """Build a deterministic manifest from one immutable Git commit."""
     root = root.resolve()
     source_commit = _resolve_commit(root, commit)
-    policy = _load_committed_policy(root, source_commit)
+    payload_cache: dict[str, bytes] = {}
+
+    def load_committed_payload(relative: str) -> bytes:
+        if relative not in payload_cache:
+            payload_cache[relative] = _commit_bytes(root, source_commit, relative)
+        return payload_cache[relative]
+
+    policy = _load_committed_policy(root, source_commit, load_committed_payload)
     committed_paths = _commit_paths(root, source_commit)
+    _validate_committed_visual_assets(
+        root,
+        source_commit,
+        policy,
+        committed_paths,
+        load_committed_payload,
+    )
     release_paths = [
         relative
         for relative in committed_paths
@@ -136,7 +217,7 @@ def build_source_release_manifest(root: Path, commit: str) -> dict[str, Any]:
     artifacts: list[dict[str, Any]] = []
     metadata_errors: list[str] = []
     for relative in release_paths:
-        payload = _commit_bytes(root, source_commit, relative)
+        payload = load_committed_payload(relative)
         artifact: dict[str, Any] = {
             "path": relative,
             "sha256": hashlib.sha256(payload).hexdigest(),
@@ -168,6 +249,7 @@ def build_source_release_manifest(root: Path, commit: str) -> dict[str, Any]:
                         for field in policy["required_canonical_source_fields"]
                     }
         artifacts.append(artifact)
+        payload_cache.pop(relative, None)
 
     if metadata_errors:
         raise PublicSourceReleaseError(
