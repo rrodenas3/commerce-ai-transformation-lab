@@ -4,3 +4,4 @@ data/stage1/runs/** text eol=lf
 docs/STAGE1_MANUAL_BASELINE_PROTOCOL.md text eol=lf
 data/stage1/heldout/** text eol=lf
 docs/STAGE1_HELDOUT_EVALUATION_PROTOCOL.md text eol=lf
+docs/company-playbook/09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md text eol=lf
