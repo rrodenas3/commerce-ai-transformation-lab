@@ -27,6 +27,10 @@ source_freshness: review-on-import-or-material-change
 
 Use only the workshop or canvas needed for the current decision. Completing every template is not transformation.
 
+[![Company engagement and 90-day decision roadmap progressing from mandate and readiness through discovery, design, and test or pilot readiness](assets/infographics/V12-company-engagement-90-day-roadmap-v03-landscape.png)](VISUAL_ATLAS.md#v12-company-engagement-and-90-day-decision-roadmap)
+
+*Supplied reference design. Illustrative, not operational evidence. An open correction must separate Expand, Revise, Pause, and Stop into four visible routes. See the [Visual Atlas](VISUAL_ATLAS.md#v12-company-engagement-and-90-day-decision-roadmap) for the review status and authoritative prompt contract.*
+
 ## 1. Facilitation principles
 
 1. Invite people who perform, own, enable, govern, and are affected by the work.

@@ -27,6 +27,10 @@ source_freshness: review-on-import-or-material-change
 
 AI enablement gives people the knowledge, approved tools, practice, support, and permission needed to use AI appropriately. Adoption occurs when an approved AI-enabled way of working becomes repeated, competent, supported, and outcome-relevant inside a real workflow.
 
+[![Enablement-to-adoption capability flywheel linking role-based support, real-work practice, friction, evidence, and sustained operating capability](assets/infographics/V10-enablement-to-adoption-flywheel-v03-landscape.png)](VISUAL_ATLAS.md#v10-enablement-to-adoption-capability-flywheel)
+
+*Reference design. Illustrative, not operational evidence. See the [Visual Atlas](VISUAL_ATLAS.md#v10-enablement-to-adoption-capability-flywheel) for the adoption decision, capability interpretation, and evidence boundary.*
+
 These states must remain separate:
 
 ```mermaid

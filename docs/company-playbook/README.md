@@ -34,6 +34,10 @@ It is intentionally broader than the lab's first commerce workflow. The lab prov
 > [!IMPORTANT]
 > This material is a research-grounded reference design. A company must adapt it to its sector, people, policies, risk appetite, systems, contracts, and applicable law. Using the playbook does not establish NIST conformance, ISO/IEC 42001 certification, EU AI Act compliance, security assurance, organisational adoption, or business value.
 
+[![AI Transformation Operating System connecting mandate, outcomes, workflow redesign, evidence, governance, and a reversible investment decision](assets/infographics/V01-ai-transformation-operating-system-v03-landscape.png)](VISUAL_ATLAS.md#v01-ai-transformation-operating-system)
+
+*The system in one view. The workflow is the transformation unit; direction, delivery, enablement, trust, and value connect it to a reversible investment decision. Explore all twelve decision plates in the [Visual Atlas](VISUAL_ATLAS.md).*
+
 ## Start here by audience
 
 | Audience | Start with | Decision it supports |
@@ -45,7 +49,7 @@ It is intentionally broader than the lab's first commerce workflow. The lab prov
 | Product, data, architecture, security, legal, privacy, risk | [Governance, risk, and evidence](06_GOVERNANCE_RISK_AND_EVIDENCE.md) | What must be classified, controlled, tested, monitored, approved, and retained |
 | Facilitator, consultant, transformation team | [Workshops, canvases, and communication](07_WORKSHOPS_CANVASES_AND_COMMUNICATION.md) | How to run the engagement and produce reusable decision artifacts |
 | Reviewer, auditor, researcher | [Framework crosswalk and sources](08_FRAMEWORK_CROSSWALK_AND_SOURCES.md) | Which external frameworks informed the design and where the boundaries are |
-| Designer, communicator, presentation owner | [Visual system and infographic prompts](09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md) | Which visuals to build, how they connect, and how to produce them consistently |
+| Designer, communicator, presentation owner | [Visual Atlas](VISUAL_ATLAS.md) and [V3 visual production pack](09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md) | Which decision each visual explains, what boundary applies, and how to reproduce or adapt it consistently |
 
 ## The playbook in one picture
 
@@ -113,7 +117,7 @@ Maps the playbook to NIST AI RMF, ISO/IEC 42001, the EU AI Act, OECD classificat
 
 ### 9. Visual system and infographic prompt pack
 
-Defines a twelve-infographic narrative, four documentary photography plates, shared visual grammar, production-ready image-generator prompts, revision protocol, and visual quality gate.
+Publishes twelve supplied reference plates in a decision-led [Visual Atlas](VISUAL_ATLAS.md), then preserves their shared visual grammar, exact generation prompts, controlled edits, pass gates, and review protocol. Four independent documentary photographs remain production prompts only.
 
 ## The three systems a transformation leader must build
 

@@ -27,6 +27,10 @@ source_freshness: review-on-import-or-material-change
 
 Governance is the system through which legitimate people make informed decisions about AI purpose, value, authority, risk, evidence, operation, change, and retirement. It is not a policy document or an approval meeting added after a build.
 
+[![Governance, control, and evidence loop connecting govern, map, measure, manage, incidents, claims, and investment decisions](assets/infographics/V09-governance-control-evidence-loop-v03-landscape.png)](VISUAL_ATLAS.md#v09-governance-control-and-evidence-loop)
+
+*Supplied reference design. Illustrative, not operational evidence. An open correction must connect Manage or Incident response unambiguously to Contain. See the [Visual Atlas](VISUAL_ATLAS.md#v09-governance-control-and-evidence-loop) for the review status and authoritative prompt contract.*
+
 ## 1. Framework basis and boundary
 
 This playbook uses external frameworks as organising references:

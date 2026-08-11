@@ -19,12 +19,16 @@ limitations: Stage 1 synthetic foundation only; the public creator pack is famil
 ![Data](https://img.shields.io/badge/data-100%25%20synthetic-2A9D8F)
 ![Decision](https://img.shields.io/badge/decision-scale%20%7C%20revise%20%7C%20pause%20%7C%20stop-264653)
 
-[Executive brief](#executive-brief) · [Transformation system](#the-transformation-system) · [Evidence](#current-evidence) · [Capability proof](#capabilities-demonstrated) · [Roadmap](#stage-gated-roadmap) · [Run locally](#run-the-evidence)
+[Executive brief](#executive-brief) · [Transformation system](#the-transformation-system) · [Evidence](#current-evidence) · [Capability proof](#capabilities-demonstrated) · [Company playbook](docs/company-playbook/README.md) · [Visual atlas](docs/company-playbook/VISUAL_ATLAS.md) · [Roadmap](#stage-gated-roadmap) · [Run locally](#run-the-evidence)
 
 </div>
 
 > [!IMPORTANT]
 > This is a public, synthetic transformation laboratory. It demonstrates transformation method, decision quality, governance design, and executable evidence. It does not claim production deployment, organisational adoption, AI performance, customer impact, or realised financial value.
+
+[![Commerce Lighthouse service blueprint showing a fulfilment exception progressing through evidence, human authority, AI support, controlled action, and verified customer recovery](docs/company-playbook/assets/infographics/V11-commerce-lighthouse-exception-to-recovery-v03-landscape.png)](docs/company-playbook/VISUAL_ATLAS.md#v11-commerce-lighthouse-exception-to-recovery)
+
+*The synthetic lighthouse in one view: AI prepares bounded work, accountable people retain consequential authority, and action is not counted as value until recovery is independently verified. See the [Visual Atlas](docs/company-playbook/VISUAL_ATLAS.md) for the full twelve-decision narrative and evidence boundaries.*
 
 ## Executive brief
 
@@ -182,6 +186,23 @@ See the [full delivery roadmap](docs/DELIVERY_ROADMAP.md) and the [public journe
 - [`scripts/`](scripts): public-discovery generation, transparent calibration, exposed-pack preparation and scoring controls, and public-safety verification. Held-out preparation and scoring are not implemented.
 - [`tests/`](tests): policy boundaries, failure paths, provenance, canonical bytes, scoring integrity, and disclosure controls.
 - [Security policy](SECURITY.md): synthetic-data boundary and responsible disclosure.
+
+## Company engagement playbook
+
+The [Company AI Transformation Playbook](docs/company-playbook/README.md) turns the lab's method into a reusable company-facing reference system. It includes:
+
+- an [executive blueprint](docs/company-playbook/01_EXECUTIVE_BLUEPRINT.md) for outcomes, portfolio choices, operating model, board evidence, and engagement decisions;
+- a connected [ontology, topology, role, architecture, and connection model](docs/company-playbook/02_SYSTEM_MODEL_ONTOLOGY_TOPOLOGY_ARCHITECTURE.md);
+- a [transformation delivery manual](docs/company-playbook/03_TRANSFORMATION_DELIVERY_MANUAL.md) from first conversation to scale, revision, pause, stop, or retirement;
+- an [AI enablement and adoption playbook](docs/company-playbook/04_ENABLEMENT_AND_ADOPTION_PLAYBOOK.md);
+- a [use-case portfolio and workflow pattern library](docs/company-playbook/05_USE_CASE_PORTFOLIO_AND_PATTERNS.md);
+- a [governance, risk, and evidence system](docs/company-playbook/06_GOVERNANCE_RISK_AND_EVIDENCE.md);
+- copyable [workshops, canvases, board materials, and employee communications](docs/company-playbook/07_WORKSHOPS_CANVASES_AND_COMMUNICATION.md);
+- a [framework crosswalk and source map](docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md);
+- a [Visual Atlas](docs/company-playbook/VISUAL_ATLAS.md) that connects twelve supplied reference plates to executive, operating-model, architecture, enablement, governance, and delivery decisions;
+- the exact [V3 visual system and ChatGPT image-generation prompt pack](docs/company-playbook/09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md), including controlled edits and pass gates. Four additional documentary photographs remain production prompts and are not presented as completed assets.
+
+The playbook is a research-grounded reference design. It does not upgrade this laboratory's maturity or imply client adoption, legal compliance, certification, production use, or realised value.
 
 ## Run the evidence
 

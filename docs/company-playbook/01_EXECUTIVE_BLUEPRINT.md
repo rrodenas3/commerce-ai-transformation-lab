@@ -37,6 +37,10 @@ The executive team is accountable for five decisions:
 
 The recommended unit of investment is a **governed AI-enabled workflow**, not a licence, model, chatbot, or collection of prompts.
 
+[![AI Transformation Operating System with the governed workflow at its centre and an evidence-based investment decision at its edge](assets/infographics/V01-ai-transformation-operating-system-v03-landscape.png)](VISUAL_ATLAS.md#v01-ai-transformation-operating-system)
+
+*Reference design. Illustrative, not operational evidence. See the [Visual Atlas](VISUAL_ATLAS.md#v01-ai-transformation-operating-system) for the leadership decision, capability interpretation, and evidence boundary.*
+
 ```mermaid
 flowchart LR
     S["Strategy"] --> O["Business outcome"]

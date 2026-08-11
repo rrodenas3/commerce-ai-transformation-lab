@@ -29,6 +29,10 @@ A use case is not “use an LLM for customer service.” It is a bounded proposi
 
 > For these people and cases, use these approved information sources and AI behaviours inside this recurring workflow, under these human decisions and controls, to improve this owned outcome, measured this way.
 
+[![Use-case portfolio decision map separating qualification, opportunity, feasibility, consequence, and four delivery routes](assets/infographics/V07-use-case-portfolio-decision-map-v03-landscape.png)](VISUAL_ATLAS.md#v07-use-case-portfolio-decision-map)
+
+*Reference design. Illustrative, not operational evidence. See the [Visual Atlas](VISUAL_ATLAS.md#v07-use-case-portfolio-decision-map) for the portfolio decision, capability interpretation, and evidence boundary.*
+
 ## 1. Use-case ontology
 
 | Object | Question |

@@ -34,6 +34,10 @@ This document answers four different questions that are often mixed together:
 
 The shared unit is an **AI-enabled workflow**: a recurring sequence of work that combines people, information, decisions, AI behaviour, systems, controls, support, and evidence to pursue an owned outcome.
 
+[![AI-enabled workflow reference architecture showing seven controlled layers and no direct model-to-system execution path](assets/infographics/V05-ai-enabled-workflow-reference-architecture-v03-landscape.png)](VISUAL_ATLAS.md#v05-ai-enabled-workflow-reference-architecture)
+
+*Reference design. Illustrative, not operational evidence. See the [Visual Atlas](VISUAL_ATLAS.md#v05-ai-enabled-workflow-reference-architecture) for the architecture decision, capability interpretation, and evidence boundary.*
+
 ## 1. Core ontology
 
 ### 1.1 Entity model

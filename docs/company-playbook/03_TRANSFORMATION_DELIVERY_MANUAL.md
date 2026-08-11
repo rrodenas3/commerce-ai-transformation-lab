@@ -27,6 +27,10 @@ source_freshness: review-on-import-or-material-change
 
 This manual is for an AI Transformation Director/Lead, Workflow Transformation Lead, consultant, or cross-functional team. It is organised around decisions and evidence gates rather than a fixed technology methodology.
 
+[![AI transformation delivery journey showing thirteen stages, evidence gates, learning loops, and exit routes](assets/infographics/V06-transformation-delivery-journey-v03-landscape.png)](VISUAL_ATLAS.md#v06-transformation-delivery-journey)
+
+*Supplied reference design. Illustrative, not operational evidence. An open correction must add a visible forward route through each Evidence gate. See the [Visual Atlas](VISUAL_ATLAS.md#v06-transformation-delivery-journey) for the review status and authoritative prompt contract.*
+
 ## The complete journey
 
 ```mermaid
