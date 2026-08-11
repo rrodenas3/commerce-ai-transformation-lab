@@ -2,7 +2,7 @@
   "artifacts": [
     {
       "path": "README.md",
-      "sha256": "e6a73511dc0bb5738d02044068961f0b231f1c6cd9fa807a1e870c77d2c3b1d4"
+      "sha256": "22924992d17f1422be00624cc4e54e743e67877cf2fef925239712929b0b7390"
     },
     {
       "path": "docs/DECISION_LOG.md",
@@ -65,7 +65,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/01_EXECUTIVE_BLUEPRINT.md",
-      "sha256": "706e3224e59008aefaa0f319719a3687e436bfc08997484d2a1bcc286cec4d7c"
+      "sha256": "95ce0d36de3647c74391001ded5d547a23bcb114c6b0bdd643d8cdd9fe9f5164"
     },
     {
       "metadata": {
@@ -88,7 +88,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/02_SYSTEM_MODEL_ONTOLOGY_TOPOLOGY_ARCHITECTURE.md",
-      "sha256": "3772bbc143892e3a7b67d5ecc35152f6bde93b04cc1e6f04393fdd3206b0dd1e"
+      "sha256": "fb0cf14a3da7ad6987dc9e19179230709bd3d039d46fcbad6ff6347e48e7eef1"
     },
     {
       "metadata": {
@@ -111,7 +111,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/03_TRANSFORMATION_DELIVERY_MANUAL.md",
-      "sha256": "6b81faed214a076a305106ea054bad7e64a79829eb428df9bb35f3946c59d3f3"
+      "sha256": "72f772a8a990fdbc9420a965f58aeb9ada80fef940921b68b6fb24e206b6bbe5"
     },
     {
       "metadata": {
@@ -134,7 +134,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/04_ENABLEMENT_AND_ADOPTION_PLAYBOOK.md",
-      "sha256": "cea4995db3bf616cdf1d3b98340c4153f65467516942d09aeec9f0f63b79a301"
+      "sha256": "da7281396df0d2c6478d7a5c638b77fd03b7a47e419253723b4a522653f45afc"
     },
     {
       "metadata": {
@@ -157,7 +157,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/05_USE_CASE_PORTFOLIO_AND_PATTERNS.md",
-      "sha256": "bba7c322fa00235db6a94282701000a5fccfebfe68508babc8266bfbf30027dd"
+      "sha256": "1a73b75152ac320e66db092bd0e8e956d3f92ffc582e12c1473d1f6c0da96de4"
     },
     {
       "metadata": {
@@ -180,7 +180,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/06_GOVERNANCE_RISK_AND_EVIDENCE.md",
-      "sha256": "88b714f3792e476f40ab917914c6ac9289519310a17b3c5b627aaf1f82e8d995"
+      "sha256": "93f21b8bcc9cf01eebaf1463d4d7510509033f60495e76d16d69906cb95edfe4"
     },
     {
       "metadata": {
@@ -203,7 +203,7 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/07_WORKSHOPS_CANVASES_AND_COMMUNICATION.md",
-      "sha256": "64118393d6362caf8bd3164127427fe8081828d0eaf180d8a5291858d171ba8e"
+      "sha256": "b3787992131b835a441bd9bc84835669d1c7df89e9ca39aaa20389f767f7f4c8"
     },
     {
       "metadata": {
@@ -230,7 +230,7 @@
     },
     {
       "metadata": {
-        "authority_scope": "explanatory visual method only; observed client evidence requires authorised sources",
+        "authority_scope": "explanatory visual method only; observed organisational evidence requires authorised sources",
         "conflict_policy": "surface-and-block-dependent-claims",
         "evidence_status": "research-grounded",
         "generated_content_authority": "none",
@@ -243,13 +243,13 @@
         "research_as_of": "2026-08-10",
         "review_state": "accepted-public-source",
         "sensitivity": "public",
-        "source": "repository synthesis grounded by docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
+        "source": "Raul Rausell supplied V3 production prompt pack, cross-walked to docs/company-playbook/08_FRAMEWORK_CROSSWALK_AND_SOURCES.md",
         "source_freshness": "review-on-import-or-material-change",
-        "version": "2026-08-10",
+        "version": "2026-08-10-v3",
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/09_VISUAL_SYSTEM_AND_INFOGRAPHIC_PROMPTS.md",
-      "sha256": "52ff0b7ca2c49860440c91960251782e9a70959223a31dd280611dc050d62088"
+      "sha256": "d58c67ffb9d6daf3c61a24f42d5bb0aed06f486ceafdbc97ce0e385a43a465c0"
     },
     {
       "metadata": {
@@ -272,7 +272,82 @@
         "visual_evidence_boundary": "explanatory-only"
       },
       "path": "docs/company-playbook/README.md",
-      "sha256": "b30a2ccba89293a1f2241116050c325495ac4a3a6c2184847a85e5ab8d64d7e0"
+      "sha256": "36b5f0477796c0e27fc3d2f9e4057520a62ca3fd229f07cd306a07dce1177b96"
+    },
+    {
+      "metadata": {
+        "authority_scope": "explanatory visual system only; company facts and decisions require authorised organisational evidence",
+        "conflict_policy": "surface-and-block-dependent-claims",
+        "evidence_status": "research-grounded",
+        "generated_content_authority": "none",
+        "knowledge_type": "raul-method",
+        "outcome_evidence": "none",
+        "owner": "Raul Rausell",
+        "permitted_use": "public-canonical-source-for-rausellos",
+        "regression_trigger": "material-change",
+        "replacement_or_expiry": "superseded-by-reviewed-source-release",
+        "research_as_of": "2026-08-10",
+        "review_state": "accepted-public-source",
+        "sensitivity": "public",
+        "source": "V3 visual series supplied by Raul Rausell and mapped to the Company AI Transformation Playbook",
+        "source_freshness": "review-on-import-or-material-change",
+        "version": "2026-08-10-v3",
+        "visual_evidence_boundary": "explanatory-only"
+      },
+      "path": "docs/company-playbook/VISUAL_ATLAS.md",
+      "sha256": "7ff4d50e6b3a698386d08586daee8b98a6e10f8406cdebbf543495946ab06b19"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V01-ai-transformation-operating-system-v03-landscape.png",
+      "sha256": "b65dc5f1f64ac455508f4b20b897dc2f663c02d5f3c05f44bae472c068db7397"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V02-activity-to-transformation-evidence-ladder-v03-landscape.png",
+      "sha256": "46e78580942b830d03207a7d8ae13ef8e4f71ce1e2f848efcba4129ebf902f6f"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V03-federated-ai-transformation-operating-model-v03-landscape.png",
+      "sha256": "243857618d74c45a1945c11c23fdcc54a6fbfb6186cddf7430078603cf688372"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V04-enterprise-ai-transformation-ontology-v03-landscape.png",
+      "sha256": "db737a9a5e94597e4fe4f18d2a4066743e14a9029eba264257390041f73b5f9b"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V05-ai-enabled-workflow-reference-architecture-v03-landscape.png",
+      "sha256": "ab84b45730f259a4a2904003c085275edcd55cb1fca326a4aa801244fa2a9c0d"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V06-transformation-delivery-journey-v03-landscape.png",
+      "sha256": "5ccdac8e234da447caec62cdfb3b844b7a05476feb0397e4d511cd00e8373228"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V07-use-case-portfolio-decision-map-v03-landscape.png",
+      "sha256": "c712f32c93dac559d1d2326f0f0da913542f7e56c342a029e53173984aee32df"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V08-human-ai-work-autonomy-spectrum-v03-landscape.png",
+      "sha256": "6b78c3b76ec7a204a5f47f5175ed92ddb62a875bd1024d3ef1b41be430611a90"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V09-governance-control-evidence-loop-v03-landscape.png",
+      "sha256": "0521b4d6d4040beb27c88996b030304213fabc6589dad4d9863f9427dae201a3"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V10-enablement-to-adoption-flywheel-v03-landscape.png",
+      "sha256": "5a9e0d342bd57e65d49a9b453363e07d3136538544a11a51e7c3c94cfd2e2825"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V11-commerce-lighthouse-exception-to-recovery-v03-landscape.png",
+      "sha256": "8199c382e386884d94c217081f4ee34481b26ee1956e407f2dcf75fa00c31e49"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/V12-company-engagement-90-day-roadmap-v03-landscape.png",
+      "sha256": "b6cc51f82dbae11c0a491f8542b9d049b096a8b5afbf5aef2c5635e12d044ac2"
+    },
+    {
+      "path": "docs/company-playbook/assets/infographics/manifest.json",
+      "sha256": "b067cf3175cdc460bfc6d04ce3000a3b3e335f41b76ef2667c039b22d23ea3e8"
     },
     {
       "metadata": {
@@ -307,7 +382,7 @@
     },
     {
       "path": "policy/publication-policy.json",
-      "sha256": "6022088351c4de22e04b8853dafc9e49dfe842cb0c7bb776e6857569a4653f17"
+      "sha256": "208077fed394ba79d38bbe91bcfa7321c74f263ae2fe3d4e118a3848f1ac1257"
     }
   ],
   "generator_version": "1.0.0",
@@ -319,5 +394,5 @@
     "material_change_requires_regression": true
   },
   "schema_version": "public-source-release/v1",
-  "source_commit": "83ca404a3f42ae2012968b85cd40a1e6b385b1bc"
+  "source_commit": "2cbf75e4d25ca620f716f0218d819e9c5f499aa9"
 }
