@@ -6,7 +6,7 @@
     },
     {
       "path": ".github/workflows/public-safety.yml",
-      "sha256": "51bc5f7b78f98a13377c3f12905da3f523ca8a982114f8c33e2f5cd2108a6c91"
+      "sha256": "7e6c5e8d4bc6fef4e78d0ddc52541470447bf274c3427b56336746ab09b76e26"
     },
     {
       "path": ".gitignore",
@@ -6205,7 +6205,11 @@
     },
     {
       "path": "policy/publication-policy.json",
-      "sha256": "9a9fde0cb83d8614b774009bc8eb5f30f44ea0f122ceec3d58a9ae6d2478eb05"
+      "sha256": "000bfd6cc1d5bb38ec7dd6fe029b248e4f7f70a6283edc66aa3bd9be4caf1c14"
+    },
+    {
+      "path": "requirements-dev.txt",
+      "sha256": "0969da99a0bc2a1b71ed50584560f4588a37567ac63af3ddbaf3c4617ca5621a"
     },
     {
       "path": "scripts/__init__.py",
@@ -6397,7 +6401,7 @@
     },
     {
       "path": "tests/test_public_safety.py",
-      "sha256": "5c85cd4fb0aeaf9036e9432f1ae1df44ab6598135d7841ef3d377549b1ccf639"
+      "sha256": "027609ad1cabd2ed10b121176925b5485e12d656177365e5e94ccd09869bd957"
     },
     {
       "path": "tests/test_recovery_actions.py",
@@ -6465,11 +6469,11 @@
     },
     {
       "path": "tests/test_stage2_evaluation.py",
-      "sha256": "5bb7c1a75e5eb6eb7236335af6a569115e4792c999d1300383ec046eec068971"
+      "sha256": "d4ee370b5fe35c54c2d10b1dad3f36e90fdbd0ad5e5491fc19c6e45e4bd09fde"
     },
     {
       "path": "tests/test_stage2_evaluation_release.py",
-      "sha256": "64fe1f181058f4ae103cdb89d0232e317e9bedf7e9282d65cdad2c1807bd57d3"
+      "sha256": "965bf71c84e664394b6bd363108369d1ca65ccccd95682197f8a608aa2d5067f"
     },
     {
       "path": "tests/test_stage2_evidence_pack.py",
@@ -6493,5 +6497,5 @@
     "material_change_requires_regression": true
   },
   "schema_version": "public-source-release/v1",
-  "source_commit": "cfd9d79f58ff0503685ee87fd37db40c75abd55d"
+  "source_commit": "9bde3296b398727289f3ce6da79b14d60e28164c"
 }
