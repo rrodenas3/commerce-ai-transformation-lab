@@ -22,6 +22,7 @@ VISUAL_ASSET_MANIFEST = f"{VISUAL_ASSET_DIRECTORY}/manifest.json"
 VISUAL_ASSET_SCHEMA = "visual-asset-register/v1"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
+SIGNER_FINGERPRINT_RE = re.compile(r"[0-9a-fA-F]{40}(?:[0-9a-fA-F]{24})?\Z")
 VISUAL_REQUIRED_STRING_FIELDS = ("id", "title", "decision", "filename", "sha256")
 VISUAL_REQUIRED_INTEGER_FIELDS = ("bytes", "width", "height")
 MANDATORY_EVIDENCE_FIELDS = {
@@ -104,6 +105,8 @@ def validate_policy(policy: Any) -> None:
         "current_maturity",
         "forbidden_text_patterns",
         "allowed_binary_files",
+        "release_authorization",
+        "claim_boundaries",
     }
     missing_keys = sorted(required_keys - policy.keys())
     if missing_keys:
@@ -186,6 +189,149 @@ def validate_policy(policy: Any) -> None:
     ):
         for value in policy[key]:
             _validate_relative_policy_path(value, key=key, allow_glob=True)
+
+    release_authorization = policy["release_authorization"]
+    expected_release_fields = {
+        "schema_version",
+        "release_id",
+        "required_tag_prefix",
+        "manifest_path",
+        "manifest_self_excluded",
+        "required_maturity",
+        "allowed_signer_fingerprints",
+        "public_key_path",
+        "authorization_status",
+    }
+    if not isinstance(release_authorization, dict):
+        raise policy_error("'release_authorization' must be an object")
+    if set(release_authorization) != expected_release_fields:
+        raise policy_error(
+            "'release_authorization' has missing or unknown field(s)"
+        )
+    if (
+        release_authorization["schema_version"]
+        != "stage2-release-authorization-policy/v1"
+    ):
+        raise policy_error("unsupported release authorization schema")
+    for field in (
+        "release_id",
+        "required_tag_prefix",
+        "manifest_path",
+        "required_maturity",
+        "authorization_status",
+    ):
+        value = release_authorization[field]
+        if not isinstance(value, str) or not value.strip():
+            raise policy_error(
+                f"'release_authorization.{field}' must be a nonempty string"
+            )
+    _validate_relative_policy_path(
+        release_authorization["manifest_path"],
+        key="release_authorization.manifest_path",
+        allow_glob=False,
+    )
+    if release_authorization["manifest_self_excluded"] is not True:
+        raise policy_error("release manifest self-exclusion must be true")
+    if release_authorization["required_maturity"] != current_maturity:
+        raise policy_error(
+            "release authorization maturity must equal current maturity"
+        )
+    fingerprints = release_authorization["allowed_signer_fingerprints"]
+    if not isinstance(fingerprints, list) or any(
+        not isinstance(value, str) or not SIGNER_FINGERPRINT_RE.fullmatch(value)
+        for value in fingerprints
+    ):
+        raise policy_error(
+            "allowed signer identities must be full hexadecimal fingerprints"
+        )
+    if len({value.upper() for value in fingerprints}) != len(fingerprints):
+        raise policy_error("allowed signer fingerprints must be unique")
+    if len(fingerprints) > 1:
+        raise policy_error("release policy must pin at most one signer identity")
+    public_key_path = release_authorization["public_key_path"]
+    if fingerprints:
+        if not isinstance(public_key_path, str) or not public_key_path.strip():
+            raise policy_error(
+                "a pinned signer identity requires a public signing key path"
+            )
+        _validate_relative_policy_path(
+            public_key_path,
+            key="release_authorization.public_key_path",
+            allow_glob=False,
+        )
+        if public_key_path not in policy["required_source_release_paths"]:
+            raise policy_error(
+                "the public signing key must be a required source-release path"
+            )
+        if not any(
+            fnmatch.fnmatchcase(public_key_path, pattern)
+            for pattern in policy["source_release_globs"]
+        ):
+            raise policy_error(
+                "the public signing key must be included in source release globs"
+            )
+    elif public_key_path is not None:
+        raise policy_error(
+            "an unpinned release policy must not declare a public signing key path"
+        )
+    authorization_status = release_authorization["authorization_status"]
+    if authorization_status not in {
+        "awaiting-owner-signed-tag",
+        "authorized-by-owner-signed-tag",
+    }:
+        raise policy_error("unsupported release authorization status")
+    if authorization_status != "awaiting-owner-signed-tag":
+        raise policy_error(
+            "repository policy cannot claim tag authorization; verify the Git tag"
+        )
+    manifest_path = release_authorization["manifest_path"]
+    if any(
+        fnmatch.fnmatchcase(manifest_path, pattern)
+        for pattern in policy["source_release_globs"]
+    ):
+        raise policy_error(
+            "release manifest path must be excluded from source release globs"
+        )
+    if manifest_path in policy["required_source_release_paths"]:
+        raise policy_error(
+            "release manifest path must be excluded from its own source closure"
+        )
+
+    claim_boundaries = policy["claim_boundaries"]
+    expected_claim_fields = {
+        "evidence_class",
+        "supported_maturity",
+        "maximum_without_independent_human_evidence",
+        "human_evidence",
+        "realised_value",
+        "pilot_or_production_authority",
+        "publication_requires_owner_signed_tag",
+    }
+    if not isinstance(claim_boundaries, dict):
+        raise policy_error("'claim_boundaries' must be an object")
+    if set(claim_boundaries) != expected_claim_fields:
+        raise policy_error("'claim_boundaries' has missing or unknown field(s)")
+    exact_claim_values = {
+        "evidence_class": "creator-evaluated-synthetic",
+        "supported_maturity": current_maturity,
+        "maximum_without_independent_human_evidence": "local-mvp",
+        "human_evidence": "not-observed",
+        "realised_value": "not-observed",
+        "pilot_or_production_authority": False,
+        "publication_requires_owner_signed_tag": True,
+    }
+    for field, expected in exact_claim_values.items():
+        if claim_boundaries.get(field) != expected:
+            raise policy_error(f"unsupported claim boundary field '{field}'")
+    maturity_ceiling = claim_boundaries[
+        "maximum_without_independent_human_evidence"
+    ]
+    if maturity_ceiling not in policy["allowed_maturities"]:
+        raise policy_error("claim-boundary maturity ceiling is unsupported")
+    if policy["allowed_maturities"].index(current_maturity) > policy[
+        "allowed_maturities"
+    ].index(maturity_ceiling):
+        raise policy_error("current maturity exceeds the no-human evidence ceiling")
 
 
 def load_policy(root: Path) -> dict[str, Any]:
@@ -828,6 +974,107 @@ def check_journey_metadata(
     return errors
 
 
+def check_stage2_claim_boundary_artifacts(
+    root: Path,
+    text_by_path: dict[Path, str | None],
+    policy: dict[str, Any],
+) -> list[str]:
+    """Verify the machine-readable no-human release boundary at local-MVP."""
+    if policy["current_maturity"] != "local-mvp":
+        return []
+
+    relatives = {
+        "summary": "data/stage2/decision-pack/summary.json",
+        "decision": "data/stage2/decision-pack/decision-output.json",
+        "evidence": "demo/data/evidence-pack.json",
+    }
+    payloads: dict[str, Any] = {}
+    errors: list[str] = []
+    for label, relative in relatives.items():
+        path = root.joinpath(*PurePosixPath(relative).parts)
+        text = text_by_path.get(path)
+        if text is None:
+            errors.append(f"missing Stage 2 claim-boundary artifact: {relative}")
+            continue
+        try:
+            payload = json.loads(text)
+        except json.JSONDecodeError:
+            errors.append(f"Stage 2 claim boundary is invalid JSON: {relative}")
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"Stage 2 claim boundary must be an object: {relative}")
+            continue
+        payloads[label] = payload
+
+    if set(payloads) != set(relatives):
+        return errors
+
+    summary = payloads["summary"]
+    if summary.get("human_evidence") != "not_observed":
+        errors.append("Stage 2 claim boundary inflates human evidence")
+    if summary.get("maturity_ceiling") != "local-mvp":
+        errors.append("Stage 2 claim boundary exceeds the local-MVP ceiling")
+
+    decision = payloads["decision"]
+    next_action = decision.get("next_action")
+    if decision.get("authorises_company_pilot") is not False:
+        errors.append("Stage 2 claim boundary authorises a company pilot")
+    if decision.get("maturity_ceiling") != "local-mvp":
+        errors.append("Stage 2 decision exceeds the local-MVP ceiling")
+    if (
+        not isinstance(next_action, dict)
+        or next_action.get("authorises_company_pilot") is not False
+    ):
+        errors.append("Stage 2 next action authorises a company pilot")
+
+    evidence = payloads["evidence"]
+    maturity = evidence.get("maturity")
+    boundary = evidence.get("evidence_boundary")
+    cases = evidence.get("cases")
+    if evidence.get("public_safe") is not True or evidence.get("read_only") is not True:
+        errors.append("Stage 2 claim boundary is not public-safe and read-only")
+    if (
+        not isinstance(maturity, dict)
+        or maturity.get("publication_status")
+        != "not_authorised_until_valid_signed_release_tag"
+        or maturity.get("supported_ceiling") != "local-mvp"
+    ):
+        errors.append("Stage 2 claim boundary misstates publication maturity")
+    expected_boundary = {
+        "synthetic": True,
+        "human_evidence": "not_observed",
+        "independent_validation": False,
+        "live_customer_outcome": "not_observed",
+        "realised_value": "not_observed",
+        "simulated_actions": True,
+        "simulated_approvals": True,
+        "unsent_communications": True,
+    }
+    if boundary != expected_boundary:
+        errors.append("Stage 2 claim boundary inflates the evidence class")
+    if not isinstance(cases, list) or not cases:
+        errors.append("Stage 2 claim boundary has no complete case index")
+    else:
+        allowed_simulation_labels = {"simulated", "not_applicable"}
+        for case in cases:
+            if not isinstance(case, dict):
+                errors.append("Stage 2 claim boundary has an invalid case record")
+                break
+            if (
+                case.get("synthetic") is not True
+                or case.get("human_reviewed") is not False
+                or case.get("no_realised_value") is not True
+                or case.get("validation_label") != "non-independent"
+                or case.get("communication_label")
+                not in {"unsent", "not_applicable"}
+                or case.get("action_label") not in allowed_simulation_labels
+                or case.get("approval_label") not in allowed_simulation_labels
+            ):
+                errors.append("Stage 2 claim boundary inflates a case evidence label")
+                break
+    return errors
+
+
 def verify_repository(root: Path) -> list[str]:
     root = root.resolve()
     try:
@@ -848,6 +1095,7 @@ def verify_repository(root: Path) -> list[str]:
     errors.extend(check_visual_asset_manifest(root, policy))
     errors.extend(check_text_patterns(root, text_by_path, policy))
     errors.extend(check_journey_metadata(root, text_by_path, policy))
+    errors.extend(check_stage2_claim_boundary_artifacts(root, text_by_path, policy))
     return sorted(set(errors))
 
 

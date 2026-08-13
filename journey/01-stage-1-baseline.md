@@ -1,91 +1,70 @@
 ---
 evidence_status: synthetic-observed
 public_safe: true
-maturity: foundation
-limitations: deterministic calibration on author-designed public cases; the prepared creator pack is familiarisation material after oracle exposure, with no clean held-out human baseline, action execution, customer outcome, adoption, or held-out AI evaluation
+maturity: local-mvp
+limitations: historical Stage 1 calibration and invalidated human-evidence path; no clean manual baseline or human evidence was produced, and later Stage 2 evidence remains creator-evaluated synthetic only
 ---
 
-# Journey 01 — from concept to a measurable current state
+# Journey 01 — foundation, exposure failure, and the no-human decision
 
-## What changed
+## What Stage 1 created
 
-Stage 0 selected delayed or partial fulfilment to verified customer recovery. Stage 1 now converts that idea into an executable foundation:
+Stage 1 turned a broad commerce-AI idea into an executable evidence foundation:
 
 - SCC-01, a deliberately narrow fictional retailer;
-- a proposed eight-queue manual workflow across seven systems of record;
-- frozen recovery authority and exact control stops;
-- 24 deterministic synthetic discovery cases across eight families;
-- a frozen, co-designed oracle independent of future model output but not independent validation;
-- a transparent rules baseline and scorer;
-- a manual baseline protocol and empty data-capture instrument;
-- a deterministic run manifest that freezes the assignment, versions, artifact hashes, run type, and truthful public-oracle exposure status.
-- a case-only creator pack that freezes reviewer role, preparation time, tool policy, protocol hash, copied inputs, and blank worksheet before handling begins;
-- a recorded oracle-exposure failure that reclassifies that public pack as familiarisation material and moves the measured baseline to a separately seeded held-out set.
-- a fail-closed held-out release path that commits the human record before publishing the oracle or score.
+- a proposed eight-queue workflow across seven source authorities;
+- frozen recovery policy, authority boundaries, and exact control stops;
+- 24 deterministic public discovery cases across eight families;
+- a co-designed oracle and transparent rules baseline;
+- a manual-baseline protocol and blank capture instrument;
+- held-out preparation, release, scoring, provenance, and public-safety controls;
+- a 32-case multi-persona practice set across five generated operating lenses.
 
-No AI-assisted workflow has been built.
+The deterministic public calibration processed 24 author-designed cases: 14 received a recommendation, 10 safely abstained, zero critical-control violations and zero unsupported message facts were recorded, and no action or customer recovery was claimed. Because the rules, cases, and oracle were co-designed, this is contract calibration—not independent validation or model accuracy.
 
-## Raul's accountability and AI assistance
+## Raul's role
 
-Raul acted as transformation and evidence owner: he defined the mandate, constraints, material transformation choices, evidence standards, acceptance judgments, and publication boundaries. AI assisted research, drafting, coding, and review. The repository therefore demonstrates accountable decision-making and implementation, not unaided human performance. The material decisions were:
+Raul owned the value stream, policy and evidence choices, acceptance judgments, failure classifications, and publication boundary. AI assisted research, drafting, coding, review, and later persona practice. That assistance is explicit: the repository demonstrates accountable transformation and implementation decisions, not unaided human performance.
 
-1. Define the outcome as verified recovery, not faster message generation.
-2. Keep one domestic market, warehouse, carrier, channel, and policy version.
-3. Model separate authoritative sources instead of giving the current state a fictional unified view.
-4. Freeze financial authority at exact boundaries before evaluation.
-5. Treat missing, stale, conflicting, risky, pending, and previously recovered cases as first-class evidence.
-6. Allow transparent rules to abstain rather than forcing coverage.
-7. Separate recommendation, authority, execution, verification, and customer communication.
-8. Publish zero actions and zero verified recoveries with the calibration result.
+## The resistance and failure sequence
 
-## Synthetic observation
-
-The deterministic baseline processed 24 public discovery cases:
-
-- 14 cases received a non-abstaining recommendation;
-- 10 cases received a controlled escalation;
-- all 24 aligned with the co-designed oracle on action, route, evidence, and message facts;
-- zero critical control violations and zero unsupported facts were observed;
-- zero actions were executed and zero customer recoveries were verified.
-
-Because the rules and oracle encode the same public policy and the cases are author-designed, the 24/24 result is an internal contract check. It must not be described as model accuracy, independent validation, or expected business performance.
-
-## Resistance, failures, and adaptations
-
-| Observation | Risk | Adaptation |
+| Event | Why it invalidated the intended claim | Adaptation |
 | --- | --- | --- |
-| It was tempting to call the documented workflow a current-state diagnosis. | Fictional assumptions could be mistaken for observed operations. | Every artifact now says proposed current state until a human case run exists. |
-| A perfect safe-routing score appeared on the transparent discovery set. | A polished metric could hide design circularity. | The repository foregrounds 58.3% decision coverage, 41.7% controlled abstention, zero executed actions, and the need for a separate held-out set. |
-| Direct script execution initially failed because package imports worked only under the test runner. | A repository can look reproducible while commands in its own documentation fail. | The command-line entry points were corrected and tested directly. |
-| A first public-safety test treated every generic `name` field as personal data. | Overbroad controls can reject safe metadata and reduce maintainability. | The invariant was narrowed to personal-data fields such as customer name, contact details, address, and free text. |
-| Strict oracle blinding conflicts with publishing the discovery oracle. | A reviewer who reads the repository can learn expected answers. | Public cases are calibration only; the new held-out path withholds the answer file until the human record is frozen and explicitly remains process-controlled rather than blinded. |
-| A stale-source fixture carried the same timestamp as the current sources and relied on a boolean label. | The oracle could appear to enforce freshness while accepting contradictory evidence. | Freshness is now derived from timezone-aware source age, with exact-boundary, future-time, naive-time, and mismatch tests. |
-| `payment.active_chargeback` and a self-reported `VERIFIED` status could bypass authoritative control evidence. | A consequential recovery could be treated as safe from a label rather than canonical state. | Chargeback now forces a specialist stop, and verified refund or reship requires an action-specific payment or reservation postcondition. |
-| Coverage, abstention, and the manual denominator trusted caller-supplied rows or flags. | Difficult cases could disappear and a boolean could manufacture a better result. | IDs must be complete and unique, abstention is derived from the action, critical controls are named, and every manual run is scored against a frozen assignment manifest. |
-| Only cases and the oracle were checked for committed-artifact drift. | A stale summary or worksheet could remain public while tests passed. | The complete generated evidence set is reproduced byte-for-byte and checked alongside the public-safety verifier. |
-| A blank worksheet and generic manifest still depended on manual copying and self-reported provenance. | A result could be attached to substituted files, a different reviewer, or a manifest created after the answers. | A preparation command now creates a new case-only directory, freezes role/time/tool/instruction provenance, refuses overwrite, and makes the scorer bind exact paths and source hashes. |
-| During guided practice, a broad repository search surfaced answer-bearing oracle lines before the prepared creator run was completed. | Completing the public pack could be presented as a blind human baseline even though expected answers had been exposed. | The pack remains blank and unchanged but is now familiarisation material. [D-015](../docs/DECISION_LOG.md#d-015--reclassify-the-exposed-creator-pack) moves the measured baseline to a separately seeded held-out pack with a withheld answer file and explicit exposure provenance. |
-| A case-only pack still relied on the operator not opening answer-bearing repository files. | Tool avoidance was self-reported and oracle release could happen before the source record was immutable. | [D-017](../docs/DECISION_LOG.md#d-017--make-oracle-exposure-an-evidence-state-transition) adds a 32-case pack, pre-run hash commitments, private generation material, two Git anchors, and a release command that fails unless the completed record predates oracle publication. |
-| Independent preflight review found action, route, or control conclusions in 23 of 32 draft case titles. | The allowed operator pack itself could cue the expected answer even if the oracle file stayed private. | [D-018](../docs/DECISION_LOG.md#d-018--reject-answer-bearing-case-titles-before-publication) rejects the uncommitted draft, neutralises every title, regenerates the pack, and adds a leakage regression gate before human handling. |
-| A second preflight found that case-family labels and numbered variants still exposed evaluator intent. | An operator could infer the answer class from metadata that would not exist in the real workflow. | [D-019](../docs/DECISION_LOG.md#d-019--remove-evaluator-only-metadata-from-operator-cases) rejects that preflight pack and replaces it with a fact-only operator projection that excludes titles, family labels, and generator metadata. |
-| Endpoint-only Git checks accepted a simulated oracle that appeared in an intermediate commit and was deleted before record freeze. | A clean preparation and records endpoint could conceal answer exposure during handling. | [D-020](../docs/DECISION_LOG.md#d-020--make-the-records-commit-the-immediate-child-of-preparation) requires the records commit to be the immediate child of preparation and allows only the worksheet to change. |
-| The post-merge usability gate found that V1 did not provide route codes, message-fact codes, or complete decision priority in the allowed operator files. | The run would measure guessing or force prohibited repository consultation. | [D-021](../docs/DECISION_LOG.md#d-021--replace-the-incomplete-operator-instrument) invalidates the untouched V1 run and creates V2 with a complete answer-free operator guide pinned through release and scoring. |
+| A broad repository search exposed answer-bearing oracle lines before the first creator run completed. | The pack could not be presented as an unexposed manual baseline. | Preserve it blank as familiarisation material and create a separately seeded held-out identity. |
+| Case titles, family labels, and variants leaked evaluator intent during preflight. | The operator pack itself could cue expected answers. | Remove evaluator-only metadata and require fact-only projections. |
+| Endpoint-only Git checks could miss intermediate answer exposure. | Clean start and end commits could conceal leakage during handling. | Require the record commit to be the immediate child of preparation and allow only the intended instrument to change. |
+| V1 omitted route codes, message-fact vocabulary, and complete priority guidance. | The instrument would measure guessing or force prohibited consultation. | Invalidate untouched V1 and create a complete answer-free V2 guide. |
+| Before any V2 human row existed, the work intentionally switched to AI-assisted multi-persona filling. | AI-generated rows cannot become human observation or independent review. | Invalidate V2 with zero human rows, preserve its bytes, and publish a separate practice dataset with explicit AI authorship. |
 
-## Evidence safe to show
+This was the central governance lesson: a technically strong evaluation mechanism cannot rescue compromised evidence provenance. The correct action was to lower the claim and preserve the failure.
 
-- the current-state workflow and queue diagram;
-- synthetic case-family distribution;
-- policy and authority boundaries;
-- example records using `SYN-*` identifiers;
-- deterministic decision and score traces;
-- the pinned, public-safe manual-run evidence contract;
-- the prepared but blank creator pack, its frozen manifest, and its explicit familiarisation status;
-- automated test and public-safety results.
+## Decision: proceed without human data in this cycle
 
-No real names, organisations, orders, tracking IDs, communications, reviewer identities, or former-company details are used.
+Time constraints and the absence of independent reviewers did not block the engineering work. Raul explicitly chose to complete a creator-evaluated synthetic local MVP while capping maturity at `local-mvp`. The human baseline was not fabricated, inferred from personas, or silently left as “planned.” It is recorded as `not_observed`.
 
-## Current maturity and next gate
+The 32-case persona practice remains useful for operating-model tension and adaptation design. It cannot support claims about human review time, trust, comprehension, adoption, independence, or model accuracy.
 
-This remains a **foundation-stage synthetic transformation laboratory**. Stage 1 is active, not complete.
+## Transition to Stage 2
 
-The separately seeded held-out pack, blank creator instrument, and release controls now exist. The next evidence gate is Raul's personal completion outside a generative-AI session, followed by a committed source record, oracle release, and scoring. Only after those manual observations are preserved should the project redesign human and AI work in Stage 2.
+Stage 2 did build the AI-assisted workflow. It did so under a new pack and run identity rather than reusing Stage 1 cases or invalidated instruments. The completed synthetic path now includes recommendation, deterministic governance, simulated authority and action, separate system verification, unsent communication, failure recovery, container-isolated evaluation, readiness, economics, and a **PAUSE** decision.
+
+See:
+
+- [the Stage 2 executive case](../docs/STAGE2_EXECUTIVE_CASE.md);
+- [the final evidence explorer](../demo/index.html);
+- [the V6 score](../data/stage2/runs/S2-CF-RUN-0005/score.json);
+- [the decision output](../data/stage2/decision-pack/decision-output.json).
+
+Stage 1 is now closed as historical foundation and invalidation evidence for this no-human cycle. It is not a completed human baseline. Independent human review remains a future gate after the current capped synthetic evidence action.
+
+## Safe evidence to show
+
+- fictional workflow and source topology;
+- generated cases and policy boundaries;
+- deterministic calibration and abstention trade-off;
+- blank invalidated instruments and their explicit status;
+- public preflight failures and adaptations;
+- AI-assisted persona practice with clear authorship labels;
+- the new Stage 2 creator-evaluated path and its separate identities.
+
+No real customer, reviewer, former employer, order, tracking identifier, contact detail, message, or live system is represented.

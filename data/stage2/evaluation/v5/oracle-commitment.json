@@ -1,0 +1,1 @@
+{"algorithm":"sha256(canonical_oracle_bytes || private_256_bit_nonce)","commitment_sha256":"a1f9fb9d56a1b55f4de85cd05208b84e7495ef8f95553fa91c3e17c159e6b5bf","oracle_case_count":36,"pack_id":"S2-EVALUATION-20260812-V5","schema_version":"stage2-oracle-commitment/v1"}

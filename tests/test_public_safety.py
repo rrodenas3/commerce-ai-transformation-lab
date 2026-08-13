@@ -8,6 +8,9 @@ import tempfile
 import unittest
 import zlib
 from pathlib import Path
+from unittest.mock import patch
+
+import yaml
 
 from scripts.verify_public_safety import (
     MAX_TEXT_FILE_BYTES,
@@ -108,6 +111,26 @@ class PublicSafetyTests(unittest.TestCase):
             ],
             "allowed_binary_files": [],
             "required_root_files": ["README.md"],
+            "release_authorization": {
+                "schema_version": "stage2-release-authorization-policy/v1",
+                "release_id": "stage2-local-mvp-v1",
+                "required_tag_prefix": "stage2-local-mvp-v",
+                "manifest_path": "policy/public-source-release.json",
+                "manifest_self_excluded": True,
+                "required_maturity": "foundation",
+                "allowed_signer_fingerprints": [],
+                "public_key_path": None,
+                "authorization_status": "awaiting-owner-signed-tag",
+            },
+            "claim_boundaries": {
+                "evidence_class": "creator-evaluated-synthetic",
+                "supported_maturity": "foundation",
+                "maximum_without_independent_human_evidence": "local-mvp",
+                "human_evidence": "not-observed",
+                "realised_value": "not-observed",
+                "pilot_or_production_authority": False,
+                "publication_requires_owner_signed_tag": True,
+            },
         }
         temporary_directory = tempfile.TemporaryDirectory()
         self.addCleanup(temporary_directory.cleanup)
@@ -285,6 +308,77 @@ class PublicSafetyTests(unittest.TestCase):
         )
         self.commit_all("visual source fixture")
         return asset_path, manifest_path, manifest, prompt_path
+
+    def install_local_mvp_claim_boundary_fixture(self) -> dict[str, Path]:
+        self.policy["current_maturity"] = "local-mvp"
+        self.policy["release_authorization"]["required_maturity"] = "local-mvp"
+        self.policy["claim_boundaries"]["supported_maturity"] = "local-mvp"
+        self.write_policy(self.root)
+        decision_directory = self.root / "data" / "stage2" / "decision-pack"
+        demo_data = self.root / "demo" / "data"
+        decision_directory.mkdir(parents=True)
+        demo_data.mkdir(parents=True)
+        paths = {
+            "summary": decision_directory / "summary.json",
+            "decision": decision_directory / "decision-output.json",
+            "evidence": demo_data / "evidence-pack.json",
+        }
+        paths["summary"].write_text(
+            json.dumps(
+                {
+                    "human_evidence": "not_observed",
+                    "maturity_ceiling": "local-mvp",
+                }
+            ),
+            encoding="utf-8",
+        )
+        paths["decision"].write_text(
+            json.dumps(
+                {
+                    "authorises_company_pilot": False,
+                    "maturity_ceiling": "local-mvp",
+                    "next_action": {"authorises_company_pilot": False},
+                }
+            ),
+            encoding="utf-8",
+        )
+        paths["evidence"].write_text(
+            json.dumps(
+                {
+                    "public_safe": True,
+                    "read_only": True,
+                    "maturity": {
+                        "supported_ceiling": "local-mvp",
+                        "publication_status": (
+                            "not_authorised_until_valid_signed_release_tag"
+                        ),
+                    },
+                    "evidence_boundary": {
+                        "synthetic": True,
+                        "human_evidence": "not_observed",
+                        "independent_validation": False,
+                        "live_customer_outcome": "not_observed",
+                        "realised_value": "not_observed",
+                        "simulated_actions": True,
+                        "simulated_approvals": True,
+                        "unsent_communications": True,
+                    },
+                    "cases": [
+                        {
+                            "synthetic": True,
+                            "human_reviewed": False,
+                            "no_realised_value": True,
+                            "validation_label": "non-independent",
+                            "communication_label": "unsent",
+                            "action_label": "simulated",
+                            "approval_label": "simulated",
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        return paths
 
     def test_valid_repository_passes(self):
         self.assertEqual([], verify_repository(self.root))
@@ -682,11 +776,244 @@ class PublicSafetyTests(unittest.TestCase):
 
     def test_committed_production_policy_is_valid(self):
         policy = load_policy(PROJECT_ROOT)
-        self.assertEqual("foundation", policy["current_maturity"])
+        self.assertEqual("local-mvp", policy["current_maturity"])
+        self.assertEqual(
+            "awaiting-owner-signed-tag",
+            policy["release_authorization"]["authorization_status"],
+        )
+        self.assertEqual(
+            ["79B2ACC46C00682B10FB723F924D41C753F21933"],
+            policy["release_authorization"]["allowed_signer_fingerprints"],
+        )
+        self.assertEqual(
+            "keys/release-signing-public-key.asc",
+            policy["release_authorization"]["public_key_path"],
+        )
+        self.assertFalse(policy["claim_boundaries"]["pilot_or_production_authority"])
+
+    def test_release_authorization_policy_is_required_and_fail_closed(self):
+        cases = {
+            "missing": {
+                key: value
+                for key, value in self.policy.items()
+                if key != "release_authorization"
+            },
+            "manifest self inclusion by glob": {
+                **self.policy,
+                "source_release_globs": [
+                    *self.policy["source_release_globs"],
+                    "policy/*.json",
+                ],
+            },
+            "manifest self inclusion by exact path": {
+                **self.policy,
+                "required_source_release_paths": [
+                    *self.policy["required_source_release_paths"],
+                    "policy/public-source-release.json",
+                ],
+            },
+            "maturity mismatch": {
+                **self.policy,
+                "release_authorization": {
+                    **self.policy["release_authorization"],
+                    "required_maturity": "local-mvp",
+                },
+            },
+            "fake authorized state without signer": {
+                **self.policy,
+                "release_authorization": {
+                    **self.policy["release_authorization"],
+                    "authorization_status": "authorized-by-owner-signed-tag",
+                },
+            },
+            "signer without public key path": {
+                **self.policy,
+                "release_authorization": {
+                    **self.policy["release_authorization"],
+                    "allowed_signer_fingerprints": ["A" * 40],
+                    "public_key_path": None,
+                },
+            },
+            "public key path without signer": {
+                **self.policy,
+                "release_authorization": {
+                    **self.policy["release_authorization"],
+                    "public_key_path": "keys/release-signing-public-key.asc",
+                },
+            },
+        }
+        for label, policy in cases.items():
+            with self.subTest(label=label):
+                self.write_policy(self.root, policy)
+                errors = verify_repository(self.root)
+                self.assertTrue(any("invalid publication policy" in error for error in errors))
+
+    def test_claim_boundary_policy_rejects_evidence_inflation(self):
+        cases = {
+            "human evidence": {"human_evidence": "observed"},
+            "realised value": {"realised_value": "observed"},
+            "pilot authority": {"pilot_or_production_authority": True},
+            "unsigned publication": {
+                "publication_requires_owner_signed_tag": False
+            },
+            "maturity mismatch": {"supported_maturity": "local-mvp"},
+        }
+        for label, override in cases.items():
+            with self.subTest(label=label):
+                policy = copy.deepcopy(self.policy)
+                policy["claim_boundaries"].update(override)
+                self.write_policy(self.root, policy)
+                errors = verify_repository(self.root)
+                self.assertTrue(any("invalid publication policy" in error for error in errors))
+
+    def test_production_policy_registers_final_stage2_release_sources(self):
+        policy = load_policy(PROJECT_ROOT)
+        required = set(policy["required_source_release_paths"])
+        expected_required = {
+            ".gitattributes",
+            ".gitignore",
+            "CONTRIBUTING.md",
+            "LICENSE.md",
+            "SECURITY.md",
+            "keys/release-signing-public-key.asc",
+            "data/README.md",
+            ".github/workflows/public-safety.yml",
+            "scripts/authorize_stage2_release.py",
+            "scripts/build_stage2_decision_pack.py",
+            "scripts/build_stage2_evidence_pack.py",
+            "tests/test_stage2_release_authorization.py",
+            "tests/browser/global-setup.js",
+            "docs/STAGE2_EXECUTIVE_CASE.md",
+            "docs/STAGE2_BENEFITS_AND_DECISION.md",
+            "data/stage2/decision-pack/manifest.json",
+            "data/stage2/evaluation/v6/manifest.json",
+            "data/stage2/development/evaluation-v6-isolation-summary.json",
+            "data/stage1/policy.json",
+            "data/stage1/generated/manifest.json",
+            "data/stage1/heldout/v2/manifest.json",
+            "data/stage1/practice/multi-persona-v1/manifest.json",
+            "data/stage2/runs/S2-CF-RUN-0005/score.json",
+            "demo/index.html",
+            "demo/styles.css",
+            "demo/app.js",
+            "demo/social-preview.png",
+            "demo/data/evidence-pack.json",
+            "package.json",
+            "package-lock.json",
+            "playwright.config.js",
+        }
+        self.assertEqual(set(), expected_required - required)
+        self.assertNotIn(
+            policy["release_authorization"]["manifest_path"], required
+        )
+        self.assertNotIn(
+            "data/stage2/runs/S2-CF-RUN-0005/outer/isolation-attestation.json",
+            required,
+        )
+        self.assertIn("data/stage1/**", policy["source_release_globs"])
+        self.assertNotIn("data/stage2/**", policy["source_release_globs"])
+
+    def test_publication_workflow_deploys_only_after_signed_tag_verification(self):
+        workflow = yaml.safe_load(
+            (PROJECT_ROOT / ".github" / "workflows" / "public-safety.yml").read_text(
+                encoding="utf-8"
+            )
+        )
+        jobs = workflow["jobs"]
+        self.assertIn("publish", jobs)
+        self.assertEqual("verify", jobs["publish"]["needs"])
+        self.assertEqual("github-pages", jobs["publish"]["environment"]["name"])
+        self.assertNotIn("pages", workflow["permissions"])
+        self.assertNotIn("id-token", workflow["permissions"])
+        self.assertEqual("write", jobs["publish"]["permissions"]["pages"])
+        self.assertEqual("write", jobs["publish"]["permissions"]["id-token"])
+        publish_steps = jobs["publish"]["steps"]
+        actions = [step.get("uses") for step in publish_steps]
+        self.assertIn("actions/upload-pages-artifact@v3", actions)
+        self.assertIn("actions/deploy-pages@v4", actions)
+        upload = next(
+            step for step in publish_steps if step.get("uses") == "actions/upload-pages-artifact@v3"
+        )
+        self.assertEqual("demo", upload["with"]["path"])
+        build_step = next(
+            step
+            for step in jobs["verify"]["steps"]
+            if step.get("name") == "Build release manifest from trusted main"
+        )
+        self.assertIn('refs/tags/$RELEASE_TAG^', build_step["run"])
+        import_step = next(
+            step
+            for step in jobs["verify"]["steps"]
+            if step.get("name") == "Import pinned release signing public key"
+        )
+        self.assertIn("public_key_path", import_step["run"])
+        self.assertIn('gpg --batch --homedir "$GNUPGHOME" --import', import_step["run"])
+        self.assertIn("GNUPGHOME", import_step["run"])
+        verify_step_index = next(
+            index
+            for index, step in enumerate(jobs["verify"]["steps"])
+            if step.get("name") == "Verify owner-signed Stage 2 release authorization"
+        )
+        self.assertLess(jobs["verify"]["steps"].index(import_step), verify_step_index)
+
+    def test_local_mvp_requires_truthful_machine_readable_claim_boundaries(self):
+        self.policy["current_maturity"] = "local-mvp"
+        self.policy["release_authorization"]["required_maturity"] = "local-mvp"
+        self.policy["claim_boundaries"]["supported_maturity"] = "local-mvp"
+        self.write_policy(self.root)
+
+        missing_errors = verify_repository(self.root)
+
+        self.assertTrue(any("missing Stage 2 claim-boundary artifact" in error for error in missing_errors))
+
+        self.install_local_mvp_claim_boundary_fixture()
+
+        self.assertEqual([], verify_repository(self.root))
+
+    def test_local_mvp_claim_boundary_artifacts_reject_inflated_fields(self):
+        paths = self.install_local_mvp_claim_boundary_fixture()
+        mutations = {
+            "human evidence": (
+                paths["summary"],
+                {"human_evidence": "observed", "maturity_ceiling": "local-mvp"},
+            ),
+            "pilot authority": (
+                paths["decision"],
+                {
+                    "authorises_company_pilot": True,
+                    "maturity_ceiling": "local-mvp",
+                    "next_action": {"authorises_company_pilot": False},
+                },
+            ),
+            "publication authorization": (
+                paths["evidence"],
+                {
+                    "public_safe": True,
+                    "read_only": True,
+                    "maturity": {
+                        "supported_ceiling": "local-mvp",
+                        "publication_status": "authorised",
+                    },
+                    "evidence_boundary": {},
+                    "cases": [],
+                },
+            ),
+        }
+        originals = {
+            path: path.read_text(encoding="utf-8")
+            for path, _payload in mutations.values()
+        }
+        for label, (path, payload) in mutations.items():
+            with self.subTest(label=label):
+                path.write_text(json.dumps(payload), encoding="utf-8")
+                errors = verify_repository(self.root)
+                self.assertTrue(any("Stage 2 claim boundary" in error for error in errors))
+                path.write_text(originals[path], encoding="utf-8")
 
     def test_source_release_manifest_reproduces_frozen_commit_hashes(self):
         from scripts.public_source_release import (
             build_source_release_manifest,
+            materialize_source_release,
             verify_source_release_manifest,
         )
 
@@ -722,7 +1049,11 @@ class PublicSafetyTests(unittest.TestCase):
             capture_output=True,
         )
 
-        first = build_source_release_manifest(self.root, "HEAD")
+        with patch(
+            "scripts.public_source_release._commit_bytes",
+            side_effect=AssertionError("per-file Git reads are forbidden"),
+        ):
+            first = build_source_release_manifest(self.root, "HEAD")
         second = build_source_release_manifest(self.root, "HEAD")
         committed_playbook = subprocess.run(
             [
@@ -755,6 +1086,184 @@ class PublicSafetyTests(unittest.TestCase):
         )
         self.assertEqual(sorted(artifacts), list(artifacts))
 
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle = Path(temporary_directory) / "bundle"
+            with patch(
+                "scripts.public_source_release._commit_bytes",
+                side_effect=AssertionError("per-file Git reads are forbidden"),
+            ):
+                materialize_source_release(self.root, first, bundle)
+            self.assertEqual(
+                committed_playbook,
+                (bundle / "docs" / "company-playbook" / "README.md").read_bytes(),
+            )
+            self.assertEqual(
+                sorted(artifacts),
+                sorted(
+                    path.relative_to(bundle).as_posix()
+                    for path in bundle.rglob("*")
+                    if path.is_file()
+                ),
+            )
+
+    def test_source_release_materialization_is_exclusive_and_digest_bound(self):
+        from scripts.public_source_release import (
+            PublicSourceReleaseError,
+            build_source_release_manifest,
+            materialize_source_release,
+        )
+
+        playbook = self.root / "docs" / "company-playbook"
+        plans = self.root / "docs" / "plans"
+        playbook.mkdir(parents=True)
+        plans.mkdir(parents=True)
+        (playbook / "README.md").write_text(self.artifact_text(), encoding="utf-8")
+        (plans / "rausellos-plan.md").write_text(
+            self.artifact_text(knowledge_type="decision"), encoding="utf-8"
+        )
+        self.init_git(self.root)
+        subprocess.run(
+            ["git", "-C", str(self.root), "add", "."],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.root), "commit", "--quiet", "-m", "fixture"],
+            check=True,
+            capture_output=True,
+        )
+        manifest = build_source_release_manifest(self.root, "HEAD")
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            destination = Path(temporary_directory) / "bundle"
+            destination.mkdir()
+            (destination / "unexpected.txt").write_text("occupied\n", encoding="utf-8")
+            with self.assertRaisesRegex(PublicSourceReleaseError, "empty"):
+                materialize_source_release(self.root, manifest, destination)
+
+            (destination / "unexpected.txt").unlink()
+            manifest["artifacts"][0]["sha256"] = "0" * 64
+            with self.assertRaisesRegex(PublicSourceReleaseError, "manifest"):
+                materialize_source_release(self.root, manifest, destination)
+
+    def test_source_release_cli_materializes_verified_manifest(self):
+        from scripts.public_source_release import (
+            build_source_release_manifest,
+            main,
+            write_source_release_manifest,
+        )
+
+        playbook = self.root / "docs" / "company-playbook"
+        plans = self.root / "docs" / "plans"
+        playbook.mkdir(parents=True)
+        plans.mkdir(parents=True)
+        (playbook / "README.md").write_text(self.artifact_text(), encoding="utf-8")
+        (plans / "rausellos-plan.md").write_text(
+            self.artifact_text(knowledge_type="decision"), encoding="utf-8"
+        )
+        self.init_git(self.root)
+        subprocess.run(
+            ["git", "-C", str(self.root), "add", "."],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.root), "commit", "--quiet", "-m", "fixture"],
+            check=True,
+            capture_output=True,
+        )
+        manifest = build_source_release_manifest(self.root, "HEAD")
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            manifest_path = Path(temporary_directory) / "manifest.json"
+            destination = Path(temporary_directory) / "bundle"
+            write_source_release_manifest(manifest_path, manifest)
+            arguments = [
+                "materialize",
+                "--manifest",
+                str(manifest_path),
+                "--destination",
+                str(destination),
+            ]
+            result = main(arguments, root=self.root)
+            self.assertEqual(0, result)
+            self.assertTrue((destination / "policy" / "publication-policy.json").is_file())
+
+    def test_source_release_allows_non_evidence_root_markdown_without_front_matter(self):
+        from scripts.public_source_release import build_source_release_manifest
+
+        playbook = self.root / "docs" / "company-playbook"
+        plans = self.root / "docs" / "plans"
+        playbook.mkdir(parents=True)
+        plans.mkdir(parents=True)
+        (playbook / "README.md").write_text(self.artifact_text(), encoding="utf-8")
+        (plans / "rausellos-plan.md").write_text(
+            self.artifact_text(knowledge_type="decision"), encoding="utf-8"
+        )
+        (self.root / "SECURITY.md").write_text(
+            "# Security\n\nPublic policy, not an evidence artifact.\n",
+            encoding="utf-8",
+        )
+        self.policy["source_release_globs"].append("SECURITY.md")
+        self.policy["required_source_release_paths"].append("SECURITY.md")
+        self.write_policy(self.root)
+        self.init_git(self.root)
+        subprocess.run(
+            ["git", "-C", str(self.root), "add", "."],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.root), "commit", "--quiet", "-m", "fixture"],
+            check=True,
+            capture_output=True,
+        )
+
+        manifest = build_source_release_manifest(self.root, "HEAD")
+
+        self.assertIn("SECURITY.md", {item["path"] for item in manifest["artifacts"]})
+
+    def test_source_release_decodes_json_before_private_path_scan(self):
+        from scripts.public_source_release import (
+            PublicSourceReleaseError,
+            build_source_release_manifest,
+        )
+
+        playbook = self.root / "docs" / "company-playbook"
+        plans = self.root / "docs" / "plans"
+        playbook.mkdir(parents=True)
+        plans.mkdir(parents=True)
+        (playbook / "README.md").write_text(self.artifact_text(), encoding="utf-8")
+        (plans / "rausellos-plan.md").write_text(
+            self.artifact_text(knowledge_type="decision"), encoding="utf-8"
+        )
+        leaked = self.root / "data" / "stage2" / "leaked.json"
+        leaked.parent.mkdir(parents=True)
+        leaked_path = "C:" + "\\Users\\someone\\private.txt"
+        leaked.write_text(
+            json.dumps({"path": leaked_path}) + "\n",
+            encoding="utf-8",
+        )
+        self.policy["source_release_globs"].append("data/stage2/**")
+        self.policy["required_source_release_paths"].append(
+            "data/stage2/leaked.json"
+        )
+        self.write_policy(self.root)
+        self.init_git(self.root)
+        subprocess.run(
+            ["git", "-C", str(self.root), "add", "."],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.root), "commit", "--quiet", "-m", "fixture"],
+            check=True,
+            capture_output=True,
+        )
+
+        with self.assertRaisesRegex(PublicSourceReleaseError, "private path"):
+            build_source_release_manifest(self.root, "HEAD")
+
     def test_source_release_rejects_committed_same_path_visual_mutation(self):
         from scripts.public_source_release import (
             PublicSourceReleaseError,
@@ -768,7 +1277,7 @@ class PublicSafetyTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             PublicSourceReleaseError,
-            "source snapshot fails visual asset validation",
+            "visual asset",
         ):
             build_source_release_manifest(self.root, "HEAD")
 

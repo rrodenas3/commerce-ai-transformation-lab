@@ -176,3 +176,12 @@ limitations: records foundation and Stage 1 synthetic-design decisions without r
 - **Trigger:** The project moved from a blind manual-baseline exercise to an adversarial multi-persona learning exercise before any V2 row was completed and before the oracle was released.
 - **Reason:** Once AI has processed the cases, V2 cannot support a manual-no-AI or clean held-out-human claim. Preserving the blank worksheet and recording the transition before generating answers keeps practice valuable without converting assisted construction into evidence it cannot provide.
 - **Consequence:** V2 can support synthetic workflow design, persona comparison, and governed-decision practice only. Simulated personas are not people, independent reviewers, observed adoption, or business outcomes. A future clean held-out human baseline requires a newly generated pack identity and private oracle.
+
+## D-023 — Complete a creator-evaluated Stage 2 local MVP
+
+- **Date:** 2026-08-11
+- **Status:** Accepted
+- **Decision:** Proceed without independent human data in this cycle and complete one end-to-end creator-evaluated workflow using generated records, simulated role decisions, local adapters, structurally separate system verification, and a new preregistered Stage 2 evaluation identity. The maximum supported maturity after every gate passes is `local-mvp`.
+- **Reason:** Human evidence is unavailable inside the current time boundary, but it is not required to implement and test the workflow, controls, recovery, evidence chain, hypothetical economics, or next-gate decision. Preserving the missing evidence as an explicit boundary is stronger than blocking engineering or implying that simulation substitutes for people.
+- **Rejected:** Waiting indefinitely for reviewers before implementation; relabelling or completing invalidated V1/V2 instruments; treating AI personas or creator acceptance as independent review; fabricating a manual baseline, adoption measure, customer outcome, or realised value.
+- **Consequence:** Stage 1 human evidence remains incomplete and its invalidated artifacts remain unchanged, but it no longer blocks the creator-evaluated engineering track. Human measures remain `not observed`; passing synthetic gates may scale only a bounded next experiment and cannot authorise a pilot, production use, external write, or organisational deployment. Raul retains policy, evaluation, learning, publication, and final next-gate authority.

@@ -1,0 +1,8 @@
+{"event":"OMS_EXCEPTION_OPENED","evidence_label":"synthetic-observed","queue":"Q1"}
+{"event":"CRM_INTAKE_CHECKED","evidence_label":"synthetic-observed","queue":"Q2"}
+{"event":"SEVEN_SOURCE_INVESTIGATION","evidence_label":"synthetic-observed","queue":"Q3"}
+{"event":"CLARIFICATION_REQUESTED","evidence_label":"synthetic-observed","queue":"Q4"}
+{"event":"APPROVAL_NOT_REQUIRED","evidence_label":"synthetic-observed","queue":"Q5"}
+{"event":"CHOICE_RESOLVED_OR_NOT_REQUIRED","evidence_label":"synthetic-observed","queue":"Q6"}
+{"event":"NO_ACTION_PERMITTED","evidence_label":"synthetic-observed","queue":"Q7"}
+{"event":"CLOSED_OR_REOPEN_CONTROL","evidence_label":"synthetic-observed","queue":"Q8"}

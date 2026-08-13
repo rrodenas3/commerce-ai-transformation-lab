@@ -1,106 +1,60 @@
 ---
-evidence_status: research-grounded
+evidence_status: synthetic-observed
 public_safe: true
-maturity: foundation
-limitations: future stages are planned gates, not completed work or observed evidence
+maturity: local-mvp
+limitations: stage completion is limited to a creator-evaluated synthetic local MVP; independent human review, live systems, adoption, customer outcomes, and realised value remain future gates
 ---
 
-# Delivery roadmap and first steps
+# Delivery roadmap — evidence earned, next gate paused
 
 ## Principle
 
-Each stage must earn the next one with evidence. Documentation, code, agents, interfaces, and tests are outputs; they are retained only when they support an outcome, control, evaluation, enablement, or investment decision.
+Each stage earns only the next bounded claim. Documents, code, model output, and interfaces are outputs; evidence exists only when a disclosed workflow executes, preserves failures and denominators, and supports a decision without crossing the human, live, or realised-value boundary.
 
-## Stage gates
+## Current stage-gate record
 
-### Stage 0 — Foundation
+| Stage | What was completed | Gate status | What is still absent |
+| --- | --- | --- | --- |
+| 0. Foundation | Outcome, scope, research base, evidence policy, maturity ceiling, decision precedence, and publication authority | Complete | No gap for the synthetic local-MVP path |
+| 1. Current state and baseline | Fictional operating model, eight-queue comparator, 24-case calibration, preserved exposure/instrument failures, and 32-case persona practice | Closed for this cycle by explicit no-human decision | No clean manual baseline or human performance evidence |
+| 2. Workflow and operating model | Recommendation, authority, action, verification, communication, ownership, stop conditions, and role allocation | Complete in design and local code | No observed organisational use |
+| 3. Governed vertical slice | Durable state, exact-payload authority, simulated idempotent action, separate read-only verification, unsent communication, replay, and recovery | Complete in generated local cases | No live integration or customer-facing capability |
+| 4. Evaluation and adaptation | Ranked development failure, V4/V5 pre-run invalidations, frozen V6 pack, isolated 36-case run, released oracle, sealed score, and preserved failures | Complete as creator-evaluated, non-independent synthetic evidence | No external evaluator or human review |
+| 5. Enablement | Five-role readiness matrix, first-use guidance, one failure drill, help/incident/appeal/change ownership | Designed | All human use, comprehension, trust, friction, support, and adoption measures are `not_observed` |
+| 6. Benefits and investment decision | Exact-cent sensitivity model, non-AI alternative, evidence index, executive case, final explorer, and owner-bound action | Complete; decision **PAUSE** | Provider cost/latency, complete execution reliability, stable economics, realised value, and signed publication authorisation |
 
-Deliver:
+## Why the gate is PAUSE
 
-- project charter and scope boundary;
-- evidence and publication policy;
-- research base;
-- initial measurement logic;
-- durable decision log.
+The 36-case V6 run passed every threshold and exact-zero control, but only 15 of 18 eligible simulated executions committed. Three remained pending. Provider cost and latency were unknown for 36 of 36 attempts. Hypothetical economics changed from `revise` under conservative assumptions to `scale_next_experiment` under base and upside assumptions, so economics is inconclusive.
 
-Exit when the project can explain what it seeks to improve, what it cannot claim, and why this slice deserves evaluation.
+Those conditions satisfy the preregistered `pause` precedence. They do not authorise a pilot.
 
-### Stage 1 — Current state and manual baseline
+## One immediate next action
 
-Deliver:
+Owner: **Raul Rausell**.
 
-- synthetic organisation and systems context;
-- current-state workflow with actors, queues, handoffs, and failure points;
-- policy and authority assumptions;
-- representative case generator and independent oracle;
-- observed manual and deterministic baselines.
+Evidence question: Can a new immutable synthetic run achieve 18 of 18 eligible execution commitments and complete cost/latency evidence while preserving every exact-zero control?
 
-Exit when the main coordination problem and denominator are measured rather than assumed.
+| Constraint | Cap |
+| --- | ---: |
+| Generated cases | 36 |
+| Provider attempts | 36 |
+| Calendar time | 7 days |
+| Spend | EUR 50 |
 
-### Stage 2 — Workflow and operating-model redesign
+Entry conditions: new pack identity; all attempts capture cost and latency or an explicit terminal-unavailability status; local synthetic scope only.
 
-Deliver:
+Stop conditions: any exact-zero failure; pre-run oracle exposure or source substitution; telemetry still structurally absent after the first three attempts; or any cap reached.
 
-- future-state workflow;
-- human and AI task allocation;
-- decision-rights matrix;
-- Activator, support, feedback, and incident routines;
-- risk profile and stop conditions.
+## Later gates—not current work
 
-Exit when every consequential decision has an accountable owner and every AI task has evidence, authority, and failure boundaries.
+After a complete new synthetic run, the next maturity gates remain explicit:
 
-### Stage 3 — Governed vertical slice
+1. independent reviewers use selected generated cases without creator coaching;
+2. human first-use, comprehension, correction, appeal, review-time, friction, trust, and help evidence is preserved;
+3. an authorised company bridge tests context and workflow assumptions without importing real or sensitive data into this public repository;
+4. any live or pilot proposal receives separate data, security, legal, operational, and organisational authority.
 
-Deliver:
+None of those gates is implied by the current local MVP.
 
-- evidence assembly and cited recommendation;
-- policy-bounded recovery options;
-- exact-payload approval;
-- dry-run adapters;
-- idempotent execution and independent postcondition verification;
-- reconstructable traces and safe failure behaviour.
-
-Exit when the slice passes focused control tests without claiming business value.
-
-### Stage 4 — Evaluation and adaptation
-
-Deliver:
-
-- preregistered evaluation contract;
-- held-out and adversarial cases;
-- manual, deterministic, and AI-assisted comparison;
-- failure and adaptation ledger;
-- at least one consequential evidence-driven design change and regression test.
-
-Exit when results can support a bounded decision rather than a demonstration narrative.
-
-### Stage 5 — Enablement and independent review
-
-Deliver:
-
-- role-specific first-use package;
-- reviewer sessions using synthetic cases;
-- observed help, friction, corrections, overrides, and feedback;
-- revised support and operating routine.
-
-Exit when someone other than the creator can use and challenge the workflow within the disclosed boundary.
-
-### Stage 6 — Benefits and scale decision
-
-Deliver:
-
-- outcome, risk, review-burden, reliability, adoption-friction, and cost synthesis;
-- sensitivity model with explicit hypothetical assumptions;
-- scale, revise, pause, or stop memorandum;
-- two-page executive case and short demonstration.
-
-Exit when the recommendation is traceable to evidence and would remain defensible if the answer is “stop.”
-
-## Immediate next steps
-
-1. Define the fictional operating context and the current manual workflow.
-2. Write policy and authority rules before generating model behaviour.
-3. Specify 20–30 representative foundation cases and an independent oracle.
-4. Run the manual and deterministic baselines.
-5. Preregister the first evaluation and critical-control thresholds.
-6. Only then specify and build the minimum AI-assisted slice.
+Canonical decision sources: [evaluation](../data/stage2/decision-pack/evaluation-summary.json), [economics](../data/stage2/decision-pack/economics-summary.json), [readiness](../data/stage2/decision-pack/enablement-readiness.json), and [decision](../data/stage2/decision-pack/decision-output.json).

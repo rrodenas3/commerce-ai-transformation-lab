@@ -2,7 +2,15 @@ name: Public safety
 
 on:
   push:
+    branches:
+      - "**"
   pull_request:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing owner-signed Stage 2 tag to verify from protected main"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -13,6 +21,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -21,3 +32,85 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Verify public-safety policy
         run: python scripts/verify_public_safety.py
+      - name: Verify deterministic Stage 2 decision pack
+        run: python scripts/build_stage2_decision_pack.py --verify
+      - name: Verify deterministic Stage 2 evidence pack
+        run: python scripts/build_stage2_evidence_pack.py --verify
+      - name: Verify public-safe Stage 2 isolation summary
+        run: >-
+          python scripts/build_stage2_isolation_summary.py
+          --verify --public-projection-only
+      - name: Set up Node for development-only browser checks
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install browser verification dependencies
+        run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Verify static evidence explorer
+        run: npm run test:browser
+      - name: Fetch requested signed tag
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          python -c "import os,re,sys; value=os.environ['RELEASE_TAG']; sys.exit(0 if re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/-]{0,127}', value) and '..' not in value and '@{' not in value and '//' not in value and not value.endswith(('.', '/', '.lock')) else 1)"
+          git fetch --no-tags origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+      - name: Build release manifest from trusted main
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: >-
+          python scripts/public_source_release.py build
+          --commit "refs/tags/$RELEASE_TAG^"
+          --policy-ref "$GITHUB_SHA"
+          --output "$RUNNER_TEMP/public-source-release.json"
+      - name: Import pinned release signing public key
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          KEY_PATH=$(python -c "import json; print(json.load(open('policy/publication-policy.json', encoding='utf-8'))['release_authorization']['public_key_path'] or '')")
+          EXPECTED_FINGERPRINT=$(python -c "import json; values=json.load(open('policy/publication-policy.json', encoding='utf-8'))['release_authorization']['allowed_signer_fingerprints']; print(values[0] if len(values) == 1 else '')")
+          test -n "$KEY_PATH"
+          test -n "$EXPECTED_FINGERPRINT"
+          test -f "$KEY_PATH"
+          export GNUPGHOME="$RUNNER_TEMP/release-gnupg"
+          install -d -m 0700 "$GNUPGHOME"
+          ACTUAL_FINGERPRINT=$(gpg --batch --homedir "$GNUPGHOME" --with-colons --import-options show-only --import "$KEY_PATH" | awk -F: '$1 == "pub" { found=1; next } found && $1 == "fpr" { print $10; exit }')
+          test "$ACTUAL_FINGERPRINT" = "$EXPECTED_FINGERPRINT"
+          gpg --batch --homedir "$GNUPGHOME" --import "$KEY_PATH"
+          printf 'GNUPGHOME=%s\n' "$GNUPGHOME" >> "$GITHUB_ENV"
+      - name: Verify owner-signed Stage 2 release authorization
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: >-
+          python scripts/authorize_stage2_release.py
+          --verify-tag "$RELEASE_TAG"
+          --trusted-policy-ref "$GITHUB_SHA"
+          --manifest "$RUNNER_TEMP/public-source-release.json"
+
+  publish:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out verified source
+        uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Upload verified evidence explorer
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: demo
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
