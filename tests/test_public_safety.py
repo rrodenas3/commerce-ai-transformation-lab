@@ -900,6 +900,7 @@ class PublicSafetyTests(unittest.TestCase):
             "demo/data/evidence-pack.json",
             "package.json",
             "package-lock.json",
+            "requirements-dev.txt",
             "playwright.config.js",
         }
         self.assertEqual(set(), expected_required - required)
@@ -955,6 +956,15 @@ class PublicSafetyTests(unittest.TestCase):
             if step.get("name") == "Verify owner-signed Stage 2 release authorization"
         )
         self.assertLess(jobs["verify"]["steps"].index(import_step), verify_step_index)
+        dependency_step = next(
+            step
+            for step in jobs["verify"]["steps"]
+            if step.get("name") == "Install Python verification dependencies"
+        )
+        self.assertEqual(
+            "python -m pip install --requirement requirements-dev.txt",
+            dependency_step["run"],
+        )
 
     def test_local_mvp_requires_truthful_machine_readable_claim_boundaries(self):
         self.policy["current_maturity"] = "local-mvp"

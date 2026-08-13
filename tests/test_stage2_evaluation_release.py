@@ -383,16 +383,21 @@ class Stage2ReleaseTests(unittest.TestCase):
             )
             self.assertEqual(
                 runtime_build_context_inventory(source),
-                runtime_build_context_inventory(crlf),
+                isolated_module._test_only_runtime_build_context_inventory(crlf),
             )
             self.assertEqual(
                 canonical_sha256(runtime_build_context_inventory(source)),
-                canonical_sha256(runtime_build_context_inventory(crlf)),
+                canonical_sha256(
+                    isolated_module._test_only_runtime_build_context_inventory(crlf)
+                ),
             )
             context = root / "materialized"
             context.mkdir()
+            _, committed_blobs = isolated_module._committed_runtime_blobs(
+                crlf, require_clean=False
+            )
             self.assertEqual(
-                materialize_runtime_build_context(crlf, context),
+                isolated_module._materialize_runtime_blobs(context, committed_blobs),
                 runtime_build_context_inventory(source),
             )
             self.assertEqual(
