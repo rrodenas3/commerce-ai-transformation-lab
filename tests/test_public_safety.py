@@ -188,6 +188,16 @@ class PublicSafetyTests(unittest.TestCase):
             check=True,
             capture_output=True,
         )
+        subprocess.run(
+            ["git", "-C", str(root), "config", "user.email", "test@example.invalid"],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "config", "user.name", "Public Safety Test"],
+            check=True,
+            capture_output=True,
+        )
 
     @staticmethod
     def png_bytes(width: int = 3, height: int = 2) -> bytes:

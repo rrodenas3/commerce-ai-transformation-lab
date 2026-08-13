@@ -285,7 +285,7 @@
   ],
   "release_authorization": {
     "schema_version": "stage2-release-authorization-policy/v1",
-    "release_id": "stage2-local-mvp-v2",
+    "release_id": "stage2-local-mvp-v3",
     "required_tag_prefix": "stage2-local-mvp-v",
     "manifest_path": "policy/public-source-release.json",
     "manifest_self_excluded": true,
