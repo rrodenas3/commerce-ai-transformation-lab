@@ -6205,7 +6205,7 @@
     },
     {
       "path": "policy/publication-policy.json",
-      "sha256": "000bfd6cc1d5bb38ec7dd6fe029b248e4f7f70a6283edc66aa3bd9be4caf1c14"
+      "sha256": "98d08a08d6428bbd90e99650fd13c1d16e60f8606e6ccac47ade56104ef11cdb"
     },
     {
       "path": "requirements-dev.txt",
@@ -6401,7 +6401,7 @@
     },
     {
       "path": "tests/test_public_safety.py",
-      "sha256": "027609ad1cabd2ed10b121176925b5485e12d656177365e5e94ccd09869bd957"
+      "sha256": "cb6f271f3c8dcc7aac9dca67bf5c5ee80dc25e141dff969f698d04228eb6618d"
     },
     {
       "path": "tests/test_recovery_actions.py",
@@ -6497,5 +6497,5 @@
     "material_change_requires_regression": true
   },
   "schema_version": "public-source-release/v1",
-  "source_commit": "9bde3296b398727289f3ce6da79b14d60e28164c"
+  "source_commit": "ccc27ad43a73dc102e5027f16473c6fe6b30679a"
 }
